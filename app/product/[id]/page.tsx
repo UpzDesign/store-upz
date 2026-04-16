@@ -1,11 +1,22 @@
 import { getProductById } from "@/lib/printful";
 
 export default async function ProductPage({ params }: any) {
-  const product = await getProductById(params.id);
+  try {
+    const product = await getProductById(params.id);
 
-  if (!product) {
-    return <div style={{ padding: 40 }}>Product not found</div>;
+    if (!product) {
+      return <div style={{ padding: 40 }}>Product not found</div>;
+    }
+
+    return (
+      <main style={{ padding: 40 }}>
+        <h1>{product.name}</h1>
+      </main>
+    );
+  } catch (e) {
+    return <div style={{ padding: 40 }}>Error loading product</div>;
   }
+}
 
   return (
     <main style={{ padding: 40 }}>

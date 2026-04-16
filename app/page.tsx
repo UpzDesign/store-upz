@@ -7,15 +7,22 @@ export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((data) => {
+useEffect(() => {
+  fetch("/api/products")
+    .then((res) => res.json())
+    .then((data) => {
+      if (Array.isArray(data)) {
         setProducts(data);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, []);
+      } else {
+        setProducts([]);
+      }
+      setLoading(false);
+    })
+    .catch(() => {
+      setProducts([]);
+      setLoading(false);
+    });
+}, []);
 
   return (
     <main style={{ padding: 40 }}>
@@ -24,7 +31,8 @@ export default function Home() {
       {loading && <p>Loading products...</p>}
 
       <div style={{ display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-        {products?.map((p: any) => (
+        {Array.isArray(products) &&
+          products.map((p: any) => (
           <Link key={p.id} href={`/product/${p.id}`}>
             <div style={{ border: "1px solid #eee", borderRadius: 12, padding: 10 }}>
               <img src={p.thumbnail_url} style={{ width: "100%" }} />
