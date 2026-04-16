@@ -1,22 +1,13 @@
+import { NextResponse } from "next/server";
+
 export async function GET() {
-  try {
-    const res = await fetch("https://api.printful.com/store/products", {
-      headers: {
-        Authorization: `Bearer ${process.env.PRINTFUL_ACCESS_TOKEN}`,
-      },
-    });
+  const res = await fetch("https://api.printful.com/store/products", {
+    headers: {
+      Authorization: `Bearer ${process.env.PRINTFUL_ACCESS_TOKEN}`,
+    },
+  });
 
-    const text = await res.text();
+  const data = await res.json();
 
-    console.log("PRINTFUL RESPONSE:", text);
-
-    return new Response(text, { status: 200 });
-  } catch (err) {
-    console.error("ERROR:", err);
-
-    return new Response(
-      JSON.stringify({ error: String(err) }),
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(data.result); // ✅ IMPORTANT FIX
 }
