@@ -1,27 +1,17 @@
 const PRINTFUL_API = "https://api.printful.com";
 
-/**
- * Normalize Printful product into a consistent frontend shape
- */
+export function resolveImage(p: any) {
+  return p?.sync_product?.thumbnail_url || p?.thumbnail_url || null;
+}
+
 function normalizeProduct(p: any) {
   return {
     id: p.id,
     name: p.name,
-
-    image:
-      p.thumbnail_url ||
-      p.sync_product?.thumbnail_url ||
-      p.sync_product?.image ||
-      p.sync_product?.main_image ||
-      p.sync_variants?.[0]?.files?.[0]?.preview_url ||
-      p.sync_variants?.[0]?.files?.[0]?.thumbnail_url ||
-      null,
+    image: resolveImage(p),
   };
 }
 
-/**
- * Fetch all store products
- */
 export async function getProducts() {
   const res = await fetch(`${PRINTFUL_API}/store/products`, {
     headers: {
@@ -32,24 +22,18 @@ export async function getProducts() {
 
   const data = await res.json();
 
-  console.log("PRINTFUL PRODUCTS RAW:", data);
+  const raw = data.result?.sync_products || [];
 
-  const raw =
-    data.result?.sync_products ||
-    data.result ||
-    [];
+  if (!Array.isArray(raw)) return [];
 
-  if (!Array.isArray(raw)) {
-    console.log("Unexpected Printful structure:", data);
-    return [];
-  }
-
-  return raw.map(normalizeProduct);
+  return raw.map((p: any) => ({
+    id: p.id, // STORE PRODUCT ID (correct for routing)
+    sync_product_id: p.sync_product_id,
+    name: p.name,
+    image: p.thumbnail_url || null, // IMPORTANT: use this only here
+  }));
 }
 
-/**
- * Fetch single product by ID
- */
 export async function getProductById(id: string) {
   const res = await fetch(`${PRINTFUL_API}/store/products/${id}`, {
     headers: {
@@ -60,9 +44,18 @@ export async function getProductById(id: string) {
 
   const data = await res.json();
 
-  console.log("PRINTFUL PRODUCT DETAIL RAW:", data);
+  if (!data.result) return null;
 
-  if (!data?.result) return null;
+  const p = data.result;
 
-  return normalizeProduct(data.result);
+  return {
+    id: p.id,
+    name: p.sync_product?.name || p.name,
+
+    // 👇 THIS is the ONLY reliable fallback chain
+    image:
+      p.sync_product?.thumbnail_url ||
+      p.thumbnail_url ||
+      null,
+  };
 }

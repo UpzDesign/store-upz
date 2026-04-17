@@ -46,6 +46,8 @@ export default function ProductPage() {
     return <p style={{ padding: 40 }}>Product not found</p>;
   }
 
+  console.log("PRODUCT API RESPONSE:", product);
+
   return (
     <main style={{ padding: 40, maxWidth: 900, margin: "0 auto" }}>
       <div style={{ display: "grid", gap: 40, gridTemplateColumns: "1fr 1fr" }}>
@@ -53,9 +55,15 @@ export default function ProductPage() {
         {/* IMAGE */}
         <img
           src={product.image || "/placeholder.png"}
+          alt={product.name}
+          onError={(e) => {
+            e.currentTarget.onerror = null; // 👈 CRITICAL FIX (prevents loop)
+            e.currentTarget.src = "/placeholder.png";
+          }}
           style={{
             width: "100%",
-            maxWidth: 500,
+            maxWidth: 520,
+            height: "auto",
             borderRadius: 16,
             objectFit: "contain",
             background: "#f5f5f5",
