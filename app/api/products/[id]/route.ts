@@ -1,17 +1,13 @@
-import { NextResponse } from "next/server";
-import { getProducts } from "@/lib/printful";
+import { NextRequest, NextResponse } from "next/server";
+import { getProductById } from "@/lib/printful";
 
 export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
 ) {
-  const products = await getProducts();
+  const { id } = await params;
 
-  const product = products.find(
-    (p: any) =>
-      String(p.id) === String(params.id) ||
-      String(p.external_id) === String(params.id)
-  );
+  const product = await getProductById(id);
 
   if (!product) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });

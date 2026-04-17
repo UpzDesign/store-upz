@@ -1,40 +1,39 @@
-import { getProducts } from "@/lib/printful";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import AddToCartButton from "@/components/AddToCartButton";
 
-export default async function ProductPage({ params }: any) {
-  const { id } = await params;
+export default function ProductPage() {
+  const { id } = useParams();
+  const [product, setProduct] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const products = await getProducts();
+  useEffect(() => {
+    if (!id) return;
 
-  const product = products.find(
-    (p: any) =>
-      String(p.id) === String(id) ||
-      String(p.external_id) === String(id)
-  );
+    fetch(`/api/products/${id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [id]);
 
-  if (!product) {
-    return <div style={{ padding: 40 }}>Product not found</div>;
-  }
+  if (loading) return <p style={{ padding: 40 }}>Loading...</p>;
+  if (!product) return <p style={{ padding: 40 }}>Product not found</p>;
 
   return (
-    <main style={{ padding: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40 }}>
-      <div>
-        <img
-          src={product.thumbnail_url}
-          style={{ width: "100%", borderRadius: 12 }}
-        />
-      </div>
+    <main style={{ padding: 40 }}>
+      <h1>{product.name}</h1>
 
-      <div>
-        <h1>{product.name}</h1>
+      <img
+        src={product.thumbnail_url}
+        style={{ width: 300, borderRadius: 12 }}
+      />
 
-        <p style={{ color: "#666" }}>
-          ID: {product.id}
-        </p>
-
-        {/* ✅ THIS IS YOUR MISSING BUTTON */}
-        <AddToCartButton product={product} />
-      </div>
+      <AddToCartButton product={product} />
     </main>
   );
 }
