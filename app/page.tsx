@@ -7,22 +7,16 @@ export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  fetch("/api/products")
-    .then((res) => res.json())
-    .then((data) => {
-      if (Array.isArray(data)) {
-        setProducts(data);
-      } else {
-        setProducts([]);
-      }
-      setLoading(false);
-    })
-    .catch(() => {
-      setProducts([]);
-      setLoading(false);
-    });
-}, []);
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        const list = Array.isArray(data) ? data : data.result;
+        setProducts(list || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
   return (
     <main style={{ padding: 40 }}>
@@ -30,13 +24,38 @@ useEffect(() => {
 
       {loading && <p>Loading products...</p>}
 
-      <div style={{ display: "grid", gap: 20, gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))" }}>
-        {Array.isArray(products) &&
-          products.map((p: any) => (
+      <div
+        style={{
+          display: "grid",
+          gap: 24,
+          gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
+        }}
+      >
+        {products?.map((p: any) => (
           <Link key={p.id} href={`/product/${p.id}`}>
-            <div style={{ border: "1px solid #eee", borderRadius: 12, padding: 10 }}>
-              <img src={p.thumbnail_url} style={{ width: "100%" }} />
-              <p>{p.name}</p>
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 16,
+                overflow: "hidden",
+                border: "1px solid #eee",
+                cursor: "pointer",
+              }}
+            >
+              <img
+                src={p.thumbnail_url}
+                style={{
+                  width: "100%",
+                  aspectRatio: "1 / 1",
+                  objectFit: "cover",
+                }}
+              />
+
+              <div style={{ padding: 14 }}>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>
+                  {p.name}
+                </div>
+              </div>
             </div>
           </Link>
         ))}

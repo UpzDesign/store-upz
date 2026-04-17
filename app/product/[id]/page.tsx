@@ -1,59 +1,40 @@
-import { getProductById } from "@/lib/printful";
+import { getProducts } from "@/lib/printful";
+import AddToCartButton from "@/components/AddToCartButton";
 
-export default async function ProductPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  try {
-    const product = await getProductById(params.id);
+export default async function ProductPage({ params }: any) {
+  const { id } = await params;
 
-    if (!product) {
-      return <div style={{ padding: 40 }}>Product not found</div>;
-    }
+  const products = await getProducts();
 
-    return (
-      <main style={{ padding: 40 }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700 }}>
-          {product.name}
-        </h1>
+  const product = products.find(
+    (p: any) =>
+      String(p.id) === String(id) ||
+      String(p.external_id) === String(id)
+  );
 
-        <div style={{ display: "flex", gap: 40, marginTop: 30 }}>
-          <div style={{ flex: 1 }}>
-            {product.thumbnail_url && (
-              <img
-                src={product.thumbnail_url}
-                alt={product.name}
-                style={{ width: "100%", borderRadius: 12 }}
-              />
-            )}
-          </div>
-
-          <div style={{ flex: 1 }}>
-            <p style={{ color: "#666" }}>Product ID: {product.id}</p>
-
-            <button
-              style={{
-                marginTop: 20,
-                padding: "12px 20px",
-                background: "#DC353C",
-                color: "#fff",
-                borderRadius: 8,
-                border: "none",
-                cursor: "pointer",
-              }}
-            >
-              Add to Cart
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  } catch (err) {
-    return (
-      <div style={{ padding: 40 }}>
-        Error loading product
-      </div>
-    );
+  if (!product) {
+    return <div style={{ padding: 40 }}>Product not found</div>;
   }
+
+  return (
+    <main style={{ padding: 40, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 40 }}>
+      <div>
+        <img
+          src={product.thumbnail_url}
+          style={{ width: "100%", borderRadius: 12 }}
+        />
+      </div>
+
+      <div>
+        <h1>{product.name}</h1>
+
+        <p style={{ color: "#666" }}>
+          ID: {product.id}
+        </p>
+
+        {/* ✅ THIS IS YOUR MISSING BUTTON */}
+        <AddToCartButton product={product} />
+      </div>
+    </main>
+  );
 }
