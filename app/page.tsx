@@ -7,19 +7,21 @@ export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
-  fetch("/api/products")
-    .then((res) => res.json())
-    .then((data) => {
-      console.log("PRODUCTS:", data);
-      setProducts(Array.isArray(data) ? data : []);
-      setLoading(false);
-    })
-    .catch((err) => {
-      console.error(err);
-      setLoading(false);
-    });
-}, []);
+  useEffect(() => {
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("PRODUCTS:", data);
+        setProducts(Array.isArray(data) ? data : []);
+        setLoading(false);
+        console.log("CLICK PRODUCT:", p);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+      });
+
+  }, []); 
 
   return (
     <>
@@ -194,15 +196,16 @@ useEffect(() => {
                   }}
                 />
 
-                <img
-                  src={p.image}
-                  style={{
-                    width: "100%",
-                    aspectRatio: "1 / 1",
-                    objectFit: "cover",
-                    background: "#f5f5f5",
-                  }}
-                />
+               <img
+                src={p.image || "/placeholder.png"}
+                alt={p.name}
+                style={{
+                  width: "100%",
+                  aspectRatio: "1 / 1",
+                  objectFit: "cover",
+                  background: "#f5f5f5",
+                }}
+              />
 
                 <div style={{ padding: 14 }}>
                   <div

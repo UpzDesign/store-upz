@@ -56,8 +56,8 @@ export default function ProductPage() {
         <img
           src={product.image || "/placeholder.png"}
           alt={product.name}
+          key={product?.id}
           onError={(e) => {
-            e.currentTarget.onerror = null; // 👈 CRITICAL FIX (prevents loop)
             e.currentTarget.src = "/placeholder.png";
           }}
           style={{
@@ -71,7 +71,6 @@ export default function ProductPage() {
           }}
         />
 
-        {/* INFO */}
         <div>
           <h1
             style={{
