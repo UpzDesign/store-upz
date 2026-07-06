@@ -8,6 +8,8 @@ export type CartItem = {
   image: string;
   price?: number;
   quantity: number;
+  packageId?: string;
+  packageName?: string;
 };
 
 type CartState = {
@@ -15,6 +17,7 @@ type CartState = {
   isOpen: boolean;
 
   addItem: (item: CartItem) => void;
+  addItems: (items: CartItem[]) => void;
   removeItem: (id: string) => void;
   clearCart: () => void;
 
@@ -30,6 +33,30 @@ const saveCart = (items: CartItem[]) => {
   }
 };
 
+const normalizeItem = (item: CartItem): CartItem => ({
+  ...item,
+  id: String(item.id),
+  price: Number(item.price || 0),
+  quantity: Math.max(1, Number(item.quantity || 1)),
+});
+
+const mergeItems = (currentItems: CartItem[], newItems: CartItem[]) => {
+  return newItems.reduce((items, item) => {
+    const safeItem = normalizeItem(item);
+    const existing = items.find((i) => i.id === safeItem.id);
+
+    if (existing) {
+      return items.map((i) =>
+        i.id === safeItem.id
+          ? { ...i, quantity: i.quantity + safeItem.quantity }
+          : i
+      );
+    }
+
+    return [...items, safeItem];
+  }, currentItems);
+};
+
 export const useCartStore = create<CartState>((set) => ({
   items: [],
   isOpen: false,
@@ -39,21 +66,16 @@ export const useCartStore = create<CartState>((set) => ({
 
   addItem: (item) =>
     set((state) => {
-      const safeItem = {
-        ...item,
-        price: Number(item.price || 0),
-      };
-
-      const existing = state.items.find((i) => i.id === safeItem.id);
-
-      const updated = existing
-        ? state.items.map((i) =>
-            i.id === safeItem.id ? { ...i, quantity: i.quantity + 1 } : i
-          )
-        : [...state.items, safeItem];
-
+      const updated = mergeItems(state.items, [item]);
       saveCart(updated);
       return { items: updated };
+    }),
+
+  addItems: (items) =>
+    set((state) => {
+      const updated = mergeItems(state.items, items);
+      saveCart(updated);
+      return { items: updated, isOpen: true };
     }),
 
   removeItem: (id) =>
