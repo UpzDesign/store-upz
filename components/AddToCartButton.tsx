@@ -6,17 +6,28 @@ export default function AddToCartButton({ product }: any) {
   const addItem = useCartStore((s) => s.addItem);
   const openCart = useCartStore((s) => s.openCart);
 
+  const selectedVariant = product?.selectedVariant || product?.variants?.[0] || product;
+  const price = Number(selectedVariant?.price || product?.price || 0);
+
   return (
     <button
       onClick={() => {
         addItem({
-          id: product.id,
+          id: String(selectedVariant?.id || product.id),
+          productId: String(product.id),
           name: product.name,
-          image: product.thumbnail_url,
+          variant: selectedVariant?.name,
+          image:
+            selectedVariant?.images?.[0] ||
+            product.thumbnail ||
+            product.image ||
+            product.thumbnail_url ||
+            "/placeholder.png",
+          price,
           quantity: 1,
         });
 
-        openCart?.(); // safe optional call if exists
+        openCart?.();
       }}
       style={{
         marginTop: 20,
