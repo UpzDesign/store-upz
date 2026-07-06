@@ -8,7 +8,17 @@ function formatPrice(value?: number) {
 }
 
 export default function Cart() {
-  const { items, isOpen, closeCart, removeItem, clearCart, openCart } = useCartStore();
+  const {
+    items,
+    isOpen,
+    closeCart,
+    removeItem,
+    removePackage,
+    increaseQuantity,
+    decreaseQuantity,
+    clearCart,
+    openCart,
+  } = useCartStore();
 
   const totalQuantity = useMemo(
     () => items.reduce((sum, item) => sum + item.quantity, 0),
@@ -19,6 +29,21 @@ export default function Cart() {
     () => items.reduce((sum, item) => sum + Number(item.price || 0) * item.quantity, 0),
     [items]
   );
+
+  const packageGroups = useMemo(() => {
+    const groups = new Map<string, { name: string; count: number }>();
+
+    items.forEach((item) => {
+      if (!item.packageId) return;
+      const current = groups.get(item.packageId);
+      groups.set(item.packageId, {
+        name: item.packageName || "Package",
+        count: (current?.count || 0) + 1,
+      });
+    });
+
+    return Array.from(groups.entries()).map(([id, group]) => ({ id, ...group }));
+  }, [items]);
 
   return (
     <>
@@ -59,7 +84,7 @@ export default function Cart() {
           position: "fixed",
           top: 0,
           right: 0,
-          width: "min(430px, 92vw)",
+          width: "min(460px, 92vw)",
           height: "100vh",
           background: "#010101",
           color: "#ffffff",
@@ -82,6 +107,7 @@ export default function Cart() {
           </div>
           <button
             onClick={closeCart}
+            aria-label="Close cart"
             style={{
               width: 38,
               height: 38,
@@ -92,9 +118,46 @@ export default function Cart() {
               cursor: "pointer",
             }}
           >
-            ✕
+            x
           </button>
         </div>
+
+        {packageGroups.length > 0 && (
+          <div style={{ marginTop: 16, display: "grid", gap: 8 }}>
+            {packageGroups.map((group) => (
+              <div
+                key={group.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: 12,
+                  alignItems: "center",
+                  padding: 12,
+                  borderRadius: 14,
+                  border: "1px solid rgba(237,191,45,0.24)",
+                  background: "rgba(237,191,45,0.08)",
+                  fontSize: 12,
+                }}
+              >
+                <strong style={{ color: "var(--upzyellow)" }}>{group.name}</strong>
+                <button
+                  onClick={() => removePackage(group.id)}
+                  style={{
+                    border: "none",
+                    background: "transparent",
+                    color: "#fff",
+                    opacity: 0.75,
+                    cursor: "pointer",
+                    padding: 0,
+                    fontSize: 12,
+                  }}
+                >
+                  Remove package
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div style={{ flex: 1, overflowY: "auto", marginTop: 18 }}>
           {items.length === 0 ? (
@@ -124,16 +187,54 @@ export default function Cart() {
                   }}
                 />
                 <div>
+                  {item.packageName && (
+                    <div style={{ color: "var(--upzyellow)", fontSize: 10, fontWeight: 900, marginBottom: 5 }}>
+                      {item.packageName}
+                    </div>
+                  )}
                   <div style={{ fontWeight: 800, lineHeight: 1.25 }}>{item.name}</div>
                   {item.variant && (
                     <div style={{ fontSize: 12, opacity: 0.62, marginTop: 4 }}>
                       {item.variant}
                     </div>
                   )}
-                  <div style={{ fontSize: 12, opacity: 0.62, marginTop: 4 }}>
-                    Qty: {item.quantity} × {formatPrice(item.price)}
+
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9 }}>
+                    <button
+                      onClick={() => decreaseQuantity(item.id)}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: "50%",
+                        border: "1px solid rgba(255,255,255,0.18)",
+                        background: "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                      }}
+                    >
+                      -
+                    </button>
+                    <strong style={{ minWidth: 18, textAlign: "center" }}>{item.quantity}</strong>
+                    <button
+                      onClick={() => increaseQuantity(item.id)}
+                      style={{
+                        width: 28,
+                        height: 28,
+                        borderRadius: "50%",
+                        border: "1px solid rgba(255,255,255,0.18)",
+                        background: "transparent",
+                        color: "#fff",
+                        cursor: "pointer",
+                      }}
+                    >
+                      +
+                    </button>
+                    <span style={{ fontSize: 12, opacity: 0.62 }}>
+                      x {formatPrice(item.price)}
+                    </span>
                   </div>
-                  <div style={{ marginTop: 5, color: "var(--upzyellow)", fontWeight: 900 }}>
+
+                  <div style={{ marginTop: 7, color: "var(--upzyellow)", fontWeight: 900 }}>
                     {formatPrice(Number(item.price || 0) * item.quantity)}
                   </div>
                 </div>
@@ -157,10 +258,13 @@ export default function Cart() {
 
         {items.length > 0 && (
           <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
               <span>Subtotal</span>
               <strong style={{ color: "var(--upzyellow)" }}>{formatPrice(subtotal)}</strong>
             </div>
+            <p style={{ marginBottom: 12, fontSize: 12, opacity: 0.62 }}>
+              Shipping, taxes, and fulfillment will be calculated during checkout.
+            </p>
             <button className="button" disabled style={{ width: "100%", opacity: 0.5, cursor: "not-allowed" }}>
               Checkout Coming Next
             </button>
