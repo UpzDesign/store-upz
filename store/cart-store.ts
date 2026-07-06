@@ -1,9 +1,12 @@
 import { create } from "zustand";
 
-type CartItem = {
+export type CartItem = {
   id: string;
+  productId?: string;
   name: string;
+  variant?: string;
   image: string;
+  price: number;
   quantity: number;
 };
 
@@ -21,7 +24,13 @@ type CartState = {
   hydrate: () => void;
 };
 
-export const useCartStore = create<CartState>((set, get) => ({
+const saveCart = (items: CartItem[]) => {
+  if (typeof window !== "undefined") {
+    localStorage.setItem("cart", JSON.stringify(items));
+  }
+};
+
+export const useCartStore = create<CartState>((set) => ({
   items: [],
   isOpen: false,
 
@@ -34,35 +43,34 @@ export const useCartStore = create<CartState>((set, get) => ({
 
       const updated = existing
         ? state.items.map((i) =>
-            i.id === item.id
-              ? { ...i, quantity: i.quantity + 1 }
-              : i
+            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
           )
         : [...state.items, item];
 
-      localStorage.setItem("cart", JSON.stringify(updated));
-
+      saveCart(updated);
       return { items: updated };
     }),
 
   removeItem: (id) =>
     set((state) => {
       const updated = state.items.filter((i) => i.id !== id);
-      localStorage.setItem("cart", JSON.stringify(updated));
+      saveCart(updated);
       return { items: updated };
     }),
 
   clearCart: () => {
-    localStorage.removeItem("cart");
+    if (typeof window !== "undefined") localStorage.removeItem("cart");
     set({ items: [] });
   },
 
   hydrate: () => {
     if (typeof window === "undefined") return;
 
-    const stored = localStorage.getItem("cart");
-    if (stored) {
-      set({ items: JSON.parse(stored) });
+    try {
+      const stored = localStorage.getItem("cart");
+      if (stored) set({ items: JSON.parse(stored) });
+    } catch {
+      localStorage.removeItem("cart");
     }
   },
 }));
