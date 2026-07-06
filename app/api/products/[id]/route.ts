@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 import { getProductById } from "@/lib/printful";
 
-export async function GET(
-  req: Request,
-  { params }: { params: { id: string } }
-) {
-  console.log("PRODUCT PAGE ID:", params.id);
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
 
-  const product = await getProductById(params.id);
+export async function GET(_req: Request, context: RouteContext) {
+  const { id } = await context.params;
 
-  console.log("PRINTFUL RESULT:", product);
+  if (!id) {
+    return NextResponse.json({ error: "Missing product id" }, { status: 400 });
+  }
+
+  const product = await getProductById(id);
 
   if (!product) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
