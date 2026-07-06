@@ -2,27 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-
-const crePackages = [
-  {
-    title: "Broker Starter Package",
-    desc: "A clean starter set for new brokers, teams, and onboarding.",
-    items: ["Apparel", "Office merch", "Presentation essentials"],
-    tag: "Best for new agents",
-  },
-  {
-    title: "Open House Package",
-    desc: "Client-facing essentials for tours, launches, and property events.",
-    items: ["Branded giveaways", "Event-ready materials", "Team gear"],
-    tag: "For launches",
-  },
-  {
-    title: "Team Branding Package",
-    desc: "A polished merch bundle for brokerage teams and CRE offices.",
-    items: ["Multiple product types", "Consistent branding", "Bulk-ready setup"],
-    tag: "For offices",
-  },
-];
+import { storePackages } from "@/lib/packages";
+import { useCartStore } from "@/store/cart-store";
 
 const categories = ["All", "Apparel", "Drinkware", "Bags", "Office", "Accessories"];
 const priceFilters = ["All", "Under $25", "$25–$50", "$50+"];
@@ -62,12 +43,54 @@ function matchesPriceFilter(product: any, filter: string) {
   return true;
 }
 
+function getPrimaryVariant(product: any) {
+  return product?.variants?.[0] || product;
+}
+
+function buildPackageItems(storePackage: any, products: any[]) {
+  const usedProductIds = new Set<string>();
+
+  return storePackage.rules.flatMap((rule: any) => {
+    const matches = products.filter((product) => {
+      const productId = String(product?.id || "");
+      return getCategory(product) === rule.category && !usedProductIds.has(productId);
+    });
+
+    const product = matches[0];
+    if (!product) return [];
+
+    usedProductIds.add(String(product.id));
+    const variant = getPrimaryVariant(product);
+    const price = Number(variant?.price || product?.price || 0);
+
+    return [
+      {
+        id: String(variant?.id || product.id),
+        productId: String(product.id),
+        name: product.name,
+        variant: variant?.name,
+        image:
+          variant?.images?.[0] ||
+          product.image ||
+          product.thumbnail ||
+          product.thumbnail_url ||
+          "/placeholder.png",
+        price,
+        quantity: Number(rule.quantity || 1),
+        packageId: storePackage.id,
+        packageName: storePackage.title,
+      },
+    ];
+  });
+}
+
 export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [priceFilter, setPriceFilter] = useState("All");
+  const addItems = useCartStore((state) => state.addItems);
 
   useEffect(() => {
     fetch("/api/products")
@@ -98,10 +121,33 @@ export default function Home() {
     });
   }, [products, query, activeCategory, priceFilter]);
 
+  const packageSummaries = useMemo(
+    () =>
+      storePackages.map((storePackage) => {
+        const items = buildPackageItems(storePackage, products);
+        const subtotal = items.reduce(
+          (sum, item) => sum + Number(item.price || 0) * item.quantity,
+          0
+        );
+
+        return {
+          ...storePackage,
+          items,
+          subtotal,
+        };
+      }),
+    [products]
+  );
+
   const clearFilters = () => {
     setQuery("");
     setActiveCategory("All");
     setPriceFilter("All");
+  };
+
+  const addPackageToCart = (packageSummary: any) => {
+    if (!packageSummary.items.length) return;
+    addItems(packageSummary.items);
   };
 
   return (
@@ -183,26 +229,26 @@ export default function Home() {
           >
             <div>
               <h2 style={{ marginBottom: 10 }}>CRE Packages</h2>
-              <p style={{ maxWidth: 620, opacity: 0.7 }}>
-                Pre-selected broker packages will let clients add multiple products at once.
-                This section is ready for the next package-builder step.
+              <p style={{ maxWidth: 650, opacity: 0.7 }}>
+                Packages now auto-select matching products from your Printful catalog.
+                This is the first working package-builder version.
               </p>
             </div>
             <span style={{ color: "var(--upzyellow)", fontWeight: 800 }}>
-              Package builder coming next
+              Bundle system active
             </span>
           </div>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
               gap: 18,
             }}
           >
-            {crePackages.map((pack) => (
+            {packageSummaries.map((pack) => (
               <article
-                key={pack.title}
+                key={pack.id}
                 style={{
                   padding: 24,
                   borderRadius: 20,
@@ -228,13 +274,70 @@ export default function Home() {
                   {pack.tag}
                 </div>
                 <h3 style={{ marginBottom: 10 }}>{pack.title}</h3>
-                <p style={{ opacity: 0.72, marginBottom: 18 }}>{pack.desc}</p>
-                <div style={{ display: "grid", gap: 8 }}>
-                  {pack.items.map((item) => (
-                    <span key={item} style={{ fontSize: 13, opacity: 0.82 }}>
-                      ✓ {item}
+                <p style={{ opacity: 0.72, marginBottom: 12 }}>{pack.description}</p>
+                <p style={{ opacity: 0.55, fontSize: 13, marginBottom: 18 }}>
+                  {pack.idealFor}
+                </p>
+
+                <div style={{ display: "grid", gap: 8, marginBottom: 18 }}>
+                  {pack.rules.map((rule: any) => (
+                    <span key={`${pack.id}-${rule.category}`} style={{ fontSize: 13, opacity: 0.82 }}>
+                      ✓ {rule.label}
                     </span>
                   ))}
+                </div>
+
+                <div
+                  style={{
+                    display: "grid",
+                    gap: 8,
+                    padding: 12,
+                    borderRadius: 14,
+                    background: "rgba(1,1,1,0.42)",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    marginBottom: 14,
+                  }}
+                >
+                  {pack.items.length > 0 ? (
+                    pack.items.map((item: any) => (
+                      <div
+                        key={`${pack.id}-${item.id}`}
+                        style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12 }}
+                      >
+                        <span style={{ opacity: 0.74 }}>
+                          {item.quantity}× {item.name}
+                        </span>
+                        <strong style={{ color: "var(--upzyellow)" }}>
+                          {formatPrice(Number(item.price || 0) * item.quantity)}
+                        </strong>
+                      </div>
+                    ))
+                  ) : (
+                    <span style={{ opacity: 0.65, fontSize: 12 }}>
+                      No matching products found yet.
+                    </span>
+                  )}
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+                  <strong style={{ color: "var(--upzyellow)", fontSize: 18 }}>
+                    {pack.subtotal ? formatPrice(pack.subtotal) : "Needs products"}
+                  </strong>
+                  <button
+                    onClick={() => addPackageToCart(pack)}
+                    disabled={!pack.items.length}
+                    style={{
+                      padding: "10px 14px",
+                      borderRadius: 999,
+                      border: "1px solid var(--upzyellow)",
+                      background: pack.items.length ? "var(--upzyellow)" : "transparent",
+                      color: pack.items.length ? "var(--upzblack)" : "rgba(255,255,255,0.45)",
+                      cursor: pack.items.length ? "pointer" : "not-allowed",
+                      fontWeight: 900,
+                    }}
+                  >
+                    Add Package
+                  </button>
                 </div>
               </article>
             ))}
