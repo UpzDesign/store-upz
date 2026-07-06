@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { storePackages } from "@/lib/packages";
-import { useCartStore } from "@/store/cart-store";
+import { useCartStore, type CartItem } from "@/store/cart-store";
 
 const categories = ["All", "Apparel", "Drinkware", "Bags", "Office", "Accessories"];
 const priceFilters = ["All", "Under $25", "$25–$50", "$50+"];
@@ -47,7 +47,7 @@ function getPrimaryVariant(product: any) {
   return product?.variants?.[0] || product;
 }
 
-function buildPackageItems(storePackage: any, products: any[]) {
+function buildPackageItems(storePackage: any, products: any[]): CartItem[] {
   const usedProductIds = new Set<string>();
 
   return storePackage.rules.flatMap((rule: any) => {
@@ -126,7 +126,7 @@ export default function Home() {
       storePackages.map((storePackage) => {
         const items = buildPackageItems(storePackage, products);
         const subtotal = items.reduce(
-          (sum, item) => sum + Number(item.price || 0) * item.quantity,
+          (sum: number, item: CartItem) => sum + Number(item.price || 0) * item.quantity,
           0
         );
 
@@ -160,24 +160,7 @@ export default function Home() {
       >
         <div className="container">
           <div style={{ maxWidth: 850 }}>
-            <div
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "7px 11px",
-                borderRadius: 999,
-                border: "1px solid rgba(237,191,45,0.38)",
-                color: "var(--upzyellow)",
-                fontSize: 12,
-                fontWeight: 800,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                marginBottom: 22,
-              }}
-            >
-              UPZ Store · CRE Merchandise
-            </div>
+            <div className="eyebrow">Creative studio · New York City</div>
 
             <h1
               style={{
@@ -187,20 +170,13 @@ export default function Home() {
                 marginBottom: 24,
               }}
             >
-              Branded products for modern brokerage teams.
+              Promotional products with a CRE marketing mindset.
             </h1>
 
-            <p
-              style={{
-                maxWidth: 620,
-                fontSize: 18,
-                lineHeight: 1.8,
-                opacity: 0.76,
-                marginBottom: 34,
-              }}
-            >
-              Start with individual products, then build curated broker packages
-              for onboarding, open houses, tenant pitches, and team branding.
+            <p className="lead" style={{ maxWidth: 680, marginBottom: 34 }}>
+              Designed to amplify your brand visibility and make a lasting impression.
+              Browse individual merchandise or start from curated broker packages built for
+              commercial real estate teams, launches, and office branding.
             </p>
 
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -228,15 +204,14 @@ export default function Home() {
             }}
           >
             <div>
+              <div className="eyebrow">Strategic · growth-minded · results-driven</div>
               <h2 style={{ marginBottom: 10 }}>CRE Packages</h2>
               <p style={{ maxWidth: 650, opacity: 0.7 }}>
                 Packages now auto-select matching products from your Printful catalog.
                 This is the first working package-builder version.
               </p>
             </div>
-            <span style={{ color: "var(--upzyellow)", fontWeight: 800 }}>
-              Bundle system active
-            </span>
+            <span className="status-pill">Bundle system active</span>
           </div>
 
           <div
@@ -299,7 +274,7 @@ export default function Home() {
                   }}
                 >
                   {pack.items.length > 0 ? (
-                    pack.items.map((item: any) => (
+                    pack.items.map((item: CartItem) => (
                       <div
                         key={`${pack.id}-${item.id}`}
                         style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12 }}
@@ -326,15 +301,8 @@ export default function Home() {
                   <button
                     onClick={() => addPackageToCart(pack)}
                     disabled={!pack.items.length}
-                    style={{
-                      padding: "10px 14px",
-                      borderRadius: 999,
-                      border: "1px solid var(--upzyellow)",
-                      background: pack.items.length ? "var(--upzyellow)" : "transparent",
-                      color: pack.items.length ? "var(--upzblack)" : "rgba(255,255,255,0.45)",
-                      cursor: pack.items.length ? "pointer" : "not-allowed",
-                      fontWeight: 900,
-                    }}
+                    className="button"
+                    style={{ opacity: pack.items.length ? 1 : 0.45, cursor: pack.items.length ? "pointer" : "not-allowed" }}
                   >
                     Add Package
                   </button>
@@ -358,6 +326,7 @@ export default function Home() {
             }}
           >
             <div>
+              <div className="eyebrow">Products · branded essentials</div>
               <h2 style={{ marginBottom: 10 }}>Products</h2>
               <p style={{ maxWidth: 620, opacity: 0.7 }}>
                 Search by product name, category, color, or variant. Product categories are
