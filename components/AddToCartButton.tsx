@@ -31,15 +31,18 @@ export default function AddToCartButton({ product }: any) {
       }}
       style={{
         marginTop: 20,
-        padding: "12px 18px",
-        background: "#DC353C",
-        color: "#fff",
-        border: "none",
-        borderRadius: 8,
+        width: "100%",
+        padding: "15px 20px",
+        background: "var(--upzyellow)",
+        color: "var(--upzblack)",
+        border: "1px solid var(--upzyellow)",
+        borderRadius: 999,
         cursor: "pointer",
+        fontWeight: 900,
+        letterSpacing: "-0.01em",
       }}
     >
-      Add to Cart
+      Add to Cart{price ? ` — $${price.toFixed(2)}` : ""}
     </button>
   );
 }
