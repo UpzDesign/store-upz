@@ -6,7 +6,7 @@ export type CartItem = {
   name: string;
   variant?: string;
   image: string;
-  price: number;
+  price?: number;
   quantity: number;
 };
 
@@ -39,13 +39,18 @@ export const useCartStore = create<CartState>((set) => ({
 
   addItem: (item) =>
     set((state) => {
-      const existing = state.items.find((i) => i.id === item.id);
+      const safeItem = {
+        ...item,
+        price: Number(item.price || 0),
+      };
+
+      const existing = state.items.find((i) => i.id === safeItem.id);
 
       const updated = existing
         ? state.items.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+            i.id === safeItem.id ? { ...i, quantity: i.quantity + 1 } : i
           )
-        : [...state.items, item];
+        : [...state.items, safeItem];
 
       saveCart(updated);
       return { items: updated };
