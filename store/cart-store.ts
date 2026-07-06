@@ -18,7 +18,11 @@ type CartState = {
 
   addItem: (item: CartItem) => void;
   addItems: (items: CartItem[]) => void;
+  updateQuantity: (id: string, quantity: number) => void;
+  increaseQuantity: (id: string) => void;
+  decreaseQuantity: (id: string) => void;
   removeItem: (id: string) => void;
+  removePackage: (packageId: string) => void;
   clearCart: () => void;
 
   openCart: () => void;
@@ -41,7 +45,7 @@ const normalizeItem = (item: CartItem): CartItem => ({
 });
 
 const mergeItems = (currentItems: CartItem[], newItems: CartItem[]) => {
-  return newItems.reduce((items, item) => {
+  return newItems.reduce<CartItem[]>((items, item) => {
     const safeItem = normalizeItem(item);
     const existing = items.find((i) => i.id === safeItem.id);
 
@@ -55,6 +59,11 @@ const mergeItems = (currentItems: CartItem[], newItems: CartItem[]) => {
 
     return [...items, safeItem];
   }, currentItems);
+};
+
+const updateAndSave = (items: CartItem[]) => {
+  saveCart(items);
+  return { items };
 };
 
 export const useCartStore = create<CartState>((set) => ({
@@ -78,11 +87,48 @@ export const useCartStore = create<CartState>((set) => ({
       return { items: updated, isOpen: true };
     }),
 
+  updateQuantity: (id, quantity) =>
+    set((state) => {
+      const safeQuantity = Math.max(0, Number(quantity || 0));
+      const updated = state.items
+        .map((item) =>
+          item.id === id ? { ...item, quantity: safeQuantity } : item
+        )
+        .filter((item) => item.quantity > 0);
+
+      return updateAndSave(updated);
+    }),
+
+  increaseQuantity: (id) =>
+    set((state) => {
+      const updated = state.items.map((item) =>
+        item.id === id ? { ...item, quantity: item.quantity + 1 } : item
+      );
+
+      return updateAndSave(updated);
+    }),
+
+  decreaseQuantity: (id) =>
+    set((state) => {
+      const updated = state.items
+        .map((item) =>
+          item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+        )
+        .filter((item) => item.quantity > 0);
+
+      return updateAndSave(updated);
+    }),
+
   removeItem: (id) =>
     set((state) => {
       const updated = state.items.filter((i) => i.id !== id);
-      saveCart(updated);
-      return { items: updated };
+      return updateAndSave(updated);
+    }),
+
+  removePackage: (packageId) =>
+    set((state) => {
+      const updated = state.items.filter((item) => item.packageId !== packageId);
+      return updateAndSave(updated);
     }),
 
   clearCart: () => {
