@@ -3,6 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 
+function formatPrice(value?: number | string | null) {
+  const amount = Number(value || 0);
+  if (!amount) return "View pricing";
+  return `$${amount.toFixed(2)}`;
+}
+
 export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -11,21 +17,14 @@ export default function Home() {
     fetch("/api/products")
       .then((res) => res.json())
       .then((data) => {
-        console.log("PRODUCTS:", data);
         setProducts(Array.isArray(data) ? data : []);
-        setLoading(false);
-        console.log("CLICK PRODUCT:", p);
       })
-      .catch((err) => {
-        console.error(err);
-        setLoading(false);
-      });
-
-  }, []); 
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <>
-      {/* HERO */}
       <section
         style={{
           minHeight: "70vh",
@@ -54,30 +53,20 @@ export default function Home() {
           </p>
 
           <div style={{ marginTop: 24, display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <button
+            <a
+              href="#products"
               style={{
                 background: "var(--upzyellow)",
+                color: "#111",
                 border: "none",
                 padding: "12px 18px",
                 borderRadius: 10,
-                fontWeight: 600,
-                cursor: "pointer",
-              }}
-            >
-              Explore Kits
-            </button>
-
-            <button
-              style={{
-                background: "transparent",
-                border: "1px solid rgba(0,0,0,0.2)",
-                padding: "12px 18px",
-                borderRadius: 10,
-                cursor: "pointer",
+                fontWeight: 700,
+                textDecoration: "none",
               }}
             >
               View Products
-            </button>
+            </a>
           </div>
         </div>
 
@@ -93,7 +82,6 @@ export default function Home() {
         />
       </section>
 
-      {/* KITS */}
       <section style={{ marginBottom: 60 }}>
         <h2 style={{ marginBottom: 20 }}>Featured CRE Kits</h2>
 
@@ -150,18 +138,21 @@ export default function Home() {
                   cursor: "pointer",
                 }}
               >
-                View Kit
+                Coming Soon
               </button>
             </div>
           ))}
         </div>
       </section>
 
-      {/* PRODUCTS */}
-      <section style={{ padding: 40 }}>
+      <section id="products" style={{ padding: "40px 0" }}>
         <h2 style={{ marginBottom: 20 }}>Products</h2>
 
         {loading && <p>Loading products...</p>}
+
+        {!loading && products.length === 0 && (
+          <p style={{ opacity: 0.7 }}>No Printful products found yet.</p>
+        )}
 
         <div
           style={{
@@ -170,9 +161,13 @@ export default function Home() {
             gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
           }}
         >
-          {products?.map((p: any) => (
-            <Link key={p.id} href={`/product/${p.id}`}>
-              <div
+          {products.map((p: any) => (
+            <Link
+              key={p.id}
+              href={`/product/${p.id}`}
+              style={{ textDecoration: "none", color: "inherit" }}
+            >
+              <article
                 style={{
                   background: "var(--bg-color)",
                   borderRadius: 14,
@@ -180,6 +175,7 @@ export default function Home() {
                   border: "1px solid rgba(0,0,0,0.08)",
                   boxShadow: "var(--shadow)",
                   transition: "transform 0.25s ease",
+                  height: "100%",
                 }}
                 onMouseEnter={(e) =>
                   (e.currentTarget.style.transform = "translateY(-6px)")
@@ -196,31 +192,40 @@ export default function Home() {
                   }}
                 />
 
-               <img
-                src={p.image || "/placeholder.png"}
-                alt={p.name}
-                style={{
-                  width: "100%",
-                  aspectRatio: "1 / 1",
-                  objectFit: "cover",
-                  background: "#f5f5f5",
-                }}
-              />
+                <img
+                  src={p.image || "/placeholder.png"}
+                  alt={p.name || "Product"}
+                  onError={(e) => {
+                    e.currentTarget.src = "/placeholder.png";
+                  }}
+                  style={{
+                    width: "100%",
+                    aspectRatio: "1 / 1",
+                    objectFit: "cover",
+                    background: "#f5f5f5",
+                    display: "block",
+                  }}
+                />
 
                 <div style={{ padding: 14 }}>
                   <div
                     style={{
                       fontSize: 13,
-                      fontWeight: 600,
+                      fontWeight: 700,
                       letterSpacing: "0.5px",
                       textTransform: "uppercase",
                       color: "var(--secondary-color)",
+                      marginBottom: 8,
                     }}
                   >
-                    {p.name}
+                    {p.name || "Untitled Product"}
+                  </div>
+
+                  <div style={{ fontWeight: 800, color: "var(--font-color)" }}>
+                    {formatPrice(p.price)}
                   </div>
                 </div>
-              </div>
+              </article>
             </Link>
           ))}
         </div>

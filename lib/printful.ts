@@ -1,82 +1,115 @@
 const PRINTFUL_API = "https://api.printful.com";
 
-function resolveImage(p: any) {
-  return (
-    // 1. direct product thumbnail
-    p?.thumbnail_url ||
+function getToken() {
+  const token = process.env.PRINTFUL_ACCESS_TOKEN;
 
-    // 2. sync product thumbnail
-    p?.sync_product?.thumbnail_url ||
+  if (!token) {
+    throw new Error("Missing PRINTFUL_ACCESS_TOKEN environment variable");
+  }
 
-    // 3. sync product image
-    p?.sync_product?.image ||
-
-    // 4. variant preview (MOST RELIABLE PER PRODUCT)
-    p?.sync_variants?.find((v: any) =>
-      v?.files?.some((f: any) => f?.type === "preview")
-    )?.files?.find((f: any) => f?.type === "preview")?.preview_url ||
-
-    // 5. fallback first variant image
-    p?.sync_variants?.[0]?.files?.[0]?.preview_url ||
-
-    null
-  );
+  return token;
 }
 
-function getImage(p: any): string | null {
-  return (
-    p?.sync_product?.thumbnail_url ||
-    p?.sync_product?.image ||
-    p?.thumbnail_url ||
-    p?.files?.find((f: any) => f?.type === "preview")?.preview_url ||
-    p?.sync_variants?.[0]?.files?.find((f: any) => f?.type === "preview")?.preview_url ||
-    null
-  );
-}
-
-export async function getProducts() {
-  const res = await fetch(`${PRINTFUL_API}/store/products`, {
+async function printfulFetch(path: string) {
+  const res = await fetch(`${PRINTFUL_API}${path}`, {
     headers: {
-      Authorization: `Bearer ${process.env.PRINTFUL_ACCESS_TOKEN}`,
+      Authorization: `Bearer ${getToken()}`,
     },
     cache: "no-store",
   });
 
-  const data = await res.json();
+  if (!res.ok) {
+    const message = await res.text();
+    throw new Error(`Printful API error ${res.status}: ${message}`);
+  }
 
-  const raw = data?.result?.sync_products || [];
+  return res.json();
+}
 
-  if (!Array.isArray(raw)) return [];
+function getVariantImages(v: any, fallback?: string | null) {
+  const images =
+    v?.files
+      ?.map((f: any) => f?.preview_url || f?.thumbnail_url)
+      .filter(Boolean) || [];
 
-  return raw.map((p: any) => ({
-    id: p.id, // 🔥 ONLY STORE PRODUCT ID
-    name: p.name,
-    image: p.thumbnail_url || null,
-  }));
+  if (images.length > 0) return images;
+  return fallback ? [fallback] : [];
 }
 
 export async function getProductById(id: string) {
-  const res = await fetch(`${PRINTFUL_API}/store/products`, {
-    headers: {
-      Authorization: `Bearer ${process.env.PRINTFUL_ACCESS_TOKEN}`,
-    },
-    cache: "no-store",
-  });
+  try {
+    const json = await printfulFetch(`/store/products/${id}`);
+    const data = json?.result;
 
-  const data = await res.json();
+    const syncProduct = data?.sync_product;
+    const syncVariants = Array.isArray(data?.sync_variants)
+      ? data.sync_variants
+      : [];
 
-  const products = data?.result?.sync_products || [];
+    if (!syncProduct) return null;
 
-  const product = products.find((p: any) => String(p.id) === String(id));
+    const thumbnail =
+      syncProduct.thumbnail_url ||
+      syncProduct.image ||
+      syncVariants?.[0]?.files?.find((f: any) => f?.type === "preview")?.preview_url ||
+      null;
 
-  if (!product) {
-    console.log("❌ ID NOT FOUND IN STORE:", id);
+    const variants = syncVariants.map((v: any) => ({
+      id: String(v.id),
+      name: v.name || `${v.size || ""} ${v.color || ""}`.trim() || "Default",
+      price: Number(v.retail_price || 0),
+      currency: v.currency || "USD",
+      size: v.size || null,
+      color: v.color || null,
+      stock: v.availability_status || null,
+      sku: v.sku || null,
+      images: getVariantImages(v, thumbnail),
+    }));
+
+    return {
+      id: String(syncProduct.id),
+      name: syncProduct.name,
+      description: syncProduct.description || "",
+      thumbnail,
+      image: thumbnail,
+      price: variants?.[0]?.price || null,
+      variants,
+      images: thumbnail ? [thumbnail] : [],
+      raw: data,
+    };
+  } catch (err) {
+    console.error("❌ PRINTFUL PRODUCT ERROR:", err);
     return null;
   }
+}
 
-  return {
-    id: product.id,
-    name: product.name,
-    image: product.thumbnail_url || null,
-  };
+export async function getProducts() {
+  try {
+    const json = await printfulFetch("/store/products");
+    const raw = json?.result?.sync_products ?? json?.result ?? [];
+
+    if (!Array.isArray(raw)) {
+      console.log("❌ INVALID PRODUCTS SHAPE:", raw);
+      return [];
+    }
+
+    const products = await Promise.all(
+      raw.map(async (p: any) => {
+        const details = await getProductById(String(p.id));
+
+        return {
+          id: String(p.id),
+          name: p.name,
+          image: details?.image || p.thumbnail_url || null,
+          price: details?.price || null,
+          variants: details?.variants || [],
+        };
+      })
+    );
+
+    return products;
+  } catch (err) {
+    console.error("❌ PRINTFUL PRODUCTS ERROR:", err);
+    return [];
+  }
 }
