@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import { getProductById } from "@/lib/printful";
 
-type RouteContext = {
-  params: Promise<{ id: string }>;
-};
-
-export async function GET(_req: Request, context: RouteContext) {
+export async function GET(
+  _req: Request,
+  context: { params: { id: string } | Promise<{ id: string }> }
+) {
   const { id } = await context.params;
 
   if (!id) {
