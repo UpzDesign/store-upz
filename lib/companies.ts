@@ -35,7 +35,7 @@ export const companies: BrandPortalCompany[] = [
     slug: "rtl",
     name: "RTL Realty Group",
     shortName: "RTL",
-    password: "rtl-demo",
+    password: "rtldemo",
     logo: "/upz-logo.svg",
     primaryColor: "#DC353C",
     secondaryColor: "#010101",
@@ -69,9 +69,9 @@ export const companies: BrandPortalCompany[] = [
     slug: "ksr",
     name: "KSR",
     shortName: "KSR",
-    password: "ksr-demo",
-    logo: "/upz-logo.svg",
-    primaryColor: "#173B63",
+    password: "ksrdemo",
+    logo: "/ksr-logo.svg",
+    primaryColor: "#ff5f1b",
     secondaryColor: "#010101",
     backgroundColor: "#ffffff",
     textColor: "#010101",
@@ -105,7 +105,9 @@ export function getCompanyBySlug(slug?: string | null) {
 }
 
 export function validateCompanyPassword(slug: string, password: string) {
-  const company = getCompanyBySlug(slug);
+  const normalizedSlug = slug.trim().toLowerCase();
+  const normalizedPassword = password.trim();
+  const company = getCompanyBySlug(normalizedSlug);
   if (!company) return null;
-  return company.password === password ? company : null;
+  return company.password === normalizedPassword ? company : null;
 }
