@@ -173,12 +173,32 @@ main:not(.upz-home) { padding-top: 0; }
 .portal-asset-list span { color: rgba(1,1,1,.42); font-size: 11px; text-transform: uppercase; }
 .portal-services-section { background: #fff; }
 .portal-simple-state { width: min(760px, calc(100vw - 48px)); margin: 0 auto; padding: 80px 0; }
+.portal-product-detail { background: #fff; padding: 54px 0 90px; }
+.portal-product-detail-grid { display: grid; grid-template-columns: minmax(300px,1.08fr) minmax(300px,.92fr); gap: 44px; align-items: start; }
+.portal-breadcrumb { color: rgba(1,1,1,.55); font-size: 12px; font-weight: 700; margin-bottom: 18px; }
+.portal-breadcrumb a { color: var(--company-primary); }
+.portal-product-gallery-main { background: #f5f5f5; border: 1px solid rgba(1,1,1,.08); border-radius: 8px; overflow: hidden; }
+.portal-product-gallery-main img { width: 100%; aspect-ratio: 1/1; object-fit: contain; padding: 16px; }
+.portal-product-thumbs { display: grid; grid-template-columns: repeat(auto-fill,minmax(72px,1fr)); gap: 10px; margin-top: 12px; }
+.portal-product-thumbs button { border: 1px solid rgba(1,1,1,.12); border-radius: 6px; overflow: hidden; padding: 0; background: #f5f5f5; cursor: pointer; }
+.portal-product-thumbs button.is-active { border: 2px solid var(--company-primary); }
+.portal-product-thumbs img { width: 100%; aspect-ratio: 1/1; object-fit: cover; }
+.portal-product-info-panel { position: sticky; top: 96px; }
+.portal-product-info-panel h1 { color: var(--upzblack); font-size: clamp(32px,4.2vw,52px); line-height: 1; letter-spacing: -.05em; text-transform: uppercase; margin-bottom: 16px; }
+.portal-product-info-panel p { color: rgba(1,1,1,.62); font-size: 14px; line-height: 1.75; }
+.portal-product-price { color: var(--upzblack); display: block; font-size: 26px; margin-bottom: 20px; }
+.portal-option-group { margin: 20px 0; }
+.portal-option-group h3 { color: var(--upzblack); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; }
+.portal-option-group div { display: flex; gap: 8px; flex-wrap: wrap; }
+.portal-option-group button { border: 1px solid rgba(1,1,1,.14); background: #fff; color: var(--upzblack); border-radius: 5px; padding: 8px 12px; font-size: 12px; font-weight: 800; cursor: pointer; }
+.portal-option-group button.is-active { background: var(--company-primary); border-color: var(--company-primary); color: #fff; }
 
 @media (max-width: 1100px) {
-  .upz-hero-inner, .upz-package-layout, .upz-yellow-grid, .portal-login-hero, .portal-hero-inner, .portal-assets-grid { grid-template-columns: 1fr; }
+  .upz-hero-inner, .upz-package-layout, .upz-yellow-grid, .portal-login-hero, .portal-hero-inner, .portal-assets-grid, .portal-product-detail-grid { grid-template-columns: 1fr; }
   .upz-hero-slider { grid-auto-columns: minmax(300px,60%); }
   .upz-benefit-grid { grid-template-columns: repeat(2,1fr); }
   .upz-benefit:nth-child(2) { border-right: 0; }
+  .portal-product-info-panel { position: static; }
 }
 
 @media (max-width: 760px) {
@@ -197,9 +217,9 @@ main:not(.upz-home) { padding-top: 0; }
   .upz-benefit-grid { grid-template-columns: 1fr; }
   .upz-benefit { border-right: 0; border-bottom: 1px solid rgba(1,1,1,.16); padding: 10px 0; }
   .upz-benefit:last-child { border-bottom: 0; }
-  .upz-section, .upz-packages, .upz-products-section, .portal-section { padding: 44px 0; }
+  .upz-section, .upz-packages, .upz-products-section, .portal-section, .portal-product-detail { padding: 44px 0; }
   .upz-section-title, .portal-section-heading { align-items: flex-start; flex-direction: column; gap: 12px; }
-  .upz-section-title h2, .upz-package-copy h2, .upz-yellow-grid h2, .portal-section-heading h2, .portal-hero h1 { font-size: clamp(27px,9vw,38px); }
+  .upz-section-title h2, .upz-package-copy h2, .upz-yellow-grid h2, .portal-section-heading h2, .portal-hero h1, .portal-product-info-panel h1 { font-size: clamp(27px,9vw,38px); }
   .upz-collection-grid, .upz-product-grid, .upz-package-grid, .portal-action-grid, .portal-package-grid, .portal-product-grid, .portal-services-grid { grid-template-columns: 1fr; }
   .upz-collection-card { min-height: 250px; }
   .upz-yellow-cta { padding: 0; }
