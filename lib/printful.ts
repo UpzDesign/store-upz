@@ -6,15 +6,21 @@ export type PrintfulClientOptions = {
 
 function getToken(options: PrintfulClientOptions = {}) {
   const slug = options.companySlug?.toUpperCase().replace(/[^A-Z0-9]/g, "_");
-  const companyToken = slug ? process.env[`PRINTFUL_ACCESS_TOKEN_${slug}`] : null;
-  const token = companyToken || process.env.PRINTFUL_ACCESS_TOKEN;
+
+  if (slug) {
+    const companyToken = process.env[`PRINTFUL_ACCESS_TOKEN_${slug}`];
+
+    if (!companyToken) {
+      throw new Error(`Missing PRINTFUL_ACCESS_TOKEN_${slug} environment variable`);
+    }
+
+    return companyToken;
+  }
+
+  const token = process.env.PRINTFUL_ACCESS_TOKEN;
 
   if (!token) {
-    throw new Error(
-      slug
-        ? `Missing PRINTFUL_ACCESS_TOKEN_${slug} or PRINTFUL_ACCESS_TOKEN environment variable`
-        : "Missing PRINTFUL_ACCESS_TOKEN environment variable"
-    );
+    throw new Error("Missing PRINTFUL_ACCESS_TOKEN environment variable");
   }
 
   return token;
