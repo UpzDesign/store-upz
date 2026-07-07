@@ -4,44 +4,61 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { storePackages } from "@/lib/packages";
 import { useCartStore, type CartItem } from "@/store/cart-store";
+import {
+  categories,
+  formatPrice,
+  getCategory,
+  matchesPriceFilter,
+  slugifyCategory,
+} from "@/lib/catalog";
 
-const categories = ["All", "Apparel", "Drinkware", "Bags", "Office", "Accessories"];
-const priceFilters = ["All", "Under $25", "$25–$50", "$50+"];
+const priceFilters = ["All", "Under $25", "$25-$50", "$50+"];
 
-function formatPrice(value?: number | string | null) {
-  const amount = Number(value || 0);
-  if (!amount) return "View pricing";
-  return `$${amount.toFixed(2)}`;
-}
+const collectionCards = [
+  {
+    title: "Apparel",
+    slug: "apparel",
+    desc: "Polos, hoodies, hats, and team-ready apparel.",
+  },
+  {
+    title: "Drinkware",
+    slug: "drinkware",
+    desc: "Mugs, tumblers, and premium office drinkware.",
+  },
+  {
+    title: "Office",
+    slug: "office",
+    desc: "Desk essentials, print materials, and presentation tools.",
+  },
+  {
+    title: "Accessories",
+    slug: "accessories",
+    desc: "Client-facing details, giveaways, and branded extras.",
+  },
+];
 
-function getCategory(product: any) {
-  const name = String(product?.name || "").toLowerCase();
-
-  if (/shirt|tee|hoodie|sweatshirt|jacket|polo|hat|cap|beanie/.test(name)) {
-    return "Apparel";
-  }
-  if (/mug|bottle|tumbler|cup|drink/.test(name)) {
-    return "Drinkware";
-  }
-  if (/bag|tote|backpack|duffle/.test(name)) {
-    return "Bags";
-  }
-  if (/notebook|journal|mouse pad|poster|card|sticker|print/.test(name)) {
-    return "Office";
-  }
-
-  return "Accessories";
-}
-
-function matchesPriceFilter(product: any, filter: string) {
-  const price = Number(product?.price || 0);
-  if (filter === "All") return true;
-  if (!price) return true;
-  if (filter === "Under $25") return price < 25;
-  if (filter === "$25–$50") return price >= 25 && price <= 50;
-  if (filter === "$50+") return price > 50;
-  return true;
-}
+const benefits = [
+  {
+    title: "Premium Quality",
+    text: "Top-tier products that represent your brand well.",
+    icon: "◇",
+  },
+  {
+    title: "Custom Branding",
+    text: "Elevate your brand with curated printed materials.",
+    icon: "✦",
+  },
+  {
+    title: "Fast Fulfillment",
+    text: "Print-on-demand products with streamlined ordering.",
+    icon: "▱",
+  },
+  {
+    title: "CRE Focused",
+    text: "Built for brokers, teams, launches, and listing campaigns.",
+    icon: "◎",
+  },
+];
 
 function getPrimaryVariant(product: any) {
   return product?.variants?.[0] || product;
@@ -51,12 +68,11 @@ function buildPackageItems(storePackage: any, products: any[]): CartItem[] {
   const usedProductIds = new Set<string>();
 
   return storePackage.rules.flatMap((rule: any) => {
-    const matches = products.filter((product) => {
-      const productId = String(product?.id || "");
-      return getCategory(product) === rule.category && !usedProductIds.has(productId);
+    const product = products.find((item) => {
+      const productId = String(item?.id || "");
+      return getCategory(item) === rule.category && !usedProductIds.has(productId);
     });
 
-    const product = matches[0];
     if (!product) return [];
 
     usedProductIds.add(String(product.id));
@@ -84,6 +100,94 @@ function buildPackageItems(storePackage: any, products: any[]): CartItem[] {
   });
 }
 
+function ProductCard({ product }: { product: any }) {
+  const category = getCategory(product);
+  const previewImages = [product.image, ...(product.images || [])].filter(Boolean);
+  const uniquePreviews = Array.from(new Set(previewImages)).slice(0, 3);
+
+  return (
+    <Link href={`/product/${product.id}`} style={{ color: "inherit", textDecoration: "none" }}>
+      <article
+        style={{
+          height: "100%",
+          borderRadius: 18,
+          overflow: "hidden",
+          border: "1px solid rgba(1,1,1,0.08)",
+          background: "#fff",
+          boxShadow: "0 18px 46px rgba(0,0,0,0.08)",
+        }}
+      >
+        <div style={{ position: "relative", background: "#f3f3f3" }}>
+          <img
+            src={product.image || "/placeholder.png"}
+            alt={product.name || "Product"}
+            onError={(e) => {
+              e.currentTarget.src = "/placeholder.png";
+            }}
+            style={{ width: "100%", aspectRatio: "1 / 1", objectFit: "cover", display: "block" }}
+          />
+          <span
+            style={{
+              position: "absolute",
+              top: 12,
+              left: 12,
+              padding: "6px 9px",
+              borderRadius: 999,
+              background: "rgba(1,1,1,0.88)",
+              color: "var(--upzyellow)",
+              fontSize: 10,
+              fontWeight: 900,
+              textTransform: "uppercase",
+              letterSpacing: "0.08em",
+            }}
+          >
+            {category}
+          </span>
+          {uniquePreviews.length > 1 && (
+            <div style={{ position: "absolute", left: 12, bottom: 12, display: "flex", gap: 6 }}>
+              {uniquePreviews.map((img: any, index: number) => (
+                <span
+                  key={`${img}-${index}`}
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: 9,
+                    overflow: "hidden",
+                    border: "1px solid rgba(0,0,0,0.18)",
+                    background: "#fff",
+                    display: "block",
+                  }}
+                >
+                  <img src={img} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+        <div style={{ padding: 16, color: "#010101" }}>
+          <div
+            style={{
+              minHeight: 38,
+              fontSize: 13,
+              fontWeight: 900,
+              lineHeight: 1.35,
+              letterSpacing: "0.02em",
+              textTransform: "uppercase",
+              marginBottom: 10,
+            }}
+          >
+            {product.name || "Untitled Product"}
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10 }}>
+            <strong style={{ fontSize: 20 }}>{formatPrice(product.price)}</strong>
+            <span style={{ color: "var(--upzyellow)", fontWeight: 900 }}>Shop Now</span>
+          </div>
+        </div>
+      </article>
+    </Link>
+  );
+}
+
 export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,9 +199,7 @@ export default function Home() {
   useEffect(() => {
     fetch("/api/products")
       .then((res) => res.json())
-      .then((data) => {
-        setProducts(Array.isArray(data) ? data : []);
-      })
+      .then((data) => setProducts(Array.isArray(data) ? data : []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
@@ -113,11 +215,11 @@ export default function Home() {
         .join(" ")
         .toLowerCase();
 
-      const matchesSearch = !q || name.includes(q) || variantText.includes(q) || category.toLowerCase().includes(q);
-      const matchesCategory = activeCategory === "All" || category === activeCategory;
-      const matchesPrice = matchesPriceFilter(product, priceFilter);
-
-      return matchesSearch && matchesCategory && matchesPrice;
+      return (
+        (!q || name.includes(q) || variantText.includes(q) || category.toLowerCase().includes(q)) &&
+        (activeCategory === "All" || category === activeCategory) &&
+        matchesPriceFilter(product, priceFilter)
+      );
     });
   }, [products, query, activeCategory, priceFilter]);
 
@@ -129,15 +231,13 @@ export default function Home() {
           (sum: number, item: CartItem) => sum + Number(item.price || 0) * item.quantity,
           0
         );
-
-        return {
-          ...storePackage,
-          items,
-          subtotal,
-        };
+        return { ...storePackage, items, subtotal };
       }),
     [products]
   );
+
+  const heroProducts = products.slice(0, 4);
+  const featuredProducts = filteredProducts.slice(0, 12);
 
   const clearFilters = () => {
     setQuery("");
@@ -151,446 +251,99 @@ export default function Home() {
   };
 
   return (
-    <main>
+    <main style={{ background: "#fff", color: "#010101" }}>
       <section
         style={{
-          padding: "96px 0 56px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
+          minHeight: "680px",
+          display: "grid",
+          alignItems: "center",
+          position: "relative",
+          overflow: "hidden",
+          background:
+            "linear-gradient(90deg, rgba(1,1,1,0.98) 0%, rgba(1,1,1,0.88) 42%, rgba(1,1,1,0.58) 100%), url('https://www.upzdesign.com/images/bg.jpg') center/cover no-repeat",
+          color: "#fff",
         }}
       >
-        <div className="container">
-          <div style={{ maxWidth: 850 }}>
-            <div className="eyebrow">Creative studio · New York City</div>
-
-            <h1
-              style={{
-                fontSize: "clamp(42px, 7vw, 92px)",
-                lineHeight: 0.96,
-                letterSpacing: "-0.06em",
-                marginBottom: 24,
-              }}
-            >
-              Promotional products with a CRE marketing mindset.
-            </h1>
-
-            <p className="lead" style={{ maxWidth: 680, marginBottom: 34 }}>
-              Designed to amplify your brand visibility and make a lasting impression.
-              Browse individual merchandise or start from curated broker packages built for
-              commercial real estate teams, launches, and office branding.
-            </p>
-
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-              <a href="#products" className="button">
-                Browse Products
-              </a>
-              <a href="#cre-packages" className="button outline">
-                View CRE Packages
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="cre-packages" style={{ padding: "64px 0" }}>
-        <div className="container">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 24,
-              alignItems: "end",
-              flexWrap: "wrap",
-              marginBottom: 24,
-            }}
-          >
+        <div
+          style={{
+            position: "absolute",
+            right: "-120px",
+            top: "18%",
+            width: "360px",
+            height: "360px",
+            background: "var(--upzyellow)",
+            transform: "rotate(45deg)",
+          }}
+        />
+        <div className="container" style={{ position: "relative", zIndex: 2 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(320px, 0.92fr) minmax(320px, 1.08fr)", gap: 42, alignItems: "center" }}>
             <div>
-              <div className="eyebrow">Strategic · growth-minded · results-driven</div>
-              <h2 style={{ marginBottom: 10 }}>CRE Packages</h2>
-              <p style={{ maxWidth: 650, opacity: 0.7 }}>
-                Packages now auto-select matching products from your Printful catalog.
-                This is the first working package-builder version.
+              <div style={{ color: "var(--upzyellow)", fontSize: 13, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 18 }}>
+                Brand it. Market it. Close it.
+              </div>
+              <h1 style={{ fontSize: "clamp(44px, 6.7vw, 92px)", lineHeight: 0.94, letterSpacing: "-0.075em", marginBottom: 24 }}>
+                Premium merch for <span style={{ color: "var(--upzyellow)" }}>commercial real estate</span> professionals.
+              </h1>
+              <p style={{ color: "rgba(255,255,255,0.82)", maxWidth: 560, fontSize: 17, lineHeight: 1.8, marginBottom: 30 }}>
+                High-quality branded merchandise and marketing materials for brokers, teams,
+                and CRE companies who want to stand out.
               </p>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <a href="#products" className="button">Shop All Products</a>
+                <a href="#cre-packages" className="button outline">View Broker Packages</a>
+              </div>
             </div>
-            <span className="status-pill">Bundle system active</span>
-          </div>
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: 18,
-            }}
-          >
-            {packageSummaries.map((pack) => (
-              <article
-                key={pack.id}
-                style={{
-                  padding: 24,
-                  borderRadius: 20,
-                  border: "1px solid rgba(255,255,255,0.08)",
-                  background:
-                    "linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.02))",
-                }}
-              >
-                <div
-                  style={{
-                    display: "inline-flex",
-                    padding: "5px 9px",
-                    borderRadius: 999,
-                    background: "rgba(237,191,45,0.13)",
-                    color: "var(--upzyellow)",
-                    fontSize: 11,
-                    fontWeight: 900,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.08em",
-                    marginBottom: 16,
-                  }}
-                >
-                  {pack.tag}
-                </div>
-                <h3 style={{ marginBottom: 10 }}>{pack.title}</h3>
-                <p style={{ opacity: 0.72, marginBottom: 12 }}>{pack.description}</p>
-                <p style={{ opacity: 0.55, fontSize: 13, marginBottom: 18 }}>
-                  {pack.idealFor}
-                </p>
-
-                <div style={{ display: "grid", gap: 8, marginBottom: 18 }}>
-                  {pack.rules.map((rule: any) => (
-                    <span key={`${pack.id}-${rule.category}`} style={{ fontSize: 13, opacity: 0.82 }}>
-                      ✓ {rule.label}
-                    </span>
-                  ))}
-                </div>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gap: 8,
-                    padding: 12,
-                    borderRadius: 14,
-                    background: "rgba(1,1,1,0.42)",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    marginBottom: 14,
-                  }}
-                >
-                  {pack.items.length > 0 ? (
-                    pack.items.map((item: CartItem) => (
-                      <div
-                        key={`${pack.id}-${item.id}`}
-                        style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 12 }}
-                      >
-                        <span style={{ opacity: 0.74 }}>
-                          {item.quantity}× {item.name}
-                        </span>
-                        <strong style={{ color: "var(--upzyellow)" }}>
-                          {formatPrice(Number(item.price || 0) * item.quantity)}
-                        </strong>
-                      </div>
-                    ))
-                  ) : (
-                    <span style={{ opacity: 0.65, fontSize: 12 }}>
-                      No matching products found yet.
-                    </span>
-                  )}
-                </div>
-
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
-                  <strong style={{ color: "var(--upzyellow)", fontSize: 18 }}>
-                    {pack.subtotal ? formatPrice(pack.subtotal) : "Needs products"}
-                  </strong>
-                  <button
-                    onClick={() => addPackageToCart(pack)}
-                    disabled={!pack.items.length}
-                    className="button"
-                    style={{ opacity: pack.items.length ? 1 : 0.45, cursor: pack.items.length ? "pointer" : "not-allowed" }}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+              {heroProducts.length > 0 ? (
+                heroProducts.map((product, index) => (
+                  <div
+                    key={product.id}
+                    style={{
+                      borderRadius: index === 0 ? "28px 28px 6px 28px" : 22,
+                      overflow: "hidden",
+                      background: "rgba(255,255,255,0.09)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      backdropFilter: "blur(14px)",
+                      minHeight: index === 0 ? 300 : 220,
+                    }}
                   >
-                    Add Package
-                  </button>
+                    <img src={product.image || "/placeholder.png"} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                  </div>
+                ))
+              ) : (
+                <div style={{ gridColumn: "1 / -1", minHeight: 390, borderRadius: 28, border: "1px solid rgba(255,255,255,0.12)", background: "linear-gradient(135deg, rgba(237,191,45,0.32), rgba(255,255,255,0.08))", display: "grid", placeItems: "center", textAlign: "center", padding: 28 }}>
+                  <strong style={{ fontSize: 28 }}>UPZ Branded Merchandise Preview</strong>
                 </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="products" style={{ padding: "64px 0 96px" }}>
-        <div className="container">
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: 24,
-              alignItems: "end",
-              flexWrap: "wrap",
-              marginBottom: 24,
-            }}
-          >
-            <div>
-              <div className="eyebrow">Products · branded essentials</div>
-              <h2 style={{ marginBottom: 10 }}>Products</h2>
-              <p style={{ maxWidth: 620, opacity: 0.7 }}>
-                Search by product name, category, color, or variant. Product categories are
-                currently inferred automatically from Printful product names.
-              </p>
-            </div>
-            <span style={{ opacity: 0.65 }}>
-              {loading ? "Loading..." : `${filteredProducts.length} of ${products.length} products`}
-            </span>
-          </div>
-
-          <div
-            style={{
-              display: "grid",
-              gap: 14,
-              padding: 16,
-              borderRadius: 22,
-              border: "1px solid rgba(255,255,255,0.08)",
-              background: "rgba(255,255,255,0.035)",
-              marginBottom: 28,
-            }}
-          >
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products, colors, variants..."
-              style={{
-                width: "100%",
-                minHeight: 48,
-                borderRadius: 999,
-                border: "1px solid rgba(255,255,255,0.12)",
-                background: "#010101",
-                color: "#fff",
-                padding: "0 18px",
-                outline: "none",
-                fontSize: 15,
-              }}
-            />
-
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {categories.map((category) => (
-                <button
-                  key={category}
-                  onClick={() => setActiveCategory(category)}
-                  style={{
-                    padding: "10px 14px",
-                    borderRadius: 999,
-                    border:
-                      activeCategory === category
-                        ? "1px solid var(--upzyellow)"
-                        : "1px solid rgba(255,255,255,0.13)",
-                    background:
-                      activeCategory === category
-                        ? "var(--upzyellow)"
-                        : "transparent",
-                    color:
-                      activeCategory === category
-                        ? "var(--upzblack)"
-                        : "var(--upzwhite)",
-                    cursor: "pointer",
-                    fontWeight: 800,
-                    fontSize: 13,
-                  }}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
-              {priceFilters.map((filter) => (
-                <button
-                  key={filter}
-                  onClick={() => setPriceFilter(filter)}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: 999,
-                    border:
-                      priceFilter === filter
-                        ? "1px solid var(--upzyellow)"
-                        : "1px solid rgba(255,255,255,0.13)",
-                    background:
-                      priceFilter === filter
-                        ? "rgba(237,191,45,0.14)"
-                        : "transparent",
-                    color:
-                      priceFilter === filter
-                        ? "var(--upzyellow)"
-                        : "rgba(255,255,255,0.72)",
-                    cursor: "pointer",
-                    fontWeight: 700,
-                    fontSize: 12,
-                  }}
-                >
-                  {filter}
-                </button>
-              ))}
-
-              {(query || activeCategory !== "All" || priceFilter !== "All") && (
-                <button
-                  onClick={clearFilters}
-                  style={{
-                    padding: "8px 12px",
-                    borderRadius: 999,
-                    border: "none",
-                    background: "transparent",
-                    color: "var(--upzyellow)",
-                    cursor: "pointer",
-                    fontWeight: 800,
-                    fontSize: 12,
-                  }}
-                >
-                  Clear filters
-                </button>
               )}
             </div>
           </div>
+        </div>
+      </section>
 
-          {loading && <p>Loading products...</p>}
+      <section style={{ padding: "70px 0" }}>
+        <div className="container">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 20, marginBottom: 28, flexWrap: "wrap" }}>
+            <div>
+              <div style={{ color: "var(--upzyellow)", fontWeight: 900, textTransform: "uppercase", fontSize: 12, marginBottom: 8 }}>Shop by category</div>
+              <h2 style={{ color: "#010101", fontSize: "clamp(32px, 4vw, 54px)", marginBottom: 0 }}>Explore our collections</h2>
+              <div style={{ width: 62, height: 4, background: "var(--upzyellow)", marginTop: 16 }} />
+            </div>
+            <a href="#products" style={{ fontSize: 13, fontWeight: 900, textTransform: "uppercase" }}>View all collections →</a>
+          </div>
 
-          {!loading && products.length === 0 && (
-            <p style={{ opacity: 0.7 }}>
-              No Printful products found. Check your Printful token and synced
-              store products.
-            </p>
-          )}
-
-          {!loading && products.length > 0 && filteredProducts.length === 0 && (
-            <p style={{ opacity: 0.7 }}>
-              No products match your current search or filters.
-            </p>
-          )}
-
-          <div
-            style={{
-              display: "grid",
-              gap: 22,
-              gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))",
-            }}
-          >
-            {filteredProducts.map((p: any) => {
-              const previewImages = [p.image, ...(p.images || [])].filter(Boolean);
-              const uniquePreviews = Array.from(new Set(previewImages)).slice(0, 3);
-              const category = getCategory(p);
-
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 18 }}>
+            {collectionCards.map((collection) => {
+              const product = products.find((item) => getCategory(item) === collection.title);
               return (
-                <Link
-                  key={p.id}
-                  href={`/product/${p.id}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <article
-                    style={{
-                      height: "100%",
-                      borderRadius: 20,
-                      overflow: "hidden",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                      background: "rgba(255,255,255,0.035)",
-                      transition: "transform 0.25s ease, border-color 0.25s ease",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = "translateY(-6px)";
-                      e.currentTarget.style.borderColor = "rgba(237,191,45,0.7)";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = "translateY(0)";
-                      e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)";
-                    }}
-                  >
-                    <div style={{ position: "relative", background: "#f4f4f4" }}>
-                      <img
-                        src={p.image || "/placeholder.png"}
-                        alt={p.name || "Product"}
-                        onError={(e) => {
-                          e.currentTarget.src = "/placeholder.png";
-                        }}
-                        style={{
-                          width: "100%",
-                          aspectRatio: "1 / 1",
-                          objectFit: "cover",
-                          display: "block",
-                        }}
-                      />
-
-                      <span
-                        style={{
-                          position: "absolute",
-                          top: 12,
-                          left: 12,
-                          padding: "6px 9px",
-                          borderRadius: 999,
-                          background: "rgba(1,1,1,0.86)",
-                          color: "var(--upzyellow)",
-                          fontSize: 11,
-                          fontWeight: 900,
-                          textTransform: "uppercase",
-                          letterSpacing: "0.06em",
-                        }}
-                      >
-                        {category}
-                      </span>
-
-                      {uniquePreviews.length > 1 && (
-                        <div
-                          style={{
-                            position: "absolute",
-                            left: 12,
-                            bottom: 12,
-                            display: "flex",
-                            gap: 6,
-                          }}
-                        >
-                          {uniquePreviews.map((img: any, index: number) => (
-                            <span
-                              key={`${img}-${index}`}
-                              style={{
-                                width: 34,
-                                height: 34,
-                                borderRadius: 8,
-                                overflow: "hidden",
-                                border: "1px solid rgba(0,0,0,0.12)",
-                                background: "#fff",
-                                display: "block",
-                              }}
-                            >
-                              <img
-                                src={img}
-                                alt=""
-                                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                              />
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div style={{ padding: 16 }}>
-                      <div
-                        style={{
-                          minHeight: 38,
-                          fontSize: 13,
-                          fontWeight: 800,
-                          lineHeight: 1.45,
-                          letterSpacing: "0.04em",
-                          textTransform: "uppercase",
-                          marginBottom: 10,
-                        }}
-                      >
-                        {p.name || "Untitled Product"}
-                      </div>
-
-                      <div
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          gap: 12,
-                        }}
-                      >
-                        <strong style={{ color: "var(--upzyellow)", fontSize: 18 }}>
-                          {formatPrice(p.price)}
-                        </strong>
-                        <span style={{ fontSize: 12, opacity: 0.65 }}>View →</span>
-                      </div>
+                <Link key={collection.slug} href={`/collections/${collection.slug}`} style={{ color: "inherit", textDecoration: "none" }}>
+                  <article style={{ minHeight: 330, borderRadius: 18, overflow: "hidden", position: "relative", background: "#111" }}>
+                    <img src={product?.image || "/placeholder.png"} alt={collection.title} style={{ width: "100%", height: "100%", position: "absolute", inset: 0, objectFit: "cover", opacity: 0.78 }} />
+                    <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, transparent 25%, rgba(0,0,0,0.82) 100%)" }} />
+                    <div style={{ position: "absolute", left: 22, right: 22, bottom: 22, color: "#fff" }}>
+                      <h3 style={{ fontSize: 22, textTransform: "uppercase", marginBottom: 8 }}>{collection.title}</h3>
+                      <p style={{ color: "rgba(255,255,255,0.72)", fontSize: 13, lineHeight: 1.55, marginBottom: 12 }}>{collection.desc}</p>
+                      <span style={{ color: "var(--upzyellow)", fontWeight: 900 }}>Shop Now →</span>
                     </div>
                   </article>
                 </Link>
@@ -599,6 +352,125 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <section id="cre-packages" style={{ padding: "76px 0", background: "#070707", color: "#fff", position: "relative", overflow: "hidden" }}>
+        <div className="container">
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(280px, 0.72fr) minmax(320px, 1.28fr)", gap: 38, alignItems: "center" }}>
+            <div>
+              <div style={{ color: "var(--upzyellow)", fontWeight: 900, textTransform: "uppercase", fontSize: 12, marginBottom: 14 }}>Featured Packages</div>
+              <h2 style={{ color: "#fff", fontSize: "clamp(34px, 4.6vw, 62px)", lineHeight: 0.96, marginBottom: 20 }}>
+                Built for brokers. Designed to impress.
+              </h2>
+              <p style={{ color: "rgba(255,255,255,0.72)", lineHeight: 1.8, marginBottom: 26 }}>
+                Curated packages with everything you need to market listings, build your brand,
+                and stay prepared for every opportunity.
+              </p>
+              <a href="#products" className="button">View Broker Packages</a>
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 14 }}>
+              {packageSummaries.map((pack) => (
+                <article key={pack.id} style={{ background: "#fff", color: "#010101", borderRadius: 14, overflow: "hidden" }}>
+                  <div style={{ height: 165, background: "#e9e9e9", display: "grid", placeItems: "center", overflow: "hidden" }}>
+                    {pack.items[0]?.image ? (
+                      <img src={pack.items[0].image} alt={pack.title} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                    ) : (
+                      <strong>UPZ Kit</strong>
+                    )}
+                  </div>
+                  <div style={{ padding: 16 }}>
+                    <h3 style={{ color: "#010101", fontSize: 17, lineHeight: 1.15, textTransform: "uppercase", marginBottom: 10 }}>{pack.title}</h3>
+                    <strong style={{ fontSize: 28 }}>{pack.subtotal ? formatPrice(pack.subtotal) : "Build Kit"}</strong>
+                    <p style={{ color: "rgba(1,1,1,0.55)", fontSize: 11, margin: "4px 0 14px" }}>{pack.items.length} selected items</p>
+                    <button onClick={() => addPackageToCart(pack)} disabled={!pack.items.length} style={{ border: 0, background: "transparent", color: "#010101", fontWeight: 900, cursor: pack.items.length ? "pointer" : "not-allowed", opacity: pack.items.length ? 1 : 0.45, padding: 0 }}>
+                      Add Package →
+                    </button>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: "44px 0", background: "#fff" }}>
+        <div className="container" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 20 }}>
+          {benefits.map((benefit) => (
+            <div key={benefit.title} style={{ display: "grid", gridTemplateColumns: "46px 1fr", gap: 14, alignItems: "start", padding: "10px 0" }}>
+              <div style={{ width: 46, height: 46, border: "2px solid #010101", display: "grid", placeItems: "center", fontWeight: 900, fontSize: 22 }}>{benefit.icon}</div>
+              <div>
+                <h3 style={{ color: "#010101", fontSize: 13, textTransform: "uppercase", marginBottom: 8 }}>{benefit.title}</h3>
+                <p style={{ color: "rgba(1,1,1,0.64)", fontSize: 13, lineHeight: 1.55, margin: 0 }}>{benefit.text}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="products" style={{ padding: "74px 0 90px", background: "#f6f6f6" }}>
+        <div className="container">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 22, flexWrap: "wrap", marginBottom: 26 }}>
+            <div>
+              <div style={{ color: "var(--upzyellow)", fontWeight: 900, textTransform: "uppercase", fontSize: 12, marginBottom: 8 }}>All Products</div>
+              <h2 style={{ color: "#010101", marginBottom: 8 }}>Shop the catalog</h2>
+              <p style={{ color: "rgba(1,1,1,0.62)", maxWidth: 650, margin: 0 }}>
+                Search branded products, filter by category, and build your next CRE marketing kit.
+              </p>
+            </div>
+            <span style={{ color: "rgba(1,1,1,0.58)", fontWeight: 800 }}>{loading ? "Loading..." : `${filteredProducts.length} of ${products.length} products`}</span>
+          </div>
+
+          <div style={{ display: "grid", gap: 14, padding: 18, borderRadius: 18, background: "#fff", marginBottom: 28, boxShadow: "0 18px 46px rgba(0,0,0,0.06)" }}>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search products, colors, variants..." style={{ minHeight: 50, borderRadius: 999, border: "1px solid rgba(1,1,1,0.12)", padding: "0 18px", outline: "none", color: "#010101" }} />
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              {categories.map((category) => (
+                <button key={category} onClick={() => setActiveCategory(category)} style={{ padding: "10px 14px", borderRadius: 999, border: activeCategory === category ? "1px solid var(--upzyellow)" : "1px solid rgba(1,1,1,0.14)", background: activeCategory === category ? "var(--upzyellow)" : "#fff", color: "#010101", cursor: "pointer", fontWeight: 900 }}>{category}</button>
+              ))}
+              {priceFilters.map((filter) => (
+                <button key={filter} onClick={() => setPriceFilter(filter)} style={{ padding: "10px 14px", borderRadius: 999, border: priceFilter === filter ? "1px solid #010101" : "1px solid rgba(1,1,1,0.14)", background: priceFilter === filter ? "#010101" : "#fff", color: priceFilter === filter ? "#fff" : "#010101", cursor: "pointer", fontWeight: 800 }}>{filter}</button>
+              ))}
+              {(query || activeCategory !== "All" || priceFilter !== "All") && <button onClick={clearFilters} style={{ border: 0, background: "transparent", color: "#010101", fontWeight: 900, cursor: "pointer" }}>Clear filters</button>}
+            </div>
+          </div>
+
+          {!loading && filteredProducts.length === 0 && <p style={{ color: "rgba(1,1,1,0.7)" }}>No products match your current filters.</p>}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))", gap: 22 }}>
+            {featuredProducts.map((product) => <ProductCard key={product.id} product={product} />)}
+          </div>
+        </div>
+      </section>
+
+      <section style={{ padding: "66px 0", background: "#fff" }}>
+        <div className="container">
+          <div style={{ borderRadius: 18, overflow: "hidden", display: "grid", gridTemplateColumns: "minmax(240px, 0.8fr) minmax(320px, 1.2fr)", background: "#010101", color: "#fff" }}>
+            <div style={{ minHeight: 260, background: "linear-gradient(135deg, rgba(237,191,45,0.22), rgba(255,255,255,0.06))" }} />
+            <div style={{ padding: "46px clamp(24px, 5vw, 70px)" }}>
+              <div style={{ color: "var(--upzyellow)", fontSize: 12, textTransform: "uppercase", fontWeight: 900, marginBottom: 12 }}>Ready to elevate your brand?</div>
+              <h2 style={{ color: "#fff", fontSize: "clamp(30px, 4vw, 56px)", marginBottom: 20 }}>Let’s create something exceptional together.</h2>
+              <a href="https://www.upzdesign.com/contact.html" className="button">Get in Touch</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer style={{ background: "#070707", color: "#fff", padding: "54px 0 26px" }}>
+        <div className="container">
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 1.4fr) repeat(4, minmax(130px, 1fr))", gap: 32, marginBottom: 34 }}>
+            <div>
+              <div style={{ fontSize: 34, fontWeight: 900, letterSpacing: "-0.08em", lineHeight: 0.9 }}>UPZ<br /><span style={{ color: "var(--upzyellow)", fontSize: 23 }}>DESIGN</span></div>
+              <p style={{ color: "rgba(255,255,255,0.62)", marginTop: 18, maxWidth: 260, lineHeight: 1.7 }}>Premium merchandising and marketing solutions for commercial real estate professionals and companies.</p>
+            </div>
+            <div><h4>Shop</h4><p>All Products</p><p>Apparel</p><p>Drinkware</p><p>Office</p></div>
+            <div><h4>Broker Packages</h4><p>Starter Kit</p><p>Open House</p><p>Listing Launch</p><p>Luxury Listing</p></div>
+            <div><h4>Company</h4><p>About Us</p><p>Our Process</p><p>Contact Us</p><p>FAQ</p></div>
+            <div><h4>Account</h4><p>Orders</p><p>Favorites</p><p>Cart</p></div>
+          </div>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)", paddingTop: 18, display: "flex", justifyContent: "space-between", gap: 18, flexWrap: "wrap", color: "rgba(255,255,255,0.55)", fontSize: 12 }}>
+            <span>© 2026 UPZ Design. All rights reserved.</span>
+            <span>Privacy Policy / Terms of Service / Shipping & Returns</span>
+          </div>
+        </div>
+      </footer>
     </main>
   );
 }
