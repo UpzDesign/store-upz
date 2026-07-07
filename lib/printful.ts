@@ -1,19 +1,29 @@
 const PRINTFUL_API = "https://api.printful.com";
 
-function getToken() {
-  const token = process.env.PRINTFUL_ACCESS_TOKEN;
+export type PrintfulClientOptions = {
+  companySlug?: string | null;
+};
+
+function getToken(options: PrintfulClientOptions = {}) {
+  const slug = options.companySlug?.toUpperCase().replace(/[^A-Z0-9]/g, "_");
+  const companyToken = slug ? process.env[`PRINTFUL_ACCESS_TOKEN_${slug}`] : null;
+  const token = companyToken || process.env.PRINTFUL_ACCESS_TOKEN;
 
   if (!token) {
-    throw new Error("Missing PRINTFUL_ACCESS_TOKEN environment variable");
+    throw new Error(
+      slug
+        ? `Missing PRINTFUL_ACCESS_TOKEN_${slug} or PRINTFUL_ACCESS_TOKEN environment variable`
+        : "Missing PRINTFUL_ACCESS_TOKEN environment variable"
+    );
   }
 
   return token;
 }
 
-async function printfulFetch(path: string) {
+async function printfulFetch(path: string, options: PrintfulClientOptions = {}) {
   const res = await fetch(`${PRINTFUL_API}${path}`, {
     headers: {
-      Authorization: `Bearer ${getToken()}`,
+      Authorization: `Bearer ${getToken(options)}`,
     },
     cache: "no-store",
   });
@@ -36,9 +46,9 @@ function getVariantImages(v: any, fallback?: string | null) {
   return fallback ? [fallback] : [];
 }
 
-export async function getProductById(id: string) {
+export async function getProductById(id: string, options: PrintfulClientOptions = {}) {
   try {
-    const json = await printfulFetch(`/store/products/${id}`);
+    const json = await printfulFetch(`/store/products/${id}`, options);
     const data = json?.result;
 
     const syncProduct = data?.sync_product;
@@ -92,9 +102,9 @@ export async function getProductById(id: string) {
   }
 }
 
-export async function getProducts() {
+export async function getProducts(options: PrintfulClientOptions = {}) {
   try {
-    const json = await printfulFetch("/store/products");
+    const json = await printfulFetch("/store/products", options);
     const raw = json?.result?.sync_products ?? json?.result ?? [];
 
     if (!Array.isArray(raw)) {
@@ -104,7 +114,7 @@ export async function getProducts() {
 
     const products = await Promise.all(
       raw.map(async (p: any) => {
-        const details = await getProductById(String(p.id));
+        const details = await getProductById(String(p.id), options);
 
         return {
           id: String(p.id),
