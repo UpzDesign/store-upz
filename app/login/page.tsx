@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { companies } from "@/lib/companies";
+import { validateCompanyPassword } from "@/lib/companies";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [companySlug, setCompanySlug] = useState(companies[0]?.slug || "");
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
@@ -14,10 +14,10 @@ export default function LoginPage() {
     event.preventDefault();
     setError("");
 
-    const company = companies.find((item) => item.slug === companySlug);
+    const company = validateCompanyPassword(username, password);
 
-    if (!company || password !== company.password) {
-      setError("Invalid company access. Please check your login details.");
+    if (!company) {
+      setError("Invalid company access. Please check your username and password.");
       return;
     }
 
@@ -41,21 +41,25 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="portal-login-form">
             <label>
-              Company
-              <select value={companySlug} onChange={(event) => setCompanySlug(event.target.value)}>
-                {companies.map((company) => (
-                  <option key={company.id} value={company.slug}>{company.name}</option>
-                ))}
-              </select>
+              Username
+              <input
+                type="text"
+                value={username}
+                onChange={(event) => setUsername(event.target.value)}
+                placeholder="Enter company username"
+                autoComplete="username"
+                autoCapitalize="none"
+              />
             </label>
 
             <label>
-              Access Password
+              Password
               <input
                 type="password"
                 value={password}
                 onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter company password"
+                placeholder="Enter password"
+                autoComplete="current-password"
               />
             </label>
 
@@ -63,10 +67,6 @@ export default function LoginPage() {
 
             <button type="submit">Enter Portal</button>
           </form>
-
-          <div className="portal-login-note">
-            Demo RTL password: <strong>rtl-demo</strong>
-          </div>
         </div>
 
         <div className="portal-login-side">
