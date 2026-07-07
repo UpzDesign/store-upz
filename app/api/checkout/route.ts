@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getCompanyBySlug } from "@/lib/companies";
 
 type CheckoutItem = {
   id: string;
@@ -9,6 +10,8 @@ type CheckoutItem = {
   quantity: number;
   packageId?: string;
   packageName?: string;
+  companySlug?: string;
+  companyName?: string;
 };
 
 function getSiteUrl() {
@@ -29,6 +32,8 @@ function sanitizeItems(items: CheckoutItem[]) {
       variant: item.variant ? String(item.variant).slice(0, 120) : undefined,
       quantity: Math.max(1, Number(item.quantity || 1)),
       price: Number(item.price || 0),
+      companySlug: item.companySlug ? String(item.companySlug).toLowerCase() : undefined,
+      companyName: item.companyName ? String(item.companyName).slice(0, 120) : undefined,
     }))
     .filter((item) => item.id && item.price > 0 && item.quantity > 0);
 }
@@ -38,6 +43,26 @@ function buildFulfillmentPayload(items: ReturnType<typeof sanitizeItems>) {
     .map((item) => `${item.id}:${item.quantity}`)
     .join(",")
     .slice(0, 500);
+}
+
+function resolveCompanySlug(bodyCompanySlug: unknown, items: ReturnType<typeof sanitizeItems>) {
+  const itemCompanySlugs = Array.from(
+    new Set(items.map((item) => item.companySlug).filter(Boolean))
+  ) as string[];
+
+  if (itemCompanySlugs.length > 1) {
+    return { error: "Please checkout one company portal at a time." };
+  }
+
+  const explicitSlug = typeof bodyCompanySlug === "string" ? bodyCompanySlug.trim().toLowerCase() : "";
+  const slug = itemCompanySlugs[0] || explicitSlug || "upz";
+  const company = slug === "upz" ? null : getCompanyBySlug(slug);
+
+  if (slug !== "upz" && !company) {
+    return { error: "Invalid company portal checkout." };
+  }
+
+  return { slug, company };
 }
 
 export async function POST(request: NextRequest) {
@@ -57,6 +82,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Cart is empty" }, { status: 400 });
   }
 
+  const companyResult = resolveCompanySlug(body?.companySlug, items);
+
+  if (companyResult.error) {
+    return NextResponse.json({ error: companyResult.error }, { status: 400 });
+  }
+
+  const checkoutCompanySlug = companyResult.slug || "upz";
+  const checkoutCompanyName = companyResult.company?.name || "UPZ Store";
   const siteUrl = getSiteUrl();
   const params = new URLSearchParams();
 
@@ -67,10 +100,13 @@ export async function POST(request: NextRequest) {
   params.append("billing_address_collection", "required");
   params.append("shipping_address_collection[allowed_countries][0]", "US");
   params.append("metadata[fulfillment_items]", buildFulfillmentPayload(items));
-  params.append("metadata[source]", "upz-store");
+  params.append("metadata[source]", "upz-brand-portal");
+  params.append("metadata[company_slug]", checkoutCompanySlug);
+  params.append("metadata[company_name]", checkoutCompanyName);
+  params.append("metadata[printful_token_env]", checkoutCompanySlug === "upz" ? "PRINTFUL_ACCESS_TOKEN" : `PRINTFUL_ACCESS_TOKEN_${checkoutCompanySlug.toUpperCase()}`);
 
   items.forEach((item, index) => {
-    const descriptionParts = [item.variant, item.packageName].filter(Boolean);
+    const descriptionParts = [item.variant, item.packageName, checkoutCompanyName].filter(Boolean);
     const displayName = item.packageName
       ? `${item.name} (${item.packageName})`
       : item.name;
