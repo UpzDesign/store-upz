@@ -4,6 +4,17 @@
   overflow-x: hidden;
 }
 
+.portal-brand-card img[src="/ksr-logo.svg"] {
+  width: min(180px, 100%);
+  height: auto;
+  object-fit: contain;
+}
+
+.portal-login-side img,
+.portal-brand-card img {
+  object-fit: contain;
+}
+
 .portal-product-detail-grid {
   min-width: 0;
 }
