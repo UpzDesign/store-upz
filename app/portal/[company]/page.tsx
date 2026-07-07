@@ -207,7 +207,7 @@ export default function CompanyPortalPage() {
 
           <div className="portal-product-grid">
             {filteredProducts.slice(0, 12).map((product) => (
-              <Link key={product.id} href={`/product/${product.id}`} className="portal-product-card">
+              <Link key={product.id} href={`/portal/${company.slug}/product/${product.id}`} className="portal-product-card">
                 <img src={product.image || "/placeholder.png"} alt={product.name} />
                 <div>
                   <span>{getCategory(product)}</span>
