@@ -247,7 +247,7 @@ export default function Home() {
 
       <footer className="upz-footer">
         <div className="upz-wrap upz-footer-grid">
-          <div><h2>UPZ<span>DESIGN</span></h2><p>Premium merchandising and marketing solutions for commercial real estate professionals and companies.</p></div>
+          <div><img className="upz-footer-logo" src="/upz-logo.svg" alt="UPZ Design" /><p>Premium merchandising and marketing solutions for commercial real estate professionals and companies.</p></div>
           <div><h4>Shop</h4><p>All Products</p><p>Apparel</p><p>Drinkware</p><p>Office</p></div>
           <div><h4>Broker Packages</h4><p>Broker Starter Kit</p><p>Open House Package</p><p>New Listing Launch Kit</p><p>Luxury Listing Package</p></div>
           <div><h4>Company</h4><p>About Us</p><p>Our Process</p><p>Contact Us</p><p>FAQ</p></div>
