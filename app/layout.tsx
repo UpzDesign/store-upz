@@ -22,18 +22,18 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={montserrat.className}>
         <Providers>
           <header className="store-header">
-            <div className="container store-header-inner">
+            <div className="store-header-inner">
               <Link href="/" className="store-logo">
-                <span className="store-logo-mark">U</span>
-                <span>UPZ Store</span>
+                <span className="store-logo-main">UPZ</span>
+                <span className="store-logo-sub">DESIGN</span>
               </Link>
 
               <nav className="store-nav" aria-label="Store navigation">
-                <a href="/#cre-packages">Packages</a>
-                <a href="/#products">Products</a>
-                <a href="https://www.upzdesign.com/" target="_blank" className="upz-link">
-                  UPZDesign.com
-                </a>
+                <a href="/collections/apparel">Apparel</a>
+                <a href="/collections/drinkware">Drinkware</a>
+                <a href="/collections/office">Office & Accessories</a>
+                <a href="/collections/accessories">Signage & Materials</a>
+                <a href="/#cre-packages">Broker Packages</a>
               </nav>
             </div>
           </header>
