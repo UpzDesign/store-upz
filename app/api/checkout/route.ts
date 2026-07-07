@@ -14,7 +14,8 @@ type CheckoutItem = {
 function getSiteUrl() {
   return (
     process.env.NEXT_PUBLIC_SITE_URL ||
-    process.env.VERCEL_PROJECT_PRODUCTION_URL && `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` ||
+    (process.env.VERCEL_PROJECT_PRODUCTION_URL &&
+      `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`) ||
     "http://localhost:3000"
   );
 }
@@ -23,12 +24,20 @@ function sanitizeItems(items: CheckoutItem[]) {
   return items
     .map((item) => ({
       ...item,
+      id: String(item.id || ""),
       name: String(item.name || "UPZ Store Item").slice(0, 120),
       variant: item.variant ? String(item.variant).slice(0, 120) : undefined,
       quantity: Math.max(1, Number(item.quantity || 1)),
       price: Number(item.price || 0),
     }))
-    .filter((item) => item.price > 0 && item.quantity > 0);
+    .filter((item) => item.id && item.price > 0 && item.quantity > 0);
+}
+
+function buildFulfillmentPayload(items: ReturnType<typeof sanitizeItems>) {
+  return items
+    .map((item) => `${item.id}:${item.quantity}`)
+    .join(",")
+    .slice(0, 500);
 }
 
 export async function POST(request: NextRequest) {
@@ -55,8 +64,10 @@ export async function POST(request: NextRequest) {
   params.append("success_url", `${siteUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`);
   params.append("cancel_url", `${siteUrl}/checkout/cancel`);
   params.append("allow_promotion_codes", "true");
-  params.append("billing_address_collection", "auto");
+  params.append("billing_address_collection", "required");
   params.append("shipping_address_collection[allowed_countries][0]", "US");
+  params.append("metadata[fulfillment_items]", buildFulfillmentPayload(items));
+  params.append("metadata[source]", "upz-store");
 
   items.forEach((item, index) => {
     const descriptionParts = [item.variant, item.packageName].filter(Boolean);
@@ -75,7 +86,7 @@ export async function POST(request: NextRequest) {
     if (descriptionParts.length) {
       params.append(
         `line_items[${index}][price_data][product_data][description]`,
-        descriptionParts.join(" · ")
+        descriptionParts.join(" - ")
       );
     }
   });
