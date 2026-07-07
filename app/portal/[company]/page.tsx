@@ -12,7 +12,13 @@ function getPrimaryVariant(product: any) {
   return product?.variants?.[0] || product;
 }
 
-function buildPackageItems(storePackage: any, products: any[], packageName: string): CartItem[] {
+function buildPackageItems(
+  storePackage: any,
+  products: any[],
+  packageName: string,
+  companySlug: string,
+  companyName: string
+): CartItem[] {
   const usedProductIds = new Set<string>();
 
   return storePackage.rules.flatMap((rule: any) => {
@@ -38,6 +44,8 @@ function buildPackageItems(storePackage: any, products: any[], packageName: stri
         quantity: Number(rule.quantity || 1),
         packageId: storePackage.id,
         packageName,
+        companySlug,
+        companyName,
       },
     ];
   });
@@ -78,7 +86,13 @@ export default function CompanyPortalPage() {
     () =>
       storePackages.map((storePackage) => {
         const packageName = `${company?.shortName || "Company"} ${storePackage.title}`;
-        const items = buildPackageItems(storePackage, products, packageName);
+        const items = buildPackageItems(
+          storePackage,
+          products,
+          packageName,
+          company?.slug || "",
+          company?.name || ""
+        );
         const subtotal = items.reduce(
           (sum: number, item: CartItem) => sum + Number(item.price || 0) * item.quantity,
           0
