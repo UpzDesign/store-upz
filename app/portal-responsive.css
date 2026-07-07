@@ -1,0 +1,138 @@
+/* Portal/product responsive polish */
+.portal-product-detail,
+.portal-page {
+  overflow-x: hidden;
+}
+
+.portal-product-detail-grid {
+  min-width: 0;
+}
+
+.portal-product-info-panel,
+.portal-product-gallery-main,
+.portal-product-thumbs,
+.portal-option-group,
+.portal-option-group div {
+  min-width: 0;
+}
+
+.portal-product-gallery-main img {
+  max-width: 100%;
+}
+
+.portal-product-thumbs {
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+}
+
+.portal-option-group div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.portal-option-group button {
+  max-width: 100%;
+  white-space: normal;
+}
+
+@media (max-width: 900px) {
+  .portal-product-detail {
+    padding: 34px 0 60px;
+  }
+
+  .portal-product-detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .portal-product-info-panel {
+    position: static;
+  }
+
+  .portal-product-info-panel h1 {
+    font-size: clamp(28px, 9vw, 40px);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+  }
+
+  .portal-product-price {
+    font-size: 22px;
+  }
+}
+
+@media (max-width: 760px) {
+  html,
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .portal-product-detail .upz-wrap,
+  .portal-page .upz-wrap {
+    width: min(100vw - 28px, 1180px);
+  }
+
+  .portal-breadcrumb {
+    font-size: 11px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  .portal-product-gallery-main {
+    border-radius: 7px;
+  }
+
+  .portal-product-gallery-main img {
+    aspect-ratio: 1 / 1;
+    padding: 10px;
+  }
+
+  .portal-product-thumbs {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 68px;
+    grid-template-columns: none;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: thin;
+  }
+
+  .portal-product-thumbs button {
+    width: 68px;
+    min-width: 68px;
+  }
+
+  .portal-product-info-panel p {
+    font-size: 13px;
+    line-height: 1.65;
+  }
+
+  .portal-option-group {
+    margin: 16px 0;
+  }
+
+  .portal-option-group button {
+    padding: 8px 10px;
+    font-size: 11px;
+  }
+
+  .portal-product-info-panel .button,
+  .portal-product-info-panel button[style] {
+    width: 100% !important;
+  }
+
+  .portal-action-grid,
+  .portal-package-grid,
+  .portal-product-grid,
+  .portal-services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-product-card,
+  .portal-action-card,
+  .portal-services-grid article {
+    max-width: 100%;
+  }
+}
