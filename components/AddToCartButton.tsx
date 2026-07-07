@@ -30,19 +30,23 @@ export default function AddToCartButton({ product }: any) {
         openCart?.();
       }}
       style={{
-        marginTop: 20,
+        marginTop: 16,
         width: "100%",
-        padding: "15px 20px",
+        minHeight: 46,
+        padding: "12px 18px",
         background: "var(--upzyellow)",
         color: "var(--upzblack)",
         border: "1px solid var(--upzyellow)",
-        borderRadius: 999,
+        borderRadius: 5,
         cursor: "pointer",
+        fontSize: 12,
         fontWeight: 900,
-        letterSpacing: "-0.01em",
+        letterSpacing: "0.04em",
+        textTransform: "uppercase",
+        boxShadow: "0 14px 34px rgba(237,191,45,0.22)",
       }}
     >
-      Add to Cart{price ? ` — $${price.toFixed(2)}` : ""}
+      Add to Cart{price ? ` · $${price.toFixed(2)}` : ""}
     </button>
   );
 }
