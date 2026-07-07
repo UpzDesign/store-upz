@@ -36,7 +36,7 @@ export const companies: BrandPortalCompany[] = [
     name: "RTL Realty Group",
     shortName: "RTL",
     password: "rtldemo",
-    logo: "/upz-logo.svg",
+    logo: "/rtl-logo.svg",
     primaryColor: "#DC353C",
     secondaryColor: "#010101",
     backgroundColor: "#ffffff",
