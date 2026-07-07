@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useCartStore } from "@/store/cart-store";
 
 function formatPrice(value?: number) {
@@ -19,6 +19,9 @@ export default function Cart() {
     clearCart,
     openCart,
   } = useCartStore();
+
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
 
   const totalQuantity = useMemo(
     () => items.reduce((sum, item) => sum + item.quantity, 0),
@@ -44,6 +47,30 @@ export default function Cart() {
 
     return Array.from(groups.entries()).map(([id, group]) => ({ id, ...group }));
   }, [items]);
+
+  const handleCheckout = async () => {
+    setCheckoutError("");
+    setIsCheckingOut(true);
+
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data?.url) {
+        throw new Error(data?.error || "Unable to start checkout");
+      }
+
+      window.location.href = data.url;
+    } catch (error: any) {
+      setCheckoutError(error?.message || "Unable to start checkout");
+      setIsCheckingOut(false);
+    }
+  };
 
   return (
     <>
@@ -265,8 +292,18 @@ export default function Cart() {
             <p style={{ marginBottom: 12, fontSize: 12, opacity: 0.62 }}>
               Shipping, taxes, and fulfillment will be calculated during checkout.
             </p>
-            <button className="button" disabled style={{ width: "100%", opacity: 0.5, cursor: "not-allowed" }}>
-              Checkout Coming Next
+            {checkoutError && (
+              <p style={{ marginBottom: 10, color: "var(--upzyellow)", fontSize: 12 }}>
+                {checkoutError}
+              </p>
+            )}
+            <button
+              className="button"
+              onClick={handleCheckout}
+              disabled={isCheckingOut || subtotal <= 0}
+              style={{ width: "100%", opacity: isCheckingOut || subtotal <= 0 ? 0.55 : 1 }}
+            >
+              {isCheckingOut ? "Redirecting..." : "Checkout"}
             </button>
             <button
               onClick={clearCart}
