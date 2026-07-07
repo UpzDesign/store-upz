@@ -62,7 +62,7 @@ export default function CompanyPortalPage() {
       return;
     }
 
-    fetch("/api/products")
+    fetch(`/api/products?company=${company.slug}`)
       .then((res) => res.json())
       .then((data) => setProducts(Array.isArray(data) ? data : []))
       .catch(console.error)
