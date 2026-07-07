@@ -78,17 +78,20 @@ export default function Cart() {
         onClick={() => (isOpen ? closeCart() : openCart())}
         style={{
           position: "fixed",
-          bottom: 20,
-          right: 20,
+          bottom: 18,
+          right: 18,
           background: "var(--upzyellow)",
           color: "var(--upzblack)",
-          padding: "12px 16px",
-          borderRadius: 999,
+          padding: "10px 14px",
+          borderRadius: 6,
           border: "1px solid var(--upzyellow)",
           zIndex: 10000,
           cursor: "pointer",
           fontWeight: 900,
-          boxShadow: "0 18px 50px rgba(0,0,0,0.35)",
+          fontSize: 12,
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
+          boxShadow: "0 16px 42px rgba(0,0,0,0.28)",
         }}
       >
         Cart ({totalQuantity})
@@ -99,7 +102,7 @@ export default function Cart() {
         style={{
           position: "fixed",
           inset: 0,
-          background: isOpen ? "rgba(0,0,0,0.68)" : "transparent",
+          background: isOpen ? "rgba(0,0,0,0.62)" : "transparent",
           pointerEvents: isOpen ? "auto" : "none",
           transition: "background 0.3s ease",
           zIndex: 9998,
@@ -111,24 +114,25 @@ export default function Cart() {
           position: "fixed",
           top: 0,
           right: 0,
-          width: "min(460px, 92vw)",
-          height: "100vh",
+          width: "min(430px, 100vw)",
+          height: "100dvh",
+          maxHeight: "100dvh",
           background: "#010101",
           color: "#ffffff",
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 0.35s ease",
           boxShadow: "0 0 70px rgba(0,0,0,0.65)",
           zIndex: 9999,
-          padding: 22,
-          display: "flex",
-          flexDirection: "column",
+          display: "grid",
+          gridTemplateRows: "auto auto minmax(0, 1fr) auto",
           borderLeft: "1px solid rgba(255,255,255,0.12)",
+          overflow: "hidden",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 16, padding: "20px 20px 14px" }}>
           <div>
-            <h3 style={{ margin: 0 }}>Cart</h3>
-            <p style={{ marginTop: 6, fontSize: 13, opacity: 0.65 }}>
+            <h3 style={{ margin: 0, color: "#fff", fontSize: 22, letterSpacing: "-0.04em" }}>Cart</h3>
+            <p style={{ marginTop: 5, marginBottom: 0, fontSize: 12, opacity: 0.62 }}>
               {totalQuantity} item{totalQuantity === 1 ? "" : "s"}
             </p>
           </div>
@@ -136,66 +140,70 @@ export default function Cart() {
             onClick={closeCart}
             aria-label="Close cart"
             style={{
-              width: 38,
-              height: 38,
+              width: 34,
+              height: 34,
               borderRadius: "50%",
               border: "1px solid rgba(255,255,255,0.16)",
               background: "transparent",
               color: "#fff",
               cursor: "pointer",
+              flexShrink: 0,
             }}
           >
-            x
+            ×
           </button>
         </div>
 
-        {packageGroups.length > 0 && (
-          <div style={{ marginTop: 16, display: "grid", gap: 8 }}>
-            {packageGroups.map((group) => (
-              <div
-                key={group.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  gap: 12,
-                  alignItems: "center",
-                  padding: 12,
-                  borderRadius: 14,
-                  border: "1px solid rgba(237,191,45,0.24)",
-                  background: "rgba(237,191,45,0.08)",
-                  fontSize: 12,
-                }}
-              >
-                <strong style={{ color: "var(--upzyellow)" }}>{group.name}</strong>
-                <button
-                  onClick={() => removePackage(group.id)}
+        <div style={{ padding: packageGroups.length ? "0 20px 12px" : "0 20px" }}>
+          {packageGroups.length > 0 && (
+            <div style={{ display: "grid", gap: 8 }}>
+              {packageGroups.map((group) => (
+                <div
+                  key={group.id}
                   style={{
-                    border: "none",
-                    background: "transparent",
-                    color: "#fff",
-                    opacity: 0.75,
-                    cursor: "pointer",
-                    padding: 0,
-                    fontSize: 12,
+                    display: "flex",
+                    justifyContent: "space-between",
+                    gap: 12,
+                    alignItems: "center",
+                    padding: 10,
+                    borderRadius: 8,
+                    border: "1px solid rgba(237,191,45,0.24)",
+                    background: "rgba(237,191,45,0.08)",
+                    fontSize: 11,
                   }}
                 >
-                  Remove package
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+                  <strong style={{ color: "var(--upzyellow)", lineHeight: 1.3 }}>{group.name}</strong>
+                  <button
+                    onClick={() => removePackage(group.id)}
+                    style={{
+                      border: "none",
+                      background: "transparent",
+                      color: "#fff",
+                      opacity: 0.72,
+                      cursor: "pointer",
+                      padding: 0,
+                      fontSize: 11,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
-        <div style={{ flex: 1, overflowY: "auto", marginTop: 18 }}>
+        <div style={{ overflowY: "auto", padding: "0 20px 18px", minHeight: 0 }}>
           {items.length === 0 ? (
-            <p style={{ opacity: 0.65 }}>Your cart is empty</p>
+            <p style={{ opacity: 0.65, fontSize: 13 }}>Your cart is empty</p>
           ) : (
             items.map((item) => (
               <div
                 key={item.id}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "70px 1fr auto",
+                  gridTemplateColumns: "62px minmax(0, 1fr)",
                   gap: 12,
                   marginBottom: 14,
                   borderBottom: "1px solid rgba(255,255,255,0.1)",
@@ -206,32 +214,50 @@ export default function Cart() {
                   src={item.image || "/placeholder.png"}
                   alt={item.name}
                   style={{
-                    width: 70,
-                    height: 70,
+                    width: 62,
+                    height: 62,
                     objectFit: "cover",
-                    borderRadius: 12,
+                    borderRadius: 8,
                     background: "#fff",
                   }}
                 />
-                <div>
-                  {item.packageName && (
-                    <div style={{ color: "var(--upzyellow)", fontSize: 10, fontWeight: 900, marginBottom: 5 }}>
-                      {item.packageName}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 10, alignItems: "flex-start" }}>
+                    <div style={{ minWidth: 0 }}>
+                      {item.packageName && (
+                        <div style={{ color: "var(--upzyellow)", fontSize: 9, fontWeight: 900, marginBottom: 5, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                          {item.packageName}
+                        </div>
+                      )}
+                      <div style={{ fontWeight: 800, lineHeight: 1.3, fontSize: 13, overflowWrap: "anywhere" }}>{item.name}</div>
+                      {item.variant && (
+                        <div style={{ fontSize: 11, opacity: 0.58, marginTop: 4, overflowWrap: "anywhere" }}>
+                          {item.variant}
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div style={{ fontWeight: 800, lineHeight: 1.25 }}>{item.name}</div>
-                  {item.variant && (
-                    <div style={{ fontSize: 12, opacity: 0.62, marginTop: 4 }}>
-                      {item.variant}
-                    </div>
-                  )}
+                    <button
+                      onClick={() => removeItem(item.id)}
+                      style={{
+                        border: "none",
+                        background: "transparent",
+                        color: "var(--upzyellow)",
+                        cursor: "pointer",
+                        fontSize: 11,
+                        padding: 0,
+                        flexShrink: 0,
+                      }}
+                    >
+                      Remove
+                    </button>
+                  </div>
 
-                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 9 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, flexWrap: "wrap" }}>
                     <button
                       onClick={() => decreaseQuantity(item.id)}
                       style={{
-                        width: 28,
-                        height: 28,
+                        width: 26,
+                        height: 26,
                         borderRadius: "50%",
                         border: "1px solid rgba(255,255,255,0.18)",
                         background: "transparent",
@@ -241,12 +267,12 @@ export default function Cart() {
                     >
                       -
                     </button>
-                    <strong style={{ minWidth: 18, textAlign: "center" }}>{item.quantity}</strong>
+                    <strong style={{ minWidth: 16, textAlign: "center", fontSize: 12 }}>{item.quantity}</strong>
                     <button
                       onClick={() => increaseQuantity(item.id)}
                       style={{
-                        width: 28,
-                        height: 28,
+                        width: 26,
+                        height: 26,
                         borderRadius: "50%",
                         border: "1px solid rgba(255,255,255,0.18)",
                         background: "transparent",
@@ -256,40 +282,24 @@ export default function Cart() {
                     >
                       +
                     </button>
-                    <span style={{ fontSize: 12, opacity: 0.62 }}>
-                      x {formatPrice(item.price)}
-                    </span>
-                  </div>
-
-                  <div style={{ marginTop: 7, color: "var(--upzyellow)", fontWeight: 900 }}>
-                    {formatPrice(Number(item.price || 0) * item.quantity)}
+                    <span style={{ fontSize: 11, opacity: 0.58 }}>× {formatPrice(item.price)}</span>
+                    <strong style={{ marginLeft: "auto", color: "var(--upzyellow)", fontSize: 13 }}>
+                      {formatPrice(Number(item.price || 0) * item.quantity)}
+                    </strong>
                   </div>
                 </div>
-                <button
-                  onClick={() => removeItem(item.id)}
-                  style={{
-                    border: "none",
-                    background: "transparent",
-                    color: "var(--upzyellow)",
-                    cursor: "pointer",
-                    fontSize: 12,
-                    padding: 0,
-                  }}
-                >
-                  Remove
-                </button>
               </div>
             ))
           )}
         </div>
 
         {items.length > 0 && (
-          <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", paddingTop: 16 }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+          <div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", padding: "16px 20px 20px", background: "#010101" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 14 }}>
               <span>Subtotal</span>
               <strong style={{ color: "var(--upzyellow)" }}>{formatPrice(subtotal)}</strong>
             </div>
-            <p style={{ marginBottom: 12, fontSize: 12, opacity: 0.62 }}>
+            <p style={{ marginBottom: 12, fontSize: 11, opacity: 0.58, lineHeight: 1.5 }}>
               Shipping, taxes, and fulfillment will be calculated during checkout.
             </p>
             {checkoutError && (
@@ -309,13 +319,17 @@ export default function Cart() {
               onClick={clearCart}
               style={{
                 width: "100%",
-                marginTop: 10,
-                padding: 12,
+                marginTop: 9,
+                padding: 11,
                 background: "transparent",
                 color: "#fff",
-                borderRadius: 999,
+                borderRadius: 5,
                 border: "1px solid rgba(255,255,255,0.18)",
                 cursor: "pointer",
+                fontSize: 11,
+                fontWeight: 900,
+                textTransform: "uppercase",
+                letterSpacing: "0.04em",
               }}
             >
               Clear Cart
