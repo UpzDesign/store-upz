@@ -42,11 +42,22 @@ async function printfulFetch(path: string, options: PrintfulClientOptions = {}) 
   return res.json();
 }
 
+function getMockupImages(files: any[] = []) {
+  return Array.from(
+    new Set(
+      files
+        .filter((file: any) => {
+          const type = String(file?.type || "").toLowerCase();
+          return type === "mockup" || type === "preview" || type.includes("mockup");
+        })
+        .map((file: any) => file?.preview_url || file?.thumbnail_url)
+        .filter(Boolean)
+    )
+  ) as string[];
+}
+
 function getVariantImages(v: any, fallback?: string | null) {
-  const images =
-    v?.files
-      ?.map((f: any) => f?.preview_url || f?.thumbnail_url)
-      .filter(Boolean) || [];
+  const images = getMockupImages(v?.files || []);
 
   if (images.length > 0) return images;
   return fallback ? [fallback] : [];
@@ -61,13 +72,22 @@ export async function getProductById(id: string, options: PrintfulClientOptions 
     const syncVariants = Array.isArray(data?.sync_variants)
       ? data.sync_variants
       : [];
+    const syncProductFiles = Array.isArray(data?.sync_product_files)
+      ? data.sync_product_files
+      : [];
 
     if (!syncProduct) return null;
 
+    const productMockups = getMockupImages(syncProductFiles);
+    const variantMockups = Array.from(
+      new Set(syncVariants.flatMap((variant: any) => getMockupImages(variant?.files || [])))
+    ) as string[];
+    const allMockups = Array.from(new Set([...productMockups, ...variantMockups])) as string[];
+
     const thumbnail =
+      allMockups[0] ||
       syncProduct.thumbnail_url ||
       syncProduct.image ||
-      syncVariants?.[0]?.files?.find((f: any) => f?.type === "preview")?.preview_url ||
       null;
 
     const variants = syncVariants.map((v: any) => ({
@@ -82,14 +102,16 @@ export async function getProductById(id: string, options: PrintfulClientOptions 
       images: getVariantImages(v, thumbnail),
     }));
 
-    const gallery = Array.from(
-      new Set(
-        [
-          thumbnail,
-          ...variants.flatMap((variant: any) => variant.images || []),
-        ].filter(Boolean)
-      )
-    );
+    const gallery = allMockups.length > 0
+      ? allMockups
+      : Array.from(
+          new Set(
+            [
+              thumbnail,
+              ...variants.flatMap((variant: any) => variant.images || []),
+            ].filter(Boolean)
+          )
+        );
 
     return {
       id: String(syncProduct.id),
