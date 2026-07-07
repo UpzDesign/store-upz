@@ -10,6 +10,8 @@ export type CartItem = {
   quantity: number;
   packageId?: string;
   packageName?: string;
+  companySlug?: string;
+  companyName?: string;
 };
 
 type CartState = {
@@ -42,16 +44,20 @@ const normalizeItem = (item: CartItem): CartItem => ({
   id: String(item.id),
   price: Number(item.price || 0),
   quantity: Math.max(1, Number(item.quantity || 1)),
+  companySlug: item.companySlug ? String(item.companySlug).toLowerCase() : undefined,
+  companyName: item.companyName ? String(item.companyName) : undefined,
 });
 
 const mergeItems = (currentItems: CartItem[], newItems: CartItem[]) => {
   return newItems.reduce<CartItem[]>((items, item) => {
     const safeItem = normalizeItem(item);
-    const existing = items.find((i) => i.id === safeItem.id);
+    const existing = items.find(
+      (i) => i.id === safeItem.id && (i.companySlug || "") === (safeItem.companySlug || "")
+    );
 
     if (existing) {
       return items.map((i) =>
-        i.id === safeItem.id
+        i.id === safeItem.id && (i.companySlug || "") === (safeItem.companySlug || "")
           ? { ...i, quantity: i.quantity + safeItem.quantity }
           : i
       );
