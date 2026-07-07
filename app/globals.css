@@ -113,6 +113,8 @@ footer h2 { font-size: 30px !important; }
 footer h4 { font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 footer p { font-size: 12px !important; line-height: 1.65 !important; }
 
+/* release marker: storefront-ui-refresh-2026-07-07 */
+
 @media (max-width: 1100px) {
   body main > section:first-child > div:nth-child(3), body main section#cre-packages > div, body main section:nth-child(5) > div { grid-template-columns: 1fr !important; }
   body main > section:first-child { padding: 58px 0 !important; margin-top: 0 !important; }
