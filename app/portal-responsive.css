@@ -4,10 +4,15 @@
   overflow-x: hidden;
 }
 
-.portal-brand-card img[src="/ksr-logo.svg"] {
+.portal-brand-card img[src="/ksr-logo.svg"],
+.portal-brand-card img[src="/rtl-logo.svg"] {
   width: min(180px, 100%);
   height: auto;
   object-fit: contain;
+}
+
+.portal-brand-card img[src="/rtl-logo.svg"] {
+  max-height: 92px;
 }
 
 .portal-login-side img,
