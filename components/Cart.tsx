@@ -53,10 +53,15 @@ export default function Cart() {
     setIsCheckingOut(true);
 
     try {
+      const portalCompanySlug =
+        typeof window !== "undefined"
+          ? window.localStorage.getItem("upz_company_slug")
+          : null;
+
       const response = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify({ items, companySlug: portalCompanySlug }),
       });
 
       const data = await response.json();
@@ -253,35 +258,9 @@ export default function Cart() {
                   </div>
 
                   <div style={{ display: "flex", alignItems: "center", gap: 7, marginTop: 9, flexWrap: "wrap" }}>
-                    <button
-                      onClick={() => decreaseQuantity(item.id)}
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: "50%",
-                        border: "1px solid rgba(255,255,255,0.18)",
-                        background: "transparent",
-                        color: "#fff",
-                        cursor: "pointer",
-                      }}
-                    >
-                      -
-                    </button>
+                    <button onClick={() => decreaseQuantity(item.id)} style={{ width: 26, height: 26, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.18)", background: "transparent", color: "#fff", cursor: "pointer" }}>-</button>
                     <strong style={{ minWidth: 16, textAlign: "center", fontSize: 12 }}>{item.quantity}</strong>
-                    <button
-                      onClick={() => increaseQuantity(item.id)}
-                      style={{
-                        width: 26,
-                        height: 26,
-                        borderRadius: "50%",
-                        border: "1px solid rgba(255,255,255,0.18)",
-                        background: "transparent",
-                        color: "#fff",
-                        cursor: "pointer",
-                      }}
-                    >
-                      +
-                    </button>
+                    <button onClick={() => increaseQuantity(item.id)} style={{ width: 26, height: 26, borderRadius: "50%", border: "1px solid rgba(255,255,255,0.18)", background: "transparent", color: "#fff", cursor: "pointer" }}>+</button>
                     <span style={{ fontSize: 11, opacity: 0.58 }}>× {formatPrice(item.price)}</span>
                     <strong style={{ marginLeft: "auto", color: "var(--upzyellow)", fontSize: 13 }}>
                       {formatPrice(Number(item.price || 0) * item.quantity)}
@@ -302,35 +281,13 @@ export default function Cart() {
             <p style={{ marginBottom: 12, fontSize: 11, opacity: 0.58, lineHeight: 1.5 }}>
               Shipping, taxes, and fulfillment will be calculated during checkout.
             </p>
-            {checkoutError && (
-              <p style={{ marginBottom: 10, color: "var(--upzyellow)", fontSize: 12 }}>
-                {checkoutError}
-              </p>
-            )}
-            <button
-              className="button"
-              onClick={handleCheckout}
-              disabled={isCheckingOut || subtotal <= 0}
-              style={{ width: "100%", opacity: isCheckingOut || subtotal <= 0 ? 0.55 : 1 }}
-            >
+            {checkoutError && <p style={{ marginBottom: 10, color: "var(--upzyellow)", fontSize: 12 }}>{checkoutError}</p>}
+            <button className="button" onClick={handleCheckout} disabled={isCheckingOut || subtotal <= 0} style={{ width: "100%", opacity: isCheckingOut || subtotal <= 0 ? 0.55 : 1 }}>
               {isCheckingOut ? "Redirecting..." : "Checkout"}
             </button>
             <button
               onClick={clearCart}
-              style={{
-                width: "100%",
-                marginTop: 9,
-                padding: 11,
-                background: "transparent",
-                color: "#fff",
-                borderRadius: 5,
-                border: "1px solid rgba(255,255,255,0.18)",
-                cursor: "pointer",
-                fontSize: 11,
-                fontWeight: 900,
-                textTransform: "uppercase",
-                letterSpacing: "0.04em",
-              }}
+              style={{ width: "100%", marginTop: 9, padding: 11, background: "transparent", color: "#fff", borderRadius: 5, border: "1px solid rgba(255,255,255,0.18)", cursor: "pointer", fontSize: 11, fontWeight: 900, textTransform: "uppercase", letterSpacing: "0.04em" }}
             >
               Clear Cart
             </button>
