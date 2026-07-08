@@ -64,19 +64,14 @@ export default function AdminCompanyPage() {
   const [deleting, setDeleting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
 
-  function updateCompanyField<K extends keyof AdminCompanyDetail>(
-    field: K,
-    value: AdminCompanyDetail[K]
-  ) {
+  function updateCompanyField<K extends keyof AdminCompanyDetail>(field: K, value: AdminCompanyDetail[K]) {
     setCompany((current) => (current ? { ...current, [field]: value } : current));
   }
 
   function loadCompany() {
     if (!slug) return;
-
     setLoading(true);
     setError("");
-
     fetch(`/api/admin/companies/${slug}`)
       .then((response) => {
         if (!response.ok) throw new Error("Company not found");
@@ -94,10 +89,8 @@ export default function AdminCompanyPage() {
   async function handleSaveCompany(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!company || !slug) return;
-
     setSaving(true);
     setSaveMessage("");
-
     try {
       const response = await fetch(`/api/admin/companies/${slug}`, {
         method: "PATCH",
@@ -116,19 +109,11 @@ export default function AdminCompanyPage() {
           portalEnabled: company.portalEnabled,
         }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Unable to save company");
-      }
-
+      if (!response.ok) throw new Error(data?.error || "Unable to save company");
       setCompany((current) => ({ ...current, ...data }));
       setSaveMessage("Company settings saved.");
-
-      if (data.slug && data.slug !== slug) {
-        router.replace(`/admin/company/${data.slug}`);
-      }
+      if (data.slug && data.slug !== slug) router.replace(`/admin/company/${data.slug}`);
     } catch (err: any) {
       setSaveMessage(err?.message || "Unable to save company");
     } finally {
@@ -138,26 +123,14 @@ export default function AdminCompanyPage() {
 
   async function handleDeleteCompany() {
     if (!company || !slug) return;
-
-    const confirmed = window.confirm(
-      `Delete ${company.name}? This will remove this client, synced products, collections, packages, assets, requests, and orders from the database.`
-    );
-
+    const confirmed = window.confirm(`Delete ${company.name}? This will remove this client, synced products, collections, packages, assets, requests, and orders from the database.`);
     if (!confirmed) return;
-
     setDeleting(true);
     setDeleteMessage("");
-
     try {
-      const response = await fetch(`/api/admin/companies/${slug}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(`/api/admin/companies/${slug}`, { method: "DELETE" });
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Unable to delete company");
-      }
-
+      if (!response.ok) throw new Error(data?.error || "Unable to delete company");
       router.push("/admin");
     } catch (err: any) {
       setDeleteMessage(err?.message || "Unable to delete company");
@@ -168,20 +141,12 @@ export default function AdminCompanyPage() {
 
   async function handleSyncProducts() {
     if (!company) return;
-
     setSyncing(true);
     setSyncMessage("");
-
     try {
-      const response = await fetch(`/api/admin/companies/${company.slug}/sync-products`, {
-        method: "POST",
-      });
+      const response = await fetch(`/api/admin/companies/${company.slug}/sync-products`, { method: "POST" });
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data?.error || "Unable to sync products");
-      }
-
+      if (!response.ok) throw new Error(data?.error || "Unable to sync products");
       setSyncMessage(`Synced ${data.synced || 0} products from Printful.`);
       loadCompany();
     } catch (err: any) {
@@ -192,26 +157,11 @@ export default function AdminCompanyPage() {
   }
 
   if (loading) {
-    return (
-      <main className="admin-page">
-        <section className="admin-simple-state">
-          <Link href="/admin">← Back to Admin</Link>
-          <h1>Loading company...</h1>
-        </section>
-      </main>
-    );
+    return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Loading company...</h1></section></main>;
   }
 
   if (error || !company) {
-    return (
-      <main className="admin-page">
-        <section className="admin-simple-state">
-          <Link href="/admin">← Back to Admin</Link>
-          <h1>Company not found</h1>
-          {error && <p>{error}</p>}
-        </section>
-      </main>
-    );
+    return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Company not found</h1>{error && <p>{error}</p>}</section></main>;
   }
 
   const tokenEnv = company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`;
@@ -220,206 +170,38 @@ export default function AdminCompanyPage() {
   return (
     <main className="admin-page">
       <section className="admin-company-detail">
-        <div className="admin-detail-topbar">
-          <Link href="/admin">← Back to Admin</Link>
-          <Link href={`/portal/${company.slug}`}>Open Portal</Link>
-        </div>
-
-        <header className="admin-detail-hero">
-          <div className="admin-detail-logo" style={{ borderColor: company.primaryColor }}>
-            <img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} />
-          </div>
-          <div>
-            <div className="admin-eyebrow">Company Settings</div>
-            <h1>{company.name}</h1>
-            <p>{company.heroText}</p>
-          </div>
-        </header>
-
-        <section className="admin-stat-grid">
-          {[
-            ["Products", products.length],
-            ["Packages", company.packages?.length || 0],
-            ["Assets", company.assets?.length || 0],
-            ["Requests", company.requests?.length || 0],
-          ].map(([label, value]) => (
-            <article key={String(label)} className="admin-stat-card">
-              <span>{label}</span>
-              <strong>{value}</strong>
-            </article>
-          ))}
-        </section>
-
+        <div className="admin-detail-topbar"><Link href="/admin">← Back to Admin</Link><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
+        <header className="admin-detail-hero"><div className="admin-detail-logo" style={{ borderColor: company.primaryColor }}><img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} /></div><div><div className="admin-eyebrow">Company Settings</div><h1>{company.name}</h1><p>{company.heroText}</p></div></header>
+        <section className="admin-stat-grid">{[["Products", products.length], ["Packages", company.packages?.length || 0], ["Assets", company.assets?.length || 0], ["Requests", company.requests?.length || 0]].map(([label, value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
         <section className="admin-section">
-          <div className="admin-section-heading">
-            <div>
-              <span>Editable Settings</span>
-              <h2>Company control</h2>
-            </div>
-          </div>
-
+          <div className="admin-section-heading"><div><span>Editable Settings</span><h2>Company control</h2></div></div>
           <form className="admin-settings-form" onSubmit={handleSaveCompany}>
-            <label>
-              Company Name
-              <input value={company.name} onChange={(event) => updateCompanyField("name", event.target.value)} />
-            </label>
-
-            <label>
-              Short Name
-              <input value={company.shortName} onChange={(event) => updateCompanyField("shortName", event.target.value)} />
-            </label>
-
-            <label>
-              Slug / Username
-              <input value={company.slug} onChange={(event) => updateCompanyField("slug", event.target.value)} />
-            </label>
-
-            <label>
-              Logo Path
-              <input value={company.logo || ""} onChange={(event) => updateCompanyField("logo", event.target.value)} placeholder="/rtl-logo.svg" />
-            </label>
-
-            <label>
-              Primary Color
-              <input value={company.primaryColor} onChange={(event) => updateCompanyField("primaryColor", event.target.value)} />
-            </label>
-
-            <label>
-              Secondary Color
-              <input value={company.secondaryColor} onChange={(event) => updateCompanyField("secondaryColor", event.target.value)} />
-            </label>
-
-            <label className="admin-settings-wide">
-              Hero Title
-              <input value={company.heroTitle} onChange={(event) => updateCompanyField("heroTitle", event.target.value)} />
-            </label>
-
-            <label className="admin-settings-wide">
-              Hero Description
-              <textarea value={company.heroText} onChange={(event) => updateCompanyField("heroText", event.target.value)} />
-            </label>
-
-            <label>
-              Portal Password
-              <input value={company.portalPassword || ""} onChange={(event) => updateCompanyField("portalPassword", event.target.value)} />
-            </label>
-
-            <label>
-              Printful Token Env
-              <input value={company.printfulTokenEnv || ""} onChange={(event) => updateCompanyField("printfulTokenEnv", event.target.value)} placeholder={tokenEnv} />
-            </label>
-
-            <label className="admin-settings-toggle">
-              <input
-                type="checkbox"
-                checked={company.portalEnabled}
-                onChange={(event) => updateCompanyField("portalEnabled", event.target.checked)}
-              />
-              Portal Enabled
-            </label>
-
-            <div className="admin-settings-actions">
-              <button className="admin-primary-button" type="submit" disabled={saving}>
-                {saving ? "Saving..." : "Save Company Settings"}
-              </button>
-              {saveMessage && <span>{saveMessage}</span>}
-            </div>
+            <label>Company Name<input value={company.name} onChange={(event) => updateCompanyField("name", event.target.value)} /></label>
+            <label>Short Name<input value={company.shortName} onChange={(event) => updateCompanyField("shortName", event.target.value)} /></label>
+            <label>Slug / Username<input value={company.slug} onChange={(event) => updateCompanyField("slug", event.target.value)} /></label>
+            <label>Logo Path<input value={company.logo || ""} onChange={(event) => updateCompanyField("logo", event.target.value)} placeholder="/rtl-logo.svg" /></label>
+            <label>Primary Color<input value={company.primaryColor} onChange={(event) => updateCompanyField("primaryColor", event.target.value)} /></label>
+            <label>Secondary Color<input value={company.secondaryColor} onChange={(event) => updateCompanyField("secondaryColor", event.target.value)} /></label>
+            <label className="admin-settings-wide">Hero Title<input value={company.heroTitle} onChange={(event) => updateCompanyField("heroTitle", event.target.value)} /></label>
+            <label className="admin-settings-wide">Hero Description<textarea value={company.heroText} onChange={(event) => updateCompanyField("heroText", event.target.value)} /></label>
+            <label>Portal Password<input value={company.portalPassword || ""} onChange={(event) => updateCompanyField("portalPassword", event.target.value)} /></label>
+            <label>Printful Token Env<input value={company.printfulTokenEnv || ""} onChange={(event) => updateCompanyField("printfulTokenEnv", event.target.value)} placeholder={tokenEnv} /></label>
+            <label className="admin-settings-toggle"><input type="checkbox" checked={company.portalEnabled} onChange={(event) => updateCompanyField("portalEnabled", event.target.checked)} />Portal Enabled</label>
+            <div className="admin-settings-actions"><button className="admin-primary-button" type="submit" disabled={saving}>{saving ? "Saving..." : "Save Company Settings"}</button>{saveMessage && <span>{saveMessage}</span>}</div>
           </form>
         </section>
-
         <section className="admin-detail-grid">
-          <article className="admin-detail-card">
-            <span>Brand</span>
-            <h2>Identity</h2>
-            <dl>
-              <div><dt>Company</dt><dd>{company.name}</dd></div>
-              <div><dt>Short Name</dt><dd>{company.shortName}</dd></div>
-              <div><dt>Slug</dt><dd>{company.slug}</dd></div>
-              <div><dt>Primary Color</dt><dd><code>{company.primaryColor}</code></dd></div>
-              <div><dt>Secondary Color</dt><dd><code>{company.secondaryColor}</code></dd></div>
-              <div><dt>Logo</dt><dd>{company.logo || "Default UPZ logo"}</dd></div>
-            </dl>
-          </article>
-
-          <article className="admin-detail-card">
-            <span>Access</span>
-            <h2>Portal</h2>
-            <dl>
-              <div><dt>Login Username</dt><dd>{company.slug.toUpperCase()}</dd></div>
-              <div><dt>Password</dt><dd>Stored in database settings</dd></div>
-              <div><dt>Portal URL</dt><dd>/portal/{company.slug}</dd></div>
-              <div><dt>Printful Token</dt><dd><code>{tokenEnv}</code></dd></div>
-              <div><dt>Status</dt><dd>{company.portalEnabled ? "Active" : "Disabled"}</dd></div>
-            </dl>
-          </article>
-
-          <article className="admin-detail-card admin-detail-wide">
-            <span>Portal Content</span>
-            <h2>Modules</h2>
-            <div className="admin-chip-grid">
-              {defaultModules.map((module) => <div key={module}>{module}</div>)}
-            </div>
-          </article>
+          <article className="admin-detail-card"><span>Brand</span><h2>Identity</h2><dl><div><dt>Company</dt><dd>{company.name}</dd></div><div><dt>Short Name</dt><dd>{company.shortName}</dd></div><div><dt>Slug</dt><dd>{company.slug}</dd></div><div><dt>Primary Color</dt><dd><code>{company.primaryColor}</code></dd></div><div><dt>Secondary Color</dt><dd><code>{company.secondaryColor}</code></dd></div><div><dt>Logo</dt><dd>{company.logo || "Default UPZ logo"}</dd></div></dl></article>
+          <article className="admin-detail-card"><span>Access</span><h2>Portal</h2><dl><div><dt>Login Username</dt><dd>{company.slug.toUpperCase()}</dd></div><div><dt>Password</dt><dd>Stored in database settings</dd></div><div><dt>Portal URL</dt><dd>/portal/{company.slug}</dd></div><div><dt>Printful Token</dt><dd><code>{tokenEnv}</code></dd></div><div><dt>Status</dt><dd>{company.portalEnabled ? "Active" : "Disabled"}</dd></div></dl></article>
+          <article className="admin-detail-card admin-detail-wide"><span>Portal Content</span><h2>Modules</h2><div className="admin-chip-grid">{defaultModules.map((module) => <div key={module}>{module}</div>)}</div></article>
         </section>
-
         <section className="admin-section">
-          <div className="admin-section-heading">
-            <div>
-              <span>Products</span>
-              <h2>Synced product catalog</h2>
-            </div>
-            <button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>
-              {syncing ? "Syncing..." : "Sync Printful Products"}
-            </button>
-          </div>
-
+          <div className="admin-section-heading"><div><span>Products</span><h2>Synced product catalog</h2></div><button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>{syncing ? "Syncing..." : "Sync Printful Products"}</button></div>
           {syncMessage && <p>{syncMessage}</p>}
-
-          {products.length === 0 ? (
-            <p>No products synced yet. Use the sync button to pull this company’s Printful catalog into the database.</p>
-          ) : (
-            <div className="admin-product-list">
-              {products.slice(0, 12).map((product) => (
-                <article key={product.id} className="admin-product-row">
-                  <img src={product.thumbnail || "/placeholder.png"} alt={product.name} />
-                  <div>
-                    <strong>{product.name}</strong>
-                    <span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span>
-                  </div>
-                  <small>{product.active ? "Active" : "Hidden"}</small>
-                </article>
-              ))}
-            </div>
-          )}
+          {products.length === 0 ? <p>No products synced yet. Use the sync button to pull this company’s Printful catalog into the database.</p> : <div className="admin-product-list">{products.slice(0, 12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}
         </section>
-
-        <section className="admin-next-grid">
-          {[
-            ["Packages", "Build company-specific broker kits and onboarding packages from synced products."],
-            ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads."],
-            ["Requests", "View and manage project requests submitted from this client portal."],
-          ].map(([title, text]) => (
-            <article key={title}>
-              <h3>{title}</h3>
-              <p>{text}</p>
-              <button>Build Next</button>
-            </article>
-          ))}
-        </section>
-
-        <section className="admin-section admin-danger-zone">
-          <div className="admin-section-heading">
-            <div>
-              <span>Danger Zone</span>
-              <h2>Delete client</h2>
-            </div>
-            <button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>
-              {deleting ? "Deleting..." : "Delete Client"}
-            </button>
-          </div>
-          <p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>
-          {deleteMessage && <p className="admin-error">{deleteMessage}</p>}
-        </section>
+        <section className="admin-next-grid">{[["Packages", "Build company-specific broker kits and onboarding packages from synced products."], ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads."], ["Requests", "View and manage project requests submitted from this client portal."]].map(([title, text]) => <article key={title}><h3>{title}</h3><p>{text}</p><button>Build Next</button></article>)}</section>
+        <section className="admin-section admin-danger-zone"><div className="admin-section-heading"><div><span>Danger Zone</span><h2>Delete client</h2></div><button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>{deleting ? "Deleting..." : "Delete Client"}</button></div><p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>{deleteMessage && <p className="admin-error">{deleteMessage}</p>}</section>
       </section>
     </main>
   );
