@@ -4,6 +4,17 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 
+type AdminProduct = {
+  id: number;
+  printfulId: string;
+  name: string;
+  thumbnail?: string | null;
+  price?: number | null;
+  collection?: string | null;
+  featured: boolean;
+  active: boolean;
+};
+
 type AdminCompanyDetail = {
   id: number;
   name: string;
@@ -16,6 +27,7 @@ type AdminCompanyDetail = {
   heroText: string;
   portalEnabled: boolean;
   printfulTokenEnv?: string | null;
+  products?: AdminProduct[];
   collections?: unknown[];
   packages?: unknown[];
   assets?: unknown[];
@@ -32,14 +44,21 @@ const defaultModules = [
   "Request Services",
 ];
 
+function formatPrice(value?: number | null) {
+  if (!value) return "—";
+  return `$${Number(value).toFixed(2)}`;
+}
+
 export default function AdminCompanyPage() {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const [company, setCompany] = useState<AdminCompanyDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [syncing, setSyncing] = useState(false);
+  const [syncMessage, setSyncMessage] = useState("");
 
-  useEffect(() => {
+  function loadCompany() {
     if (!slug) return;
 
     setLoading(true);
@@ -53,7 +72,36 @@ export default function AdminCompanyPage() {
       .then((data) => setCompany(data))
       .catch((err) => setError(err?.message || "Unable to load company"))
       .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    loadCompany();
   }, [slug]);
+
+  async function handleSyncProducts() {
+    if (!company) return;
+
+    setSyncing(true);
+    setSyncMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/companies/${company.slug}/sync-products`, {
+        method: "POST",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to sync products");
+      }
+
+      setSyncMessage(`Synced ${data.synced || 0} products from Printful.`);
+      loadCompany();
+    } catch (err: any) {
+      setSyncMessage(err?.message || "Unable to sync products");
+    } finally {
+      setSyncing(false);
+    }
+  }
 
   if (loading) {
     return (
@@ -79,6 +127,7 @@ export default function AdminCompanyPage() {
   }
 
   const tokenEnv = company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`;
+  const products = company.products || [];
 
   return (
     <main className="admin-page">
@@ -101,7 +150,7 @@ export default function AdminCompanyPage() {
 
         <section className="admin-stat-grid">
           {[
-            ["Collections", company.collections?.length || 0],
+            ["Products", products.length],
             ["Packages", company.packages?.length || 0],
             ["Assets", company.assets?.length || 0],
             ["Requests", company.requests?.length || 0],
@@ -148,9 +197,39 @@ export default function AdminCompanyPage() {
           </article>
         </section>
 
+        <section className="admin-section">
+          <div className="admin-section-heading">
+            <div>
+              <span>Products</span>
+              <h2>Synced product catalog</h2>
+            </div>
+            <button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>
+              {syncing ? "Syncing..." : "Sync Printful Products"}
+            </button>
+          </div>
+
+          {syncMessage && <p>{syncMessage}</p>}
+
+          {products.length === 0 ? (
+            <p>No products synced yet. Use the sync button to pull this company’s Printful catalog into the database.</p>
+          ) : (
+            <div className="admin-product-list">
+              {products.slice(0, 12).map((product) => (
+                <article key={product.id} className="admin-product-row">
+                  <img src={product.thumbnail || "/placeholder.png"} alt={product.name} />
+                  <div>
+                    <strong>{product.name}</strong>
+                    <span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span>
+                  </div>
+                  <small>{product.active ? "Active" : "Hidden"}</small>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+
         <section className="admin-next-grid">
           {[
-            ["Products", "Sync products from this company’s Printful store and choose which products are visible or featured."],
             ["Packages", "Build company-specific broker kits and onboarding packages from synced products."],
             ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads."],
             ["Requests", "View and manage project requests submitted from this client portal."],
