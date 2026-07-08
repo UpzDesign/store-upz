@@ -61,6 +61,8 @@ export default function AdminCompanyPage() {
   const [syncMessage, setSyncMessage] = useState("");
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const [deleteMessage, setDeleteMessage] = useState("");
 
   function updateCompanyField<K extends keyof AdminCompanyDetail>(
     field: K,
@@ -131,6 +133,36 @@ export default function AdminCompanyPage() {
       setSaveMessage(err?.message || "Unable to save company");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDeleteCompany() {
+    if (!company || !slug) return;
+
+    const confirmed = window.confirm(
+      `Delete ${company.name}? This will remove this client, synced products, collections, packages, assets, requests, and orders from the database.`
+    );
+
+    if (!confirmed) return;
+
+    setDeleting(true);
+    setDeleteMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/companies/${slug}`, {
+        method: "DELETE",
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to delete company");
+      }
+
+      router.push("/admin");
+    } catch (err: any) {
+      setDeleteMessage(err?.message || "Unable to delete company");
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -293,6 +325,20 @@ export default function AdminCompanyPage() {
               {saveMessage && <span>{saveMessage}</span>}
             </div>
           </form>
+        </section>
+
+        <section className="admin-section admin-danger-zone">
+          <div className="admin-section-heading">
+            <div>
+              <span>Danger Zone</span>
+              <h2>Delete client</h2>
+            </div>
+            <button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>
+              {deleting ? "Deleting..." : "Delete Client"}
+            </button>
+          </div>
+          <p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>
+          {deleteMessage && <p className="admin-error">{deleteMessage}</p>}
         </section>
 
         <section className="admin-detail-grid">
