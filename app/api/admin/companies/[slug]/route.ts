@@ -95,3 +95,35 @@ export async function PATCH(
     );
   }
 }
+
+export async function DELETE(
+  _request: NextRequest,
+  context: { params: Promise<{ slug: string }> }
+) {
+  try {
+    const { slug } = await context.params;
+
+    const company = await prisma.company.findUnique({ where: { slug } });
+
+    if (!company) {
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    }
+
+    await prisma.product.deleteMany({ where: { companyId: company.id } });
+    await prisma.collection.deleteMany({ where: { companyId: company.id } });
+    await prisma.packageItem.deleteMany({ where: { package: { companyId: company.id } } });
+    await prisma.package.deleteMany({ where: { companyId: company.id } });
+    await prisma.brandAsset.deleteMany({ where: { companyId: company.id } });
+    await prisma.marketingRequest.deleteMany({ where: { companyId: company.id } });
+    await prisma.order.deleteMany({ where: { companyId: company.id } });
+    await prisma.company.delete({ where: { id: company.id } });
+
+    return NextResponse.json({ deleted: true, slug });
+  } catch (error) {
+    console.error("Admin company delete API error:", error);
+    return NextResponse.json(
+      { error: "Unable to delete company" },
+      { status: 500 }
+    );
+  }
+}
