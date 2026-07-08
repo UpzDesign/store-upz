@@ -1,26 +1,84 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getCompanyBySlug } from "@/lib/companies";
+
+type AdminCompanyDetail = {
+  id: number;
+  name: string;
+  slug: string;
+  shortName: string;
+  logo?: string | null;
+  primaryColor: string;
+  secondaryColor: string;
+  heroTitle: string;
+  heroText: string;
+  portalEnabled: boolean;
+  printfulTokenEnv?: string | null;
+  collections?: unknown[];
+  packages?: unknown[];
+  assets?: unknown[];
+  requests?: unknown[];
+  orders?: unknown[];
+};
+
+const defaultModules = [
+  "Order Merchandise",
+  "Broker Packages",
+  "Business Cards",
+  "Marketing Materials",
+  "Brand Assets",
+  "Request Services",
+];
 
 export default function AdminCompanyPage() {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
-  const company = getCompanyBySlug(String(slug || ""));
+  const [company, setCompany] = useState<AdminCompanyDetail | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!company) {
+  useEffect(() => {
+    if (!slug) return;
+
+    setLoading(true);
+    setError("");
+
+    fetch(`/api/admin/companies/${slug}`)
+      .then((response) => {
+        if (!response.ok) throw new Error("Company not found");
+        return response.json();
+      })
+      .then((data) => setCompany(data))
+      .catch((err) => setError(err?.message || "Unable to load company"))
+      .finally(() => setLoading(false));
+  }, [slug]);
+
+  if (loading) {
     return (
       <main className="admin-page">
         <section className="admin-simple-state">
           <Link href="/admin">← Back to Admin</Link>
-          <h1>Company not found</h1>
+          <h1>Loading company...</h1>
         </section>
       </main>
     );
   }
 
-  const tokenEnv = `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`;
+  if (error || !company) {
+    return (
+      <main className="admin-page">
+        <section className="admin-simple-state">
+          <Link href="/admin">← Back to Admin</Link>
+          <h1>Company not found</h1>
+          {error && <p>{error}</p>}
+        </section>
+      </main>
+    );
+  }
+
+  const tokenEnv = company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`;
 
   return (
     <main className="admin-page">
@@ -32,7 +90,7 @@ export default function AdminCompanyPage() {
 
         <header className="admin-detail-hero">
           <div className="admin-detail-logo" style={{ borderColor: company.primaryColor }}>
-            <img src={company.logo} alt={`${company.name} logo`} />
+            <img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} />
           </div>
           <div>
             <div className="admin-eyebrow">Company Settings</div>
@@ -40,6 +98,20 @@ export default function AdminCompanyPage() {
             <p>{company.heroText}</p>
           </div>
         </header>
+
+        <section className="admin-stat-grid">
+          {[
+            ["Collections", company.collections?.length || 0],
+            ["Packages", company.packages?.length || 0],
+            ["Assets", company.assets?.length || 0],
+            ["Requests", company.requests?.length || 0],
+          ].map(([label, value]) => (
+            <article key={String(label)} className="admin-stat-card">
+              <span>{label}</span>
+              <strong>{value}</strong>
+            </article>
+          ))}
+        </section>
 
         <section className="admin-detail-grid">
           <article className="admin-detail-card">
@@ -51,7 +123,7 @@ export default function AdminCompanyPage() {
               <div><dt>Slug</dt><dd>{company.slug}</dd></div>
               <div><dt>Primary Color</dt><dd><code>{company.primaryColor}</code></dd></div>
               <div><dt>Secondary Color</dt><dd><code>{company.secondaryColor}</code></dd></div>
-              <div><dt>Logo</dt><dd>{company.logo}</dd></div>
+              <div><dt>Logo</dt><dd>{company.logo || "Default UPZ logo"}</dd></div>
             </dl>
           </article>
 
@@ -60,10 +132,10 @@ export default function AdminCompanyPage() {
             <h2>Portal</h2>
             <dl>
               <div><dt>Login Username</dt><dd>{company.slug.toUpperCase()}</dd></div>
-              <div><dt>Password</dt><dd>Configured in company settings</dd></div>
+              <div><dt>Password</dt><dd>Stored in database settings</dd></div>
               <div><dt>Portal URL</dt><dd>/portal/{company.slug}</dd></div>
               <div><dt>Printful Token</dt><dd><code>{tokenEnv}</code></dd></div>
-              <div><dt>Status</dt><dd>Active</dd></div>
+              <div><dt>Status</dt><dd>{company.portalEnabled ? "Active" : "Disabled"}</dd></div>
             </dl>
           </article>
 
@@ -71,21 +143,7 @@ export default function AdminCompanyPage() {
             <span>Portal Content</span>
             <h2>Modules</h2>
             <div className="admin-chip-grid">
-              {company.modules.map((module) => <div key={module}>{module}</div>)}
-            </div>
-          </article>
-
-          <article className="admin-detail-card admin-detail-wide">
-            <span>Quick Actions</span>
-            <h2>Featured Actions</h2>
-            <div className="admin-action-list">
-              {company.featuredActions.map((action) => (
-                <div key={action.title}>
-                  <strong>{action.title}</strong>
-                  <p>{action.description}</p>
-                  <code>{action.href}</code>
-                </div>
-              ))}
+              {defaultModules.map((module) => <div key={module}>{module}</div>)}
             </div>
           </article>
         </section>
