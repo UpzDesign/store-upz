@@ -2,30 +2,42 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { validateCompanyPassword } from "@/lib/companies";
 
 export default function LoginPage() {
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
+    setLoading(true);
 
-    const company = validateCompanyPassword(username, password);
+    try {
+      const response = await fetch("/api/portal/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-    if (!company) {
-      setError("Invalid company access. Please check your username and password.");
-      return;
+      const data = await response.json();
+
+      if (!response.ok || !data?.company?.slug) {
+        throw new Error(data?.error || "Invalid company access");
+      }
+
+      if (typeof window !== "undefined") {
+        window.localStorage.setItem("upz_company_slug", data.company.slug);
+      }
+
+      router.push(`/portal/${data.company.slug}`);
+    } catch (err: any) {
+      setError(err?.message || "Invalid company access. Please check your username and password.");
+    } finally {
+      setLoading(false);
     }
-
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem("upz_company_slug", company.slug);
-    }
-
-    router.push(`/portal/${company.slug}`);
   }
 
   return (
@@ -65,7 +77,7 @@ export default function LoginPage() {
 
             {error && <div className="portal-login-error">{error}</div>}
 
-            <button type="submit">Enter Portal</button>
+            <button type="submit" disabled={loading}>{loading ? "Checking..." : "Enter Portal"}</button>
           </form>
         </div>
 
