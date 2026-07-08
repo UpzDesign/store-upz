@@ -3,10 +3,27 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { getCompanyBySlug } from "@/lib/companies";
 import { categories, formatPrice, getCategory } from "@/lib/catalog";
 import { storePackages } from "@/lib/packages";
 import { useCartStore, type CartItem } from "@/store/cart-store";
+
+type PortalCompany = {
+  id: string;
+  slug: string;
+  name: string;
+  shortName: string;
+  logo: string;
+  primaryColor: string;
+  secondaryColor: string;
+  heroTitle: string;
+  heroText: string;
+  modules: string[];
+  featuredActions: Array<{
+    title: string;
+    description: string;
+    href: string;
+  }>;
+};
 
 function getPrimaryVariant(product: any) {
   return product?.variants?.[0] || product;
@@ -55,27 +72,45 @@ export default function CompanyPortalPage() {
   const params = useParams();
   const router = useRouter();
   const slug = Array.isArray(params?.company) ? params.company[0] : params?.company;
-  const company = getCompanyBySlug(String(slug || ""));
+  const [company, setCompany] = useState<PortalCompany | null>(null);
+  const [companyLoading, setCompanyLoading] = useState(true);
+  const [companyError, setCompanyError] = useState("");
   const [products, setProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState("All");
   const addItems = useCartStore((state) => state.addItems);
 
   useEffect(() => {
-    if (!company) return;
+    if (!slug) return;
 
     const savedSlug = window.localStorage.getItem("upz_company_slug");
-    if (savedSlug !== company.slug) {
+    if (savedSlug !== slug) {
       router.push("/login");
       return;
     }
+
+    setCompanyLoading(true);
+    setCompanyError("");
+
+    fetch(`/api/portal/companies/${slug}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Portal not found");
+        return res.json();
+      })
+      .then((data) => setCompany(data))
+      .catch((err) => setCompanyError(err?.message || "Portal not found"))
+      .finally(() => setCompanyLoading(false));
+  }, [slug, router]);
+
+  useEffect(() => {
+    if (!company) return;
 
     fetch(`/api/products?company=${company.slug}`)
       .then((res) => res.json())
       .then((data) => setProducts(Array.isArray(data) ? data : []))
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, [company, router]);
+  }, [company]);
 
   const filteredProducts = useMemo(() => {
     if (activeCategory === "All") return products;
@@ -102,7 +137,17 @@ export default function CompanyPortalPage() {
     [products, company]
   );
 
-  if (!company) {
+  if (companyLoading) {
+    return (
+      <main className="portal-page">
+        <section className="portal-simple-state">
+          <h1>Loading portal...</h1>
+        </section>
+      </main>
+    );
+  }
+
+  if (companyError || !company) {
     return (
       <main className="portal-page">
         <section className="portal-simple-state">
@@ -135,7 +180,7 @@ export default function CompanyPortalPage() {
           </div>
 
           <div className="portal-brand-card">
-            <img src={company.logo} alt={`${company.name} logo`} />
+            <img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} />
             <h2>{company.name}</h2>
             <p>Approved materials, company merchandise, and marketing support powered by UPZ Design.</p>
           </div>
