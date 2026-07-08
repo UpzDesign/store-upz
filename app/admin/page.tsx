@@ -1,24 +1,61 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { companies } from "@/lib/companies";
 
 const ADMIN_PASSWORD = "upzadmin";
+
+type AdminCompany = {
+  id: number;
+  name: string;
+  slug: string;
+  shortName: string;
+  logo?: string | null;
+  primaryColor: string;
+  secondaryColor: string;
+  heroText: string;
+  printfulTokenEnv?: string | null;
+  portalEnabled: boolean;
+};
 
 export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [authenticated, setAuthenticated] = useState(false);
   const [error, setError] = useState("");
+  const [companies, setCompanies] = useState<AdminCompany[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(false);
+  const [companyError, setCompanyError] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.localStorage.getItem("upz_admin") === "true") {
+      setAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!authenticated) return;
+
+    setLoadingCompanies(true);
+    setCompanyError("");
+
+    fetch("/api/admin/companies")
+      .then((response) => {
+        if (!response.ok) throw new Error("Unable to load companies");
+        return response.json();
+      })
+      .then((data) => setCompanies(Array.isArray(data) ? data : []))
+      .catch((err) => setCompanyError(err?.message || "Unable to load companies"))
+      .finally(() => setLoadingCompanies(false));
+  }, [authenticated]);
 
   const stats = useMemo(
     () => [
       { label: "Companies", value: companies.length },
-      { label: "Active Portals", value: companies.length },
+      { label: "Active Portals", value: companies.filter((company) => company.portalEnabled).length },
       { label: "Requests", value: "0" },
       { label: "Orders", value: "Stripe" },
     ],
-    []
+    [companies]
   );
 
   function handleLogin(event: React.FormEvent<HTMLFormElement>) {
@@ -99,11 +136,15 @@ export default function AdminPage() {
                 <h2>Active client portals</h2>
               </div>
             </div>
+
+            {loadingCompanies && <p>Loading companies...</p>}
+            {companyError && <p className="admin-error">{companyError}</p>}
+
             <div className="admin-company-grid">
               {companies.map((company) => (
                 <article key={company.id} className="admin-company-card">
                   <div className="admin-company-logo" style={{ borderColor: company.primaryColor }}>
-                    <img src={company.logo} alt={`${company.name} logo`} />
+                    <img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} />
                   </div>
                   <div>
                     <span style={{ color: company.primaryColor }}>{company.shortName}</span>
@@ -112,7 +153,8 @@ export default function AdminPage() {
                   </div>
                   <div className="admin-company-meta">
                     <div><strong>Slug</strong><span>{company.slug}</span></div>
-                    <div><strong>Printful Env</strong><span>PRINTFUL_ACCESS_TOKEN_{company.slug.toUpperCase()}</span></div>
+                    <div><strong>Printful Env</strong><span>{company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`}</span></div>
+                    <div><strong>Status</strong><span>{company.portalEnabled ? "Active" : "Disabled"}</span></div>
                     <div><strong>Manage</strong><Link href={`/admin/company/${company.slug}`}>Company Settings</Link></div>
                     <div><strong>Portal</strong><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
                   </div>
