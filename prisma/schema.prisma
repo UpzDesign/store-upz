@@ -24,6 +24,7 @@ model Company {
   updatedAt        DateTime  @updatedAt
 
   products         Product[]
+  catalogItems     CatalogItem[]
   collections      Collection[]
   packages         Package[]
   assets           BrandAsset[]
@@ -46,9 +47,39 @@ model Product {
   updatedAt    DateTime @updatedAt
 
   company      Company  @relation(fields: [companyId], references: [id])
+  catalogItem  CatalogItem?
   packageItems PackageItem[]
 
   @@unique([companyId, printfulId])
+}
+
+model CatalogItem {
+  id              Int      @id @default(autoincrement())
+  companyId       Int
+  collectionId    Int?
+  productId       Int?     @unique
+  itemType        String   @default("product") // product, service, digital, asset, custom
+  sourceVendor    String?  // printful, manual, upz, future vendor name
+  sourceProductId String?
+  title           String
+  description     String?
+  thumbnail       String?
+  price           Float?
+  sku             String?
+  featured        Boolean  @default(false)
+  active          Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company         Company     @relation(fields: [companyId], references: [id])
+  collection      Collection? @relation(fields: [collectionId], references: [id])
+  product         Product?    @relation(fields: [productId], references: [id])
+  packageItems    PackageItem[]
+
+  @@unique([companyId, sourceVendor, sourceProductId])
+  @@index([companyId, itemType])
+  @@index([companyId, collectionId])
 }
 
 model Collection {
@@ -62,6 +93,7 @@ model Collection {
   active      Boolean  @default(true)
 
   company     Company  @relation(fields: [companyId], references: [id])
+  catalogItems CatalogItem[]
 
   @@unique([companyId, slug])
 }
@@ -80,15 +112,18 @@ model Package {
 }
 
 model PackageItem {
-  id        Int     @id @default(autoincrement())
-  packageId Int
-  productId Int
-  quantity  Int     @default(1)
+  id            Int     @id @default(autoincrement())
+  packageId     Int
+  productId     Int?
+  catalogItemId Int?
+  quantity      Int     @default(1)
 
-  package   Package @relation(fields: [packageId], references: [id])
-  product   Product @relation(fields: [productId], references: [id])
+  package       Package      @relation(fields: [packageId], references: [id])
+  product       Product?     @relation(fields: [productId], references: [id])
+  catalogItem   CatalogItem? @relation(fields: [catalogItemId], references: [id])
 
   @@unique([packageId, productId])
+  @@unique([packageId, catalogItemId])
 }
 
 model BrandAsset {
