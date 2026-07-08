@@ -1,0 +1,132 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Company {
+  id               Int       @id @default(autoincrement())
+  name             String
+  slug             String    @unique
+  shortName        String
+  logo             String?
+  primaryColor     String
+  secondaryColor   String
+  heroTitle        String
+  heroText         String
+  portalPassword   String
+  printfulTokenEnv String?
+  portalEnabled    Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  products         Product[]
+  collections      Collection[]
+  packages         Package[]
+  assets           BrandAsset[]
+  requests         MarketingRequest[]
+  orders           Order[]
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  companyId    Int
+  printfulId   String
+  name         String
+  thumbnail    String?
+  price        Float?
+  collection   String?
+  featured     Boolean  @default(false)
+  active       Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  company      Company  @relation(fields: [companyId], references: [id])
+  packageItems PackageItem[]
+
+  @@unique([companyId, printfulId])
+}
+
+model Collection {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  name        String
+  slug        String
+  description String?
+  heroImage   String?
+  sortOrder   Int      @default(0)
+  active      Boolean  @default(true)
+
+  company     Company  @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, slug])
+}
+
+model Package {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  title       String
+  description String?
+  featured    Boolean  @default(false)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+
+  company     Company  @relation(fields: [companyId], references: [id])
+  items       PackageItem[]
+}
+
+model PackageItem {
+  id        Int     @id @default(autoincrement())
+  packageId Int
+  productId Int
+  quantity  Int     @default(1)
+
+  package   Package @relation(fields: [packageId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([packageId, productId])
+}
+
+model BrandAsset {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  title       String
+  category    String
+  fileUrl     String?
+  description String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  company     Company  @relation(fields: [companyId], references: [id])
+}
+
+model MarketingRequest {
+  id          Int      @id @default(autoincrement())
+  companyId   Int
+  type        String
+  title       String
+  description String?
+  priority    String   @default("normal")
+  status      String   @default("open")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  company     Company  @relation(fields: [companyId], references: [id])
+}
+
+model Order {
+  id              Int      @id @default(autoincrement())
+  companyId       Int
+  stripeSessionId String?
+  printfulOrderId String?
+  status          String   @default("pending")
+  total           Float?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company         Company  @relation(fields: [companyId], references: [id])
+}
