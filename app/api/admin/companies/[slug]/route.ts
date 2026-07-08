@@ -14,7 +14,9 @@ export async function GET(
         products: {
           orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
         },
-        collections: true,
+        collections: {
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        },
         packages: true,
         assets: true,
         requests: true,
