@@ -4,16 +4,24 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import AddToCartButton from "@/components/AddToCartButton";
-import { getCompanyBySlug } from "@/lib/companies";
 import { findVariant, formatPrice, getCategory, getColorOptions, getSizeOptions } from "@/lib/catalog";
+
+type PortalCompany = {
+  slug: string;
+  name: string;
+  shortName: string;
+  primaryColor: string;
+  secondaryColor: string;
+};
 
 export default function PortalProductPage() {
   const params = useParams();
   const router = useRouter();
   const companySlug = Array.isArray(params?.company) ? params.company[0] : params?.company;
   const id = Array.isArray(params?.id) ? params.id[0] : params?.id;
-  const company = getCompanyBySlug(String(companySlug || ""));
 
+  const [company, setCompany] = useState<PortalCompany | null>(null);
+  const [companyLoading, setCompanyLoading] = useState(true);
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -23,13 +31,27 @@ export default function PortalProductPage() {
   const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
-    if (!company || !id) return;
+    if (!companySlug) return;
 
     const savedSlug = window.localStorage.getItem("upz_company_slug");
-    if (savedSlug !== company.slug) {
+    if (savedSlug !== companySlug) {
       router.push("/login");
       return;
     }
+
+    setCompanyLoading(true);
+    fetch(`/api/portal/companies/${companySlug}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Portal not found");
+        return res.json();
+      })
+      .then((data) => setCompany(data))
+      .catch(() => setError(true))
+      .finally(() => setCompanyLoading(false));
+  }, [companySlug, router]);
+
+  useEffect(() => {
+    if (!company || !id) return;
 
     fetch(`/api/products/${id}?company=${company.slug}`)
       .then((res) => {
@@ -45,7 +67,7 @@ export default function PortalProductPage() {
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [company, id, router]);
+  }, [company, id]);
 
   const colorOptions = useMemo(() => getColorOptions(product?.variants || []), [product]);
   const sizeOptions = useMemo(() => getSizeOptions(product?.variants || []), [product]);
@@ -63,6 +85,10 @@ export default function PortalProductPage() {
     if (!product) return [];
     return Array.from(new Set([...(selectedVariant?.images || []), ...(product.images || []), product.thumbnail, product.image].filter(Boolean)));
   }, [product, selectedVariant]);
+
+  if (companyLoading) {
+    return <main className="portal-page"><section className="portal-simple-state"><p>Loading portal...</p></section></main>;
+  }
 
   if (!company) {
     return <main className="portal-page"><section className="portal-simple-state"><h1>Portal not found</h1><Link href="/login">Back to login</Link></section></main>;
