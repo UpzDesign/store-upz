@@ -36,14 +36,7 @@ type AdminCompanyDetail = {
   orders?: unknown[];
 };
 
-const defaultModules = [
-  "Order Merchandise",
-  "Broker Packages",
-  "Business Cards",
-  "Marketing Materials",
-  "Brand Assets",
-  "Request Services",
-];
+const defaultModules = ["Order Merchandise", "Broker Packages", "Business Cards", "Marketing Materials", "Brand Assets", "Request Services"];
 
 function formatPrice(value?: number | null) {
   if (!value) return "—";
@@ -147,7 +140,7 @@ export default function AdminCompanyPage() {
       const response = await fetch(`/api/admin/companies/${company.slug}/sync-products`, { method: "POST" });
       const data = await response.json();
       if (!response.ok) throw new Error(data?.error || "Unable to sync products");
-      setSyncMessage(`Synced ${data.synced || 0} products from Printful.`);
+      setSyncMessage(`Synced ${data.synced || 0} products from Printful into Products and Catalog Items.`);
       loadCompany();
     } catch (err: any) {
       setSyncMessage(err?.message || "Unable to sync products");
@@ -156,19 +149,15 @@ export default function AdminCompanyPage() {
     }
   }
 
-  if (loading) {
-    return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Loading company...</h1></section></main>;
-  }
-
-  if (error || !company) {
-    return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Company not found</h1>{error && <p>{error}</p>}</section></main>;
-  }
+  if (loading) return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Loading company...</h1></section></main>;
+  if (error || !company) return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Company not found</h1>{error && <p>{error}</p>}</section></main>;
 
   const tokenEnv = company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`;
   const products = company.products || [];
   const collections = company.collections || [];
   const moduleLinks = [
     { label: "General", href: `/admin/company/${company.slug}` },
+    { label: "Catalog", href: `/admin/company/${company.slug}/catalog`, count: products.length },
     { label: "Products", href: "#products", count: products.length },
     { label: "Collections", href: `/admin/company/${company.slug}/collections`, count: collections.length },
     { label: "Packages", href: "#packages", count: company.packages?.length || 0 },
@@ -211,12 +200,7 @@ export default function AdminCompanyPage() {
           {syncMessage && <p>{syncMessage}</p>}
           {products.length === 0 ? <p>No products synced yet. Use the sync button to pull this company’s Printful catalog into the database.</p> : <div className="admin-product-list">{products.slice(0, 12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}
         </section>
-        <section className="admin-next-grid">{[
-          ["Collections", "Create client-specific product categories and manage which collection buckets appear in this portal.", `/admin/company/${company.slug}/collections`],
-          ["Packages", "Build company-specific broker kits and onboarding packages from synced products.", "#packages"],
-          ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads.", "#assets"],
-          ["Requests", "View and manage project requests submitted from this client portal.", "#requests"],
-        ].map(([title, text, href]) => <article key={title} id={String(title).toLowerCase()}><h3>{title}</h3><p>{text}</p><Link href={String(href)}>Open Module</Link></article>)}</section>
+        <section className="admin-next-grid">{[["Catalog", "Unified vendor-agnostic layer for Printful products, services, digital items, and future store APIs.", `/admin/company/${company.slug}/catalog`], ["Collections", "Create client-specific catalog categories and manage which buckets appear in this portal.", `/admin/company/${company.slug}/collections`], ["Packages", "Build company-specific broker kits and onboarding packages from catalog items.", "#packages"], ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads.", "#assets"]].map(([title, text, href]) => <article key={title} id={String(title).toLowerCase()}><h3>{title}</h3><p>{text}</p><Link href={String(href)}>Open Module</Link></article>)}</section>
         <section className="admin-section admin-danger-zone"><div className="admin-section-heading"><div><span>Danger Zone</span><h2>Delete client</h2></div><button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>{deleting ? "Deleting..." : "Delete Client"}</button></div><p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>{deleteMessage && <p className="admin-error">{deleteMessage}</p>}</section>
       </section>
     </main>
