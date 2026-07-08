@@ -327,20 +327,6 @@ export default function AdminCompanyPage() {
           </form>
         </section>
 
-        <section className="admin-section admin-danger-zone">
-          <div className="admin-section-heading">
-            <div>
-              <span>Danger Zone</span>
-              <h2>Delete client</h2>
-            </div>
-            <button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>
-              {deleting ? "Deleting..." : "Delete Client"}
-            </button>
-          </div>
-          <p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>
-          {deleteMessage && <p className="admin-error">{deleteMessage}</p>}
-        </section>
-
         <section className="admin-detail-grid">
           <article className="admin-detail-card">
             <span>Brand</span>
@@ -419,6 +405,20 @@ export default function AdminCompanyPage() {
               <button>Build Next</button>
             </article>
           ))}
+        </section>
+
+        <section className="admin-section admin-danger-zone">
+          <div className="admin-section-heading">
+            <div>
+              <span>Danger Zone</span>
+              <h2>Delete client</h2>
+            </div>
+            <button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>
+              {deleting ? "Deleting..." : "Delete Client"}
+            </button>
+          </div>
+          <p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>
+          {deleteMessage && <p className="admin-error">{deleteMessage}</p>}
         </section>
       </section>
     </main>
