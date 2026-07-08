@@ -113,6 +113,7 @@ export default function AdminPage() {
                   <div className="admin-company-meta">
                     <div><strong>Slug</strong><span>{company.slug}</span></div>
                     <div><strong>Printful Env</strong><span>PRINTFUL_ACCESS_TOKEN_{company.slug.toUpperCase()}</span></div>
+                    <div><strong>Manage</strong><Link href={`/admin/company/${company.slug}`}>Company Settings</Link></div>
                     <div><strong>Portal</strong><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
                   </div>
                 </article>
