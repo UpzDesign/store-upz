@@ -117,7 +117,7 @@ export default function AdminPage() {
               <h1>Brand Portal Control Center</h1>
               <p>Manage client portals, company branding, product catalogs, marketing requests, and platform settings.</p>
             </div>
-            <button className="admin-primary-button">+ New Company</button>
+            <Link className="admin-primary-button" href="/admin/new-company">+ New Company</Link>
           </header>
 
           <section className="admin-stat-grid">
