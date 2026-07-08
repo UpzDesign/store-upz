@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 type AdminProduct = {
   id: number;
@@ -25,6 +25,7 @@ type AdminCompanyDetail = {
   secondaryColor: string;
   heroTitle: string;
   heroText: string;
+  portalPassword?: string;
   portalEnabled: boolean;
   printfulTokenEnv?: string | null;
   products?: AdminProduct[];
@@ -50,6 +51,7 @@ function formatPrice(value?: number | null) {
 }
 
 export default function AdminCompanyPage() {
+  const router = useRouter();
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
   const [company, setCompany] = useState<AdminCompanyDetail | null>(null);
@@ -57,6 +59,15 @@ export default function AdminCompanyPage() {
   const [error, setError] = useState("");
   const [syncing, setSyncing] = useState(false);
   const [syncMessage, setSyncMessage] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState("");
+
+  function updateCompanyField<K extends keyof AdminCompanyDetail>(
+    field: K,
+    value: AdminCompanyDetail[K]
+  ) {
+    setCompany((current) => (current ? { ...current, [field]: value } : current));
+  }
 
   function loadCompany() {
     if (!slug) return;
@@ -77,6 +88,51 @@ export default function AdminCompanyPage() {
   useEffect(() => {
     loadCompany();
   }, [slug]);
+
+  async function handleSaveCompany(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!company || !slug) return;
+
+    setSaving(true);
+    setSaveMessage("");
+
+    try {
+      const response = await fetch(`/api/admin/companies/${slug}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: company.name,
+          slug: company.slug,
+          shortName: company.shortName,
+          logo: company.logo || "",
+          primaryColor: company.primaryColor,
+          secondaryColor: company.secondaryColor,
+          heroTitle: company.heroTitle,
+          heroText: company.heroText,
+          portalPassword: company.portalPassword || "",
+          printfulTokenEnv: company.printfulTokenEnv || "",
+          portalEnabled: company.portalEnabled,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Unable to save company");
+      }
+
+      setCompany((current) => ({ ...current, ...data }));
+      setSaveMessage("Company settings saved.");
+
+      if (data.slug && data.slug !== slug) {
+        router.replace(`/admin/company/${data.slug}`);
+      }
+    } catch (err: any) {
+      setSaveMessage(err?.message || "Unable to save company");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   async function handleSyncProducts() {
     if (!company) return;
@@ -160,6 +216,83 @@ export default function AdminCompanyPage() {
               <strong>{value}</strong>
             </article>
           ))}
+        </section>
+
+        <section className="admin-section">
+          <div className="admin-section-heading">
+            <div>
+              <span>Editable Settings</span>
+              <h2>Company control</h2>
+            </div>
+          </div>
+
+          <form className="admin-settings-form" onSubmit={handleSaveCompany}>
+            <label>
+              Company Name
+              <input value={company.name} onChange={(event) => updateCompanyField("name", event.target.value)} />
+            </label>
+
+            <label>
+              Short Name
+              <input value={company.shortName} onChange={(event) => updateCompanyField("shortName", event.target.value)} />
+            </label>
+
+            <label>
+              Slug / Username
+              <input value={company.slug} onChange={(event) => updateCompanyField("slug", event.target.value)} />
+            </label>
+
+            <label>
+              Logo Path
+              <input value={company.logo || ""} onChange={(event) => updateCompanyField("logo", event.target.value)} placeholder="/rtl-logo.svg" />
+            </label>
+
+            <label>
+              Primary Color
+              <input value={company.primaryColor} onChange={(event) => updateCompanyField("primaryColor", event.target.value)} />
+            </label>
+
+            <label>
+              Secondary Color
+              <input value={company.secondaryColor} onChange={(event) => updateCompanyField("secondaryColor", event.target.value)} />
+            </label>
+
+            <label className="admin-settings-wide">
+              Hero Title
+              <input value={company.heroTitle} onChange={(event) => updateCompanyField("heroTitle", event.target.value)} />
+            </label>
+
+            <label className="admin-settings-wide">
+              Hero Description
+              <textarea value={company.heroText} onChange={(event) => updateCompanyField("heroText", event.target.value)} />
+            </label>
+
+            <label>
+              Portal Password
+              <input value={company.portalPassword || ""} onChange={(event) => updateCompanyField("portalPassword", event.target.value)} />
+            </label>
+
+            <label>
+              Printful Token Env
+              <input value={company.printfulTokenEnv || ""} onChange={(event) => updateCompanyField("printfulTokenEnv", event.target.value)} placeholder={tokenEnv} />
+            </label>
+
+            <label className="admin-settings-toggle">
+              <input
+                type="checkbox"
+                checked={company.portalEnabled}
+                onChange={(event) => updateCompanyField("portalEnabled", event.target.checked)}
+              />
+              Portal Enabled
+            </label>
+
+            <div className="admin-settings-actions">
+              <button className="admin-primary-button" type="submit" disabled={saving}>
+                {saving ? "Saving..." : "Save Company Settings"}
+              </button>
+              {saveMessage && <span>{saveMessage}</span>}
+            </div>
+          </form>
         </section>
 
         <section className="admin-detail-grid">
