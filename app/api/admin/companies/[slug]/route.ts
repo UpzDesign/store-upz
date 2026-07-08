@@ -11,6 +11,9 @@ export async function GET(
     const company = await prisma.company.findUnique({
       where: { slug },
       include: {
+        products: {
+          orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+        },
         collections: true,
         packages: true,
         assets: true,
