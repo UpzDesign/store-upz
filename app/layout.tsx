@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import "./portal-responsive.css";
+import "./admin.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 
