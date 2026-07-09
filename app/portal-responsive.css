@@ -20,6 +20,98 @@
   object-fit: contain;
 }
 
+.portal-service-lead {
+  background: #010101;
+  color: #fff;
+}
+
+.portal-service-lead .portal-section-heading h2,
+.portal-service-lead .portal-section-heading strong {
+  color: #fff;
+}
+
+.portal-service-priority-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.portal-service-priority-grid a {
+  display: grid;
+  align-content: space-between;
+  min-height: 250px;
+  border-radius: 12px;
+  padding: 22px;
+  background: rgba(255, 255, 255, .08);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, .12);
+}
+
+.portal-service-priority-grid a:hover {
+  background: var(--company-primary, #edbf2d);
+  color: #010101;
+}
+
+.portal-service-priority-grid span {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--company-primary, #edbf2d);
+}
+
+.portal-service-priority-grid a:hover span {
+  color: #010101;
+}
+
+.portal-service-priority-grid h3 {
+  font-size: clamp(22px, 2.7vw, 34px);
+  line-height: .98;
+  letter-spacing: -.045em;
+  text-transform: uppercase;
+  margin: 54px 0 12px;
+}
+
+.portal-service-priority-grid p,
+.portal-empty-service p {
+  font-size: 13px;
+  line-height: 1.65;
+  opacity: .72;
+}
+
+.portal-service-hero {
+  grid-template-columns: 1fr;
+  background: #010101;
+  color: #fff;
+}
+
+.portal-service-hero h2,
+.portal-service-hero strong {
+  color: #fff;
+}
+
+.portal-service-hero p {
+  color: rgba(255, 255, 255, .68);
+}
+
+.portal-empty-service {
+  border: 1px dashed rgba(1, 1, 1, .18);
+  border-radius: 10px;
+  padding: 22px;
+  background: #fff;
+}
+
+.portal-empty-service h3 {
+  font-size: 18px;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.portal-merch-section {
+  background: #f3f3f0;
+}
+
 .portal-collection-nav {
   display: flex;
   gap: 10px;
@@ -134,10 +226,7 @@
   letter-spacing: .07em;
 }
 
-.portal-product-detail-grid {
-  min-width: 0;
-}
-
+.portal-product-detail-grid,
 .portal-product-info-panel,
 .portal-product-gallery-main,
 .portal-product-thumbs,
@@ -163,6 +252,12 @@
 .portal-option-group button {
   max-width: 100%;
   white-space: normal;
+}
+
+@media (max-width: 1100px) {
+  .portal-service-priority-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 900px) {
@@ -206,6 +301,18 @@
   .portal-product-detail .upz-wrap,
   .portal-page .upz-wrap {
     width: min(100vw - 28px, 1180px);
+  }
+
+  .portal-service-priority-grid,
+  .portal-action-grid,
+  .portal-package-grid,
+  .portal-product-grid,
+  .portal-services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .portal-service-priority-grid a {
+    min-height: 210px;
   }
 
   .portal-breadcrumb {
@@ -256,13 +363,6 @@
   .portal-product-info-panel .button,
   .portal-product-info-panel button[style] {
     width: 100% !important;
-  }
-
-  .portal-action-grid,
-  .portal-package-grid,
-  .portal-product-grid,
-  .portal-services-grid {
-    grid-template-columns: 1fr;
   }
 
   .portal-product-card,
