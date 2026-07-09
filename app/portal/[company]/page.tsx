@@ -3,8 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { categories, formatPrice, getCategory } from "@/lib/catalog";
-import { storePackages } from "@/lib/packages";
+import { formatPrice } from "@/lib/catalog";
 import { useCartStore, type CartItem } from "@/store/cart-store";
 
 type PortalCompany = {
@@ -25,47 +24,51 @@ type PortalCompany = {
   }>;
 };
 
-function getPrimaryVariant(product: any) {
-  return product?.variants?.[0] || product;
+type CatalogItem = {
+  id: number;
+  title: string;
+  description?: string | null;
+  itemType: string;
+  sourceVendor?: string | null;
+  sourceProductId?: string | null;
+  thumbnail?: string | null;
+  price?: number | null;
+  active: boolean;
+  featured: boolean;
+  sortOrder: number;
+  collection?: {
+    id: number;
+    name: string;
+    slug: string;
+  } | null;
+  product?: {
+    id: number;
+  } | null;
+};
+
+function getItemImage(item: CatalogItem) {
+  return item.thumbnail || "/placeholder.png";
 }
 
-function buildPackageItems(
-  storePackage: any,
-  products: any[],
-  packageName: string,
-  companySlug: string,
-  companyName: string
-): CartItem[] {
-  const usedProductIds = new Set<string>();
+function getItemLabel(item: CatalogItem) {
+  if (item.sourceVendor === "printful") return "Merchandise";
+  if (item.itemType === "service") return "Service";
+  if (item.itemType === "digital") return "Digital";
+  if (item.itemType === "asset") return "Asset";
+  return "Catalog Item";
+}
 
-  return storePackage.rules.flatMap((rule: any) => {
-    const product = products.find((item) => {
-      const productId = String(item?.id || "");
-      return getCategory(item) === rule.category && !usedProductIds.has(productId);
-    });
-
-    if (!product) return [];
-
-    usedProductIds.add(String(product.id));
-    const variant = getPrimaryVariant(product);
-    const price = Number(variant?.price || product?.price || 0);
-
-    return [
-      {
-        id: String(variant?.id || product.id),
-        productId: String(product.id),
-        name: `${packageName} · ${product.name}`,
-        variant: variant?.name,
-        image: variant?.images?.[0] || product.image || product.thumbnail || "/placeholder.png",
-        price,
-        quantity: Number(rule.quantity || 1),
-        packageId: storePackage.id,
-        packageName,
-        companySlug,
-        companyName,
-      },
-    ];
-  });
+function buildCartItem(item: CatalogItem, company: PortalCompany): CartItem {
+  return {
+    id: `catalog-${item.id}`,
+    productId: item.product?.id ? String(item.product.id) : undefined,
+    name: `${company.shortName} ${item.title}`,
+    image: getItemImage(item),
+    price: Number(item.price || 0),
+    quantity: 1,
+    companySlug: company.slug,
+    companyName: company.name,
+  };
 }
 
 export default function CompanyPortalPage() {
@@ -75,10 +78,10 @@ export default function CompanyPortalPage() {
   const [company, setCompany] = useState<PortalCompany | null>(null);
   const [companyLoading, setCompanyLoading] = useState(true);
   const [companyError, setCompanyError] = useState("");
-  const [products, setProducts] = useState<any[]>([]);
+  const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState("All");
-  const addItems = useCartStore((state) => state.addItems);
+  const [activeCollection, setActiveCollection] = useState("All");
+  const addItem = useCartStore((state) => state.addItem);
 
   useEffect(() => {
     if (!slug) return;
@@ -105,36 +108,31 @@ export default function CompanyPortalPage() {
   useEffect(() => {
     if (!company) return;
 
-    fetch(`/api/products?company=${company.slug}`)
+    setLoading(true);
+    fetch(`/api/portal/companies/${company.slug}/catalog-items`)
       .then((res) => res.json())
-      .then((data) => setProducts(Array.isArray(data) ? data : []))
+      .then((data) => setCatalogItems(Array.isArray(data) ? data : []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [company]);
 
-  const filteredProducts = useMemo(() => {
-    if (activeCategory === "All") return products;
-    return products.filter((product) => getCategory(product) === activeCategory);
-  }, [products, activeCategory]);
+  const collections = useMemo(() => {
+    const unique = new Map<string, string>();
+    catalogItems.forEach((item) => {
+      const label = item.collection?.name || "Unassigned";
+      unique.set(label, label);
+    });
+    return ["All", ...Array.from(unique.values())];
+  }, [catalogItems]);
 
-  const packageSummaries = useMemo(
-    () =>
-      storePackages.map((storePackage) => {
-        const packageName = `${company?.shortName || "Company"} ${storePackage.title}`;
-        const items = buildPackageItems(
-          storePackage,
-          products,
-          packageName,
-          company?.slug || "",
-          company?.name || ""
-        );
-        const subtotal = items.reduce(
-          (sum: number, item: CartItem) => sum + Number(item.price || 0) * item.quantity,
-          0
-        );
-        return { ...storePackage, title: packageName, items, subtotal };
-      }),
-    [products, company]
+  const filteredItems = useMemo(() => {
+    if (activeCollection === "All") return catalogItems;
+    return catalogItems.filter((item) => (item.collection?.name || "Unassigned") === activeCollection);
+  }, [catalogItems, activeCollection]);
+
+  const featuredItems = useMemo(
+    () => catalogItems.filter((item) => item.featured).slice(0, 6),
+    [catalogItems]
   );
 
   if (companyLoading) {
@@ -173,9 +171,9 @@ export default function CompanyPortalPage() {
             <h1>{company.heroTitle}</h1>
             <p>{company.heroText}</p>
             <div className="portal-actions">
-              <a href="#products">Order Merchandise</a>
+              <a href="#catalog">Browse Catalog</a>
+              <a href="#featured">Featured</a>
               <a href="#assets">Brand Assets</a>
-              <a href="#services">Request Marketing</a>
             </div>
           </div>
 
@@ -207,7 +205,7 @@ export default function CompanyPortalPage() {
           </div>
           <div className="portal-action-grid">
             {company.featuredActions.map((action) => (
-              <a href={action.href} key={action.title} className="portal-action-card">
+              <a href={action.href === "#products" ? "#catalog" : action.href} key={action.title} className="portal-action-card">
                 <h3>{action.title}</h3>
                 <p>{action.description}</p>
               </a>
@@ -216,64 +214,74 @@ export default function CompanyPortalPage() {
         </div>
       </section>
 
-      <section id="packages" className="portal-section portal-dark-section">
-        <div className="upz-wrap">
-          <div className="portal-section-heading">
-            <div>
-              <span>Packages</span>
-              <h2>Approved kits</h2>
+      {featuredItems.length > 0 && (
+        <section id="featured" className="portal-section portal-dark-section">
+          <div className="upz-wrap">
+            <div className="portal-section-heading">
+              <div>
+                <span>Featured</span>
+                <h2>Recommended items</h2>
+              </div>
+            </div>
+            <div className="portal-product-grid">
+              {featuredItems.map((item) => (
+                <article key={item.id} className="portal-product-card">
+                  <img src={getItemImage(item)} alt={item.title} />
+                  <div>
+                    <span>{getItemLabel(item)} · {item.collection?.name || "Catalog"}</span>
+                    <h3>{company.shortName} {item.title}</h3>
+                    <strong>{formatPrice(item.price)}</strong>
+                    {item.product?.id ? (
+                      <Link href={`/portal/${company.slug}/product/${item.product.id}`}>View Product</Link>
+                    ) : (
+                      <button onClick={() => addItem(buildCartItem(item, company))}>Add to Cart</button>
+                    )}
+                  </div>
+                </article>
+              ))}
             </div>
           </div>
-          <div className="portal-package-grid">
-            {packageSummaries.map((pack) => (
-              <article key={pack.id} className="portal-package-card">
-                <div className="portal-package-image">
-                  {pack.items[0]?.image ? <img src={pack.items[0].image} alt={pack.title} /> : <span>Kit</span>}
-                </div>
-                <div>
-                  <h3>{pack.title}</h3>
-                  <strong>{pack.subtotal ? formatPrice(pack.subtotal) : "Build Kit"}</strong>
-                  <p>{pack.items.length} approved items</p>
-                  <button onClick={() => addItems(pack.items)} disabled={!pack.items.length}>Add Package</button>
-                </div>
-              </article>
-            ))}
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      <section id="products" className="portal-section">
+      <section id="catalog" className="portal-section">
         <div className="upz-wrap">
           <div className="portal-section-heading">
             <div>
-              <span>Merchandise</span>
-              <h2>Approved product catalog</h2>
+              <span>Catalog</span>
+              <h2>Products & Services</h2>
             </div>
-            <strong>{loading ? "Loading..." : `${filteredProducts.length} products`}</strong>
+            <strong>{loading ? "Loading..." : `${filteredItems.length} items`}</strong>
           </div>
 
           <div className="portal-filter-row">
-            {categories.map((category) => (
+            {collections.map((collection) => (
               <button
-                key={category}
-                className={activeCategory === category ? "is-active" : ""}
-                onClick={() => setActiveCategory(category)}
+                key={collection}
+                className={activeCollection === collection ? "is-active" : ""}
+                onClick={() => setActiveCollection(collection)}
               >
-                {category}
+                {collection}
               </button>
             ))}
           </div>
 
           <div className="portal-product-grid">
-            {filteredProducts.slice(0, 12).map((product) => (
-              <Link key={product.id} href={`/portal/${company.slug}/product/${product.id}`} className="portal-product-card">
-                <img src={product.image || "/placeholder.png"} alt={product.name} />
+            {filteredItems.map((item) => (
+              <article key={item.id} className="portal-product-card">
+                <img src={getItemImage(item)} alt={item.title} />
                 <div>
-                  <span>{getCategory(product)}</span>
-                  <h3>{company.shortName} {product.name}</h3>
-                  <strong>{formatPrice(product.price)}</strong>
+                  <span>{getItemLabel(item)} · {item.collection?.name || "Catalog"}</span>
+                  <h3>{company.shortName} {item.title}</h3>
+                  <strong>{formatPrice(item.price)}</strong>
+                  {item.description && <p>{item.description}</p>}
+                  {item.product?.id ? (
+                    <Link href={`/portal/${company.slug}/product/${item.product.id}`}>View Product</Link>
+                  ) : (
+                    <button onClick={() => addItem(buildCartItem(item, company))}>Add to Cart</button>
+                  )}
                 </div>
-              </Link>
+              </article>
             ))}
           </div>
         </div>
@@ -287,22 +295,10 @@ export default function CompanyPortalPage() {
             <p>Logo files, brand colors, email signatures, presentation templates, and collateral downloads will live here.</p>
           </div>
           <div className="portal-asset-list">
-            {['Logo Files', 'Brand Guide', 'Email Signature', 'PowerPoint Template', 'Business Card Template'].map((asset) => (
+            {["Logo Files", "Brand Guide", "Email Signature", "PowerPoint Template", "Business Card Template"].map((asset) => (
               <div key={asset}>{asset}<span>Coming Soon</span></div>
             ))}
           </div>
-        </div>
-      </section>
-
-      <section id="services" className="portal-section portal-services-section">
-        <div className="upz-wrap portal-services-grid">
-          {['Property Brochure', 'Photography', 'Drone / Aerial', 'Website Landing Page', 'Window Graphics', 'Social Media Kit'].map((service) => (
-            <article key={service}>
-              <h3>{service}</h3>
-              <p>Request this service from UPZ Design for your next campaign or company need.</p>
-              <button>Request</button>
-            </article>
-          ))}
         </div>
       </section>
     </main>
