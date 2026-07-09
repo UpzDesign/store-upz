@@ -66,6 +66,22 @@ function itemToForm(item: CatalogItem) {
   };
 }
 
+function itemPayload(item: CatalogItem, updates: Partial<CatalogItem>) {
+  return {
+    title: item.title,
+    itemType: item.itemType,
+    collectionId: item.collectionId || item.collection?.id || "",
+    description: item.description || "",
+    thumbnail: item.thumbnail || "",
+    price: item.price ?? "",
+    sku: item.sku || "",
+    sortOrder: item.sortOrder,
+    active: item.active,
+    featured: item.featured,
+    ...updates,
+  };
+}
+
 export default function AdminCatalogPage() {
   const params = useParams();
   const slug = Array.isArray(params?.slug) ? params.slug[0] : params?.slug;
@@ -78,6 +94,8 @@ export default function AdminCatalogPage() {
   const [query, setQuery] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [collectionFilter, setCollectionFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [bulkCollectionId, setBulkCollectionId] = useState("");
 
   const isEditing = form.id > 0;
 
@@ -147,9 +165,7 @@ export default function AdminCatalogPage() {
       );
       const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data?.error || "Unable to save catalog item");
-      }
+      if (!response.ok) throw new Error(data?.error || "Unable to save catalog item");
 
       setMessage(isEditing ? "Catalog item updated." : "Catalog item added.");
       resetForm();
@@ -168,19 +184,7 @@ export default function AdminCatalogPage() {
       const response = await fetch(`/api/admin/catalog-items/${item.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: item.title,
-          itemType: item.itemType,
-          collectionId: item.collectionId || item.collection?.id || "",
-          description: item.description || "",
-          thumbnail: item.thumbnail || "",
-          price: item.price ?? "",
-          sku: item.sku || "",
-          sortOrder: item.sortOrder,
-          active: item.active,
-          featured: item.featured,
-          ...updates,
-        }),
+        body: JSON.stringify(itemPayload(item, updates)),
       });
       const data = await response.json();
 
@@ -206,6 +210,7 @@ export default function AdminCatalogPage() {
       if (!response.ok) throw new Error(data?.error || "Unable to delete catalog item");
 
       setItems((current) => current.filter((entry) => entry.id !== item.id));
+      setSelectedIds((current) => current.filter((id) => id !== item.id));
       setMessage("Catalog item deleted.");
     } catch (error: any) {
       setMessage(error?.message || "Unable to delete catalog item");
@@ -260,6 +265,84 @@ export default function AdminCatalogPage() {
       return matchesQuery && matchesType && matchesCollection;
     });
   }, [items, query, typeFilter, collectionFilter]);
+
+  const selectedItems = useMemo(
+    () => items.filter((item) => selectedIds.includes(item.id)),
+    [items, selectedIds]
+  );
+
+  function toggleSelected(id: number) {
+    setSelectedIds((current) => current.includes(id) ? current.filter((itemId) => itemId !== id) : [...current, id]);
+  }
+
+  function selectVisibleItems() {
+    setSelectedIds(filteredItems.map((item) => item.id));
+  }
+
+  async function bulkPatch(updates: Partial<CatalogItem>, successMessage: string) {
+    if (selectedItems.length === 0) return;
+
+    setSaving(true);
+    setMessage("");
+
+    try {
+      await Promise.all(
+        selectedItems.map((item) =>
+          fetch(`/api/admin/catalog-items/${item.id}`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(itemPayload(item, updates)),
+          }).then(async (response) => {
+            if (!response.ok) {
+              const data = await response.json().catch(() => null);
+              throw new Error(data?.error || "Unable to update catalog items");
+            }
+            return response.json();
+          })
+        )
+      );
+
+      setMessage(successMessage);
+      setSelectedIds([]);
+      loadItems();
+    } catch (error: any) {
+      setMessage(error?.message || "Unable to update catalog items");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function bulkDelete() {
+    if (selectedItems.length === 0) return;
+
+    const confirmed = window.confirm(`Delete ${selectedItems.length} selected catalog items?`);
+    if (!confirmed) return;
+
+    setSaving(true);
+    setMessage("");
+
+    try {
+      await Promise.all(
+        selectedItems.map((item) =>
+          fetch(`/api/admin/catalog-items/${item.id}`, { method: "DELETE" }).then(async (response) => {
+            if (!response.ok) {
+              const data = await response.json().catch(() => null);
+              throw new Error(data?.error || "Unable to delete catalog items");
+            }
+            return response.json();
+          })
+        )
+      );
+
+      setMessage("Selected catalog items deleted.");
+      setSelectedIds([]);
+      loadItems();
+    } catch (error: any) {
+      setMessage(error?.message || "Unable to delete catalog items");
+    } finally {
+      setSaving(false);
+    }
+  }
 
   return (
     <main className="admin-page">
@@ -385,11 +468,33 @@ export default function AdminCatalogPage() {
             </select>
           </div>
 
+          <div className="admin-bulk-toolbar">
+            <button onClick={selectVisibleItems}>Select Visible</button>
+            <button onClick={() => setSelectedIds([])}>Clear</button>
+            <span>{selectedItems.length} selected</span>
+            <button disabled={!selectedItems.length || saving} onClick={() => bulkPatch({ active: true }, "Selected items shown.")}>Show</button>
+            <button disabled={!selectedItems.length || saving} onClick={() => bulkPatch({ active: false }, "Selected items hidden.")}>Hide</button>
+            <button disabled={!selectedItems.length || saving} onClick={() => bulkPatch({ featured: true }, "Selected items featured.")}>Feature</button>
+            <button disabled={!selectedItems.length || saving} onClick={() => bulkPatch({ featured: false }, "Selected items unfeatured.")}>Unfeature</button>
+            <select value={bulkCollectionId} onChange={(event) => setBulkCollectionId(event.target.value)}>
+              <option value="">Bulk Collection</option>
+              <option value="none">Unassigned</option>
+              {collections.map((collection) => (
+                <option key={collection.id} value={collection.id}>{collection.name}</option>
+              ))}
+            </select>
+            <button disabled={!selectedItems.length || saving || !bulkCollectionId} onClick={() => bulkPatch({ collectionId: bulkCollectionId === "none" ? null : Number(bulkCollectionId) }, "Selected items reassigned.")}>Apply Collection</button>
+            <button className="admin-danger-mini" disabled={!selectedItems.length || saving} onClick={bulkDelete}>Delete</button>
+          </div>
+
           {message && <p className="admin-error">{message}</p>}
 
           <div className="admin-product-list">
             {filteredItems.map((item) => (
               <article key={item.id} className="admin-catalog-row">
+                <label className="admin-row-check">
+                  <input type="checkbox" checked={selectedIds.includes(item.id)} onChange={() => toggleSelected(item.id)} />
+                </label>
                 <img src={item.thumbnail || "/placeholder.png"} alt={item.title} />
                 <div>
                   <strong>{item.title}</strong>
