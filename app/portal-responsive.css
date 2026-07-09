@@ -20,6 +20,120 @@
   object-fit: contain;
 }
 
+.portal-collection-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.portal-collection-nav a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 38px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(1, 1, 1, .12);
+  background: #fff;
+  color: #010101;
+  font-size: 10px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.portal-collection-nav span {
+  display: inline-grid;
+  place-items: center;
+  min-width: 21px;
+  height: 21px;
+  border-radius: 999px;
+  background: var(--company-primary, #edbf2d);
+  color: #010101;
+}
+
+.portal-soft-section {
+  background: #f6f6f6;
+}
+
+.portal-collection-hero {
+  display: grid;
+  grid-template-columns: minmax(0, .42fr) minmax(0, .58fr);
+  gap: 24px;
+  align-items: stretch;
+  border: 1px solid rgba(1, 1, 1, .08);
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, .06);
+}
+
+.portal-collection-hero > img {
+  width: 100%;
+  height: 100%;
+  min-height: 220px;
+  object-fit: cover;
+}
+
+.portal-collection-hero > div {
+  padding: clamp(22px, 4vw, 40px);
+  display: grid;
+  align-content: center;
+}
+
+.portal-collection-hero span,
+.portal-subheading span {
+  color: var(--company-primary, #edbf2d);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+}
+
+.portal-collection-hero h2 {
+  color: #010101;
+  font-size: clamp(30px, 4vw, 54px);
+  line-height: .98;
+  letter-spacing: -.055em;
+  text-transform: uppercase;
+  margin: 8px 0 14px;
+}
+
+.portal-collection-hero p {
+  color: rgba(1, 1, 1, .62);
+  font-size: 14px;
+  line-height: 1.7;
+  max-width: 680px;
+}
+
+.portal-collection-hero strong {
+  color: #010101;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
+.portal-subheading {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  margin: 28px 0 14px;
+  border-bottom: 1px solid rgba(1, 1, 1, .08);
+  padding-bottom: 10px;
+}
+
+.portal-subheading strong {
+  color: rgba(1, 1, 1, .55);
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: .07em;
+}
+
 .portal-product-detail-grid {
   min-width: 0;
 }
@@ -56,7 +170,8 @@
     padding: 34px 0 60px;
   }
 
-  .portal-product-detail-grid {
+  .portal-product-detail-grid,
+  .portal-collection-hero {
     display: grid;
     grid-template-columns: 1fr;
     gap: 28px;
@@ -74,6 +189,10 @@
 
   .portal-product-price {
     font-size: 22px;
+  }
+
+  .portal-collection-hero > img {
+    min-height: 180px;
   }
 }
 
@@ -150,5 +269,13 @@
   .portal-action-card,
   .portal-services-grid article {
     max-width: 100%;
+  }
+
+  .portal-collection-nav {
+    display: grid;
+  }
+
+  .portal-collection-hero h2 {
+    font-size: clamp(30px, 12vw, 44px);
   }
 }
