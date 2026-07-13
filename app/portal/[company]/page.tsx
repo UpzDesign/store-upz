@@ -36,7 +36,18 @@ type CatalogItem = {
   product?: { id: number } | null;
 };
 
-const SERVICE_FOCUS = [
+type ServiceFocus = {
+  key: string;
+  title: string;
+  text: string;
+  keywords: string[];
+};
+
+type ServiceBucket = ServiceFocus & {
+  items: CatalogItem[];
+};
+
+const SERVICE_FOCUS: ServiceFocus[] = [
   { key: "signage", title: "Signage, Print & Installation", text: "Storefront vinyl, window graphics, site signage, printed collateral, and installation coordination.", keywords: ["sign", "vinyl", "window", "print", "installation", "install", "graphic", "banner", "storefront"] },
   { key: "brochure", title: "Brochure & Marketing Design", text: "Property brochures, flyers, pitch materials, offering decks, maps, and campaign-ready collateral.", keywords: ["brochure", "flyer", "marketing", "deck", "map", "collateral", "presentation"] },
   { key: "photography", title: "Photography & Media", text: "Interior, exterior, drone, video, 360 tours, virtual staging, and launch media for listings.", keywords: ["photo", "photography", "drone", "video", "tour", "360", "staging", "media", "render"] },
@@ -101,7 +112,7 @@ export default function CompanyPortalPage() {
   const merchandiseItems = useMemo(() => catalogItems.filter((item) => item.itemType === "product" || item.sourceVendor === "printful"), [catalogItems]);
   const digitalItems = useMemo(() => catalogItems.filter((item) => ["digital", "asset", "custom"].includes(item.itemType)), [catalogItems]);
   const featuredServices = useMemo(() => serviceItems.filter((item) => item.featured).slice(0, 6), [serviceItems]);
-  const serviceBuckets = useMemo(() => SERVICE_FOCUS.map((bucket) => ({ ...bucket, items: serviceItems.filter((item) => itemMatches(item, bucket.keywords)) })), [serviceItems]);
+  const serviceBuckets = useMemo<ServiceBucket[]>(() => SERVICE_FOCUS.map((bucket) => ({ ...bucket, items: serviceItems.filter((item) => itemMatches(item, bucket.keywords)) })), [serviceItems]);
   const otherServices = useMemo(() => serviceItems.filter((item) => !SERVICE_FOCUS.some((bucket) => itemMatches(item, bucket.keywords))), [serviceItems]);
 
   const groupedMerchandise = useMemo(() => {
