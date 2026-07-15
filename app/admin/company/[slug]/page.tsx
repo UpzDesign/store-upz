@@ -162,7 +162,7 @@ export default function AdminCompanyPage() {
     { label: "Collections", href: `/admin/company/${company.slug}/collections`, count: collections.length },
     { label: "Packages", href: "#packages", count: company.packages?.length || 0 },
     { label: "Assets", href: "#assets", count: company.assets?.length || 0 },
-    { label: "Requests", href: "#requests", count: company.requests?.length || 0 },
+    { label: "Requests", href: `/admin/company/${company.slug}/requests`, count: company.requests?.length || 0 },
     { label: "Orders", href: "#orders", count: company.orders?.length || 0 },
   ];
 
@@ -200,7 +200,7 @@ export default function AdminCompanyPage() {
           {syncMessage && <p>{syncMessage}</p>}
           {products.length === 0 ? <p>No products synced yet. Use the sync button to pull this company’s catalog into the database.</p> : <div className="admin-product-list">{products.slice(0, 12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}
         </section>
-        <section className="admin-next-grid">{[["Catalog", "Unified vendor-agnostic layer for products, services, digital items, and future store APIs.", `/admin/company/${company.slug}/catalog`], ["Collections", "Create client-specific catalog categories and manage which buckets appear in this portal.", `/admin/company/${company.slug}/collections`], ["Packages", "Build company-specific broker kits and onboarding packages from catalog items.", "#packages"], ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads.", "#assets"]].map(([title, text, href]) => <article key={title} id={String(title).toLowerCase()}><h3>{title}</h3><p>{text}</p><Link href={String(href)}>Open Module</Link></article>)}</section>
+        <section className="admin-next-grid">{[["Catalog", "Unified vendor-agnostic layer for products, services, digital items, and future store APIs.", `/admin/company/${company.slug}/catalog`], ["Collections", "Create client-specific catalog categories and manage which buckets appear in this portal.", `/admin/company/${company.slug}/collections`], ["Requests", "Review incoming service opportunities and track each project request through completion.", `/admin/company/${company.slug}/requests`], ["Packages", "Build company-specific broker kits and onboarding packages from catalog items.", "#packages"], ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads.", "#assets"]].map(([title, text, href]) => <article key={title} id={String(title).toLowerCase()}><h3>{title}</h3><p>{text}</p><Link href={String(href)}>Open Module</Link></article>)}</section>
         <section className="admin-section admin-danger-zone"><div className="admin-section-heading"><div><span>Danger Zone</span><h2>Delete client</h2></div><button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>{deleting ? "Deleting..." : "Delete Client"}</button></div><p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>{deleteMessage && <p className="admin-error">{deleteMessage}</p>}</section>
       </section>
     </main>
