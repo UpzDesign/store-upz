@@ -36,16 +36,17 @@ type CatalogItem = {
   product?: { id: number } | null;
 };
 
-type ServiceFocus = {
-  key: string;
+type MarketingRequest = {
+  id: number;
+  type: string;
   title: string;
-  text: string;
-  keywords: string[];
+  priority: string;
+  status: string;
+  createdAt: string;
 };
 
-type ServiceBucket = ServiceFocus & {
-  items: CatalogItem[];
-};
+type ServiceFocus = { key: string; title: string; text: string; keywords: string[] };
+type ServiceBucket = ServiceFocus & { items: CatalogItem[] };
 
 const SERVICE_FOCUS: ServiceFocus[] = [
   { key: "signage", title: "Signage, Print & Installation", text: "Storefront vinyl, window graphics, site signage, printed collateral, and installation coordination.", keywords: ["sign", "vinyl", "window", "print", "installation", "install", "graphic", "banner", "storefront"] },
@@ -65,13 +66,16 @@ function getItemLabel(item: CatalogItem) {
 function buildCartItem(item: CatalogItem, company: PortalCompany): CartItem {
   return { id: `catalog-${item.id}`, productId: item.product?.id ? String(item.product.id) : undefined, name: `${company.shortName} ${item.title}`, image: getItemImage(item), price: Number(item.price || 0), quantity: 1, companySlug: company.slug, companyName: company.name };
 }
-function CatalogCard({ item, company, addItem }: { item: CatalogItem; company: PortalCompany; addItem: (item: CartItem) => void }) {
-  return <article className="portal-product-card"><img src={getItemImage(item)} alt={item.title} /><div><span>{getItemLabel(item)} · {item.collection?.name || "Catalog"}</span><h3>{company.shortName} {item.title}</h3><strong>{formatPrice(item.price)}</strong>{item.description && <p>{item.description}</p>}{item.product?.id ? <Link href={`/portal/${company.slug}/product/${item.product.id}`}>View Product</Link> : <button onClick={() => addItem(buildCartItem(item, company))}>Add to Cart</button>}</div></article>;
-}
 function slugLabel(value: string) { return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
 function itemMatches(item: CatalogItem, keywords: string[]) {
   const haystack = `${item.title} ${item.description || ""} ${item.collection?.name || ""}`.toLowerCase();
   return keywords.some((keyword) => haystack.includes(keyword));
+}
+function serviceRoute(item: CatalogItem) {
+  return SERVICE_FOCUS.find((bucket) => itemMatches(item, bucket.keywords))?.key || "general";
+}
+function CatalogCard({ item, company, addItem }: { item: CatalogItem; company: PortalCompany; addItem: (item: CartItem) => void }) {
+  return <article className="portal-product-card"><img src={getItemImage(item)} alt={item.title} /><div><span>{getItemLabel(item)} · {item.collection?.name || "Catalog"}</span><h3>{company.shortName} {item.title}</h3><strong>{formatPrice(item.price)}</strong>{item.description && <p>{item.description}</p>}{item.itemType === "service" ? <Link href={`/portal/${company.slug}/request/${serviceRoute(item)}`}>Start Project</Link> : item.product?.id ? <Link href={`/portal/${company.slug}/product/${item.product.id}`}>View Product</Link> : <button onClick={() => addItem(buildCartItem(item, company))}>Add to Cart</button>}</div></article>;
 }
 
 export default function CompanyPortalPage() {
@@ -82,6 +86,7 @@ export default function CompanyPortalPage() {
   const [companyLoading, setCompanyLoading] = useState(true);
   const [companyError, setCompanyError] = useState("");
   const [catalogItems, setCatalogItems] = useState<CatalogItem[]>([]);
+  const [requests, setRequests] = useState<MarketingRequest[]>([]);
   const [loading, setLoading] = useState(true);
   const addItem = useCartStore((state) => state.addItem);
 
@@ -101,9 +106,14 @@ export default function CompanyPortalPage() {
   useEffect(() => {
     if (!company) return;
     setLoading(true);
-    fetch(`/api/portal/companies/${company.slug}/catalog-items`)
-      .then((res) => { if (!res.ok) throw new Error("Unable to load catalog"); return res.json(); })
-      .then((data) => setCatalogItems(Array.isArray(data) ? data : []))
+    Promise.all([
+      fetch(`/api/portal/companies/${company.slug}/catalog-items`).then((res) => { if (!res.ok) throw new Error("Unable to load catalog"); return res.json(); }),
+      fetch(`/api/portal/companies/${company.slug}/requests`).then((res) => res.ok ? res.json() : []),
+    ])
+      .then(([catalog, requestData]) => {
+        setCatalogItems(Array.isArray(catalog) ? catalog : []);
+        setRequests(Array.isArray(requestData) ? requestData : []);
+      })
       .catch((error) => { console.error(error); setCatalogItems([]); })
       .finally(() => setLoading(false));
   }, [company]);
@@ -114,6 +124,7 @@ export default function CompanyPortalPage() {
   const featuredServices = useMemo(() => serviceItems.filter((item) => item.featured).slice(0, 6), [serviceItems]);
   const serviceBuckets = useMemo<ServiceBucket[]>(() => SERVICE_FOCUS.map((bucket) => ({ ...bucket, items: serviceItems.filter((item) => itemMatches(item, bucket.keywords)) })), [serviceItems]);
   const otherServices = useMemo(() => serviceItems.filter((item) => !SERVICE_FOCUS.some((bucket) => itemMatches(item, bucket.keywords))), [serviceItems]);
+  const activeRequests = useMemo(() => requests.filter((request) => !["complete", "completed", "cancelled"].includes(request.status.toLowerCase())).slice(0, 6), [requests]);
 
   const groupedMerchandise = useMemo(() => {
     const groups = new Map<string, { name: string; slug: string; description?: string | null; heroImage?: string | null; items: CatalogItem[] }>();
@@ -131,14 +142,16 @@ export default function CompanyPortalPage() {
 
   return (
     <main className="portal-page" style={{ "--company-primary": company.primaryColor, "--company-secondary": company.secondaryColor } as React.CSSProperties}>
-      <section className="portal-hero"><div className="upz-wrap portal-hero-inner"><div><div className="portal-eyebrow">Private Company Portal</div><h1>{company.heroTitle}</h1><p>{company.heroText}</p><div className="portal-actions"><a href="#services">Request Services</a><a href="#signage">Signage & Print</a><a href="#merchandise">Merchandise</a></div></div><div className="portal-brand-card"><img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} /><h2>{company.name}</h2><p>Approved marketing services, creative requests, print production, and company merchandise powered by UPZ Design.</p></div></div></section>
-      <section className="portal-modules"><div className="upz-wrap portal-module-grid">{[{ label: "Signage & Print", href: "#signage" }, { label: "Photography", href: "#photography" }, { label: "Brochure Design", href: "#brochure" }, { label: "Web Development", href: "#web" }, { label: "Merchandise", href: "#merchandise" }, { label: "Brand Assets", href: "#brand-assets" }].map((module) => <a key={module.label} href={module.href} className="portal-module-card"><span>{module.label}</span></a>)}</div></section>
+      <section className="portal-hero"><div className="upz-wrap portal-hero-inner"><div><div className="portal-eyebrow">Private Company Portal</div><h1>{company.heroTitle}</h1><p>{company.heroText}</p><div className="portal-actions"><a href="#services">Request Services</a><a href="#requests">Active Requests</a><a href="#merchandise">Merchandise</a></div></div><div className="portal-brand-card"><img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} /><h2>{company.name}</h2><p>Approved marketing services, creative requests, print production, and company merchandise powered by UPZ Design.</p></div></div></section>
+      <section className="portal-modules"><div className="upz-wrap portal-module-grid">{[{ label: "Signage & Print", href: `/portal/${company.slug}/request/signage` }, { label: "Photography", href: `/portal/${company.slug}/request/photography` }, { label: "Brochure Design", href: `/portal/${company.slug}/request/brochure` }, { label: "Web Development", href: `/portal/${company.slug}/request/web` }, { label: "Merchandise", href: "#merchandise" }, { label: "Brand Assets", href: "#brand-assets" }].map((module) => <Link key={module.label} href={module.href} className="portal-module-card"><span>{module.label}</span></Link>)}</div></section>
 
-      <section id="services" className="portal-section portal-service-lead"><div className="upz-wrap"><div className="portal-section-heading"><div><span>Start a project</span><h2>Marketing services first</h2></div><strong>{loading ? "Loading..." : `${serviceItems.length} services`}</strong></div><div className="portal-service-priority-grid">{serviceBuckets.map((bucket) => <a key={bucket.key} href={`#${bucket.key}`}><span>{bucket.items.length} available</span><h3>{bucket.title}</h3><p>{bucket.text}</p></a>)}</div></div></section>
+      <section id="requests" className="portal-section portal-request-dashboard"><div className="upz-wrap"><div className="portal-section-heading"><div><span>Project Dashboard</span><h2>Active requests</h2></div><Link href={`/portal/${company.slug}/request/general`}>Start New Request</Link></div>{activeRequests.length ? <div className="portal-request-grid">{activeRequests.map((request) => <article key={request.id}><span>{request.type}</span><h3>{request.title}</h3><div><strong>{request.status}</strong><em>{request.priority} priority</em></div></article>)}</div> : <div className="portal-empty-service"><h3>No active requests yet</h3><p>Start a signage, photography, brochure, web, or general marketing request from the service sections below.</p></div>}</div></section>
+
+      <section id="services" className="portal-section portal-service-lead"><div className="upz-wrap"><div className="portal-section-heading"><div><span>Start a project</span><h2>Marketing services first</h2></div><strong>{loading ? "Loading..." : `${serviceItems.length} services`}</strong></div><div className="portal-service-priority-grid">{serviceBuckets.map((bucket) => <Link key={bucket.key} href={`/portal/${company.slug}/request/${bucket.key}`}><span>{bucket.items.length} available</span><h3>{bucket.title}</h3><p>{bucket.text}</p></Link>)}</div></div></section>
 
       {featuredServices.length > 0 && <section className="portal-section portal-dark-section"><div className="upz-wrap"><div className="portal-section-heading"><div><span>Featured Services</span><h2>Recommended project starters</h2></div></div><div className="portal-product-grid">{featuredServices.map((item) => <CatalogCard key={item.id} item={item} company={company} addItem={addItem} />)}</div></div></section>}
 
-      {serviceBuckets.map((bucket, index) => <section key={bucket.key} id={bucket.key} className={`portal-section ${index % 2 === 0 ? "portal-soft-section" : ""}`}><div className="upz-wrap"><div className="portal-collection-hero portal-service-hero"><div><span>High-value service</span><h2>{bucket.title}</h2><p>{bucket.text}</p><strong>{bucket.items.length} services</strong></div></div>{bucket.items.length ? <div className="portal-product-grid">{bucket.items.map((item) => <CatalogCard key={item.id} item={item} company={company} addItem={addItem} />)}</div> : <div className="portal-empty-service"><h3>{bucket.title}</h3><p>Add matching catalog services in admin to populate this section for clients.</p></div>}</div></section>)}
+      {serviceBuckets.map((bucket, index) => <section key={bucket.key} id={bucket.key} className={`portal-section ${index % 2 === 0 ? "portal-soft-section" : ""}`}><div className="upz-wrap"><div className="portal-collection-hero portal-service-hero"><div><span>High-value service</span><h2>{bucket.title}</h2><p>{bucket.text}</p><Link href={`/portal/${company.slug}/request/${bucket.key}`}>Start This Project</Link></div></div>{bucket.items.length ? <div className="portal-product-grid">{bucket.items.map((item) => <CatalogCard key={item.id} item={item} company={company} addItem={addItem} />)}</div> : <div className="portal-empty-service"><h3>{bucket.title}</h3><p>Add matching catalog services in admin to populate this section for clients.</p></div>}</div></section>)}
 
       {otherServices.length > 0 && <section className="portal-section"><div className="upz-wrap"><div className="portal-section-heading"><div><span>Additional Services</span><h2>More ways UPZ can help</h2></div><strong>{otherServices.length} services</strong></div><div className="portal-product-grid">{otherServices.map((item) => <CatalogCard key={item.id} item={item} company={company} addItem={addItem} />)}</div></div></section>}
 
