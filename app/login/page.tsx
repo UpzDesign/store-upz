@@ -44,11 +44,11 @@ export default function LoginPage() {
     <main className="portal-login-page">
       <section className="portal-login-hero">
         <div className="portal-login-card">
-          <div className="portal-eyebrow">UPZ Brand Portal</div>
+          <div className="portal-eyebrow">UPZ Client Portal</div>
           <h1>Company access</h1>
           <p>
-            Log in to access your approved company merchandise, broker packages,
-            brand assets, and marketing requests.
+            Log in to access curated service packages, approved company merchandise,
+            brand assets, and active marketing requests.
           </p>
 
           <form onSubmit={handleSubmit} className="portal-login-form">
@@ -83,11 +83,17 @@ export default function LoginPage() {
 
         <div className="portal-login-side">
           <img src="/upz-logo.svg" alt="UPZ Design" />
-          <h2>Your brand. Fully managed.</h2>
+          <h2>Everything your brand needs.</h2>
           <p>
-            A private marketing and merchandise center for companies that want approved,
-            ready-to-order branded materials in one place.
+            A private project, package, and merchandise center for approved marketing
+            services, ready-to-request solutions, and branded materials.
           </p>
+          <div className="admin-chip-grid">
+            <div>Curated Packages</div>
+            <div>Marketing Services</div>
+            <div>Company Merchandise</div>
+            <div>Active Requests</div>
+          </div>
         </div>
       </section>
     </main>
