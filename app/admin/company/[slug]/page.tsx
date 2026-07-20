@@ -36,7 +36,16 @@ type AdminCompanyDetail = {
   orders?: unknown[];
 };
 
-const defaultModules = ["Order Merchandise", "Broker Packages", "Business Cards", "Marketing Materials", "Brand Assets", "Request Services"];
+const portalModules = [
+  "Curated Packages",
+  "Order Merchandise",
+  "Signage & Print",
+  "Photography & Media",
+  "Brochure Design",
+  "Web Development",
+  "Brand Assets",
+  "Project Requests",
+];
 
 function formatPrice(value?: number | null) {
   if (!value) return "—";
@@ -155,15 +164,24 @@ export default function AdminCompanyPage() {
   const tokenEnv = company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`;
   const products = company.products || [];
   const collections = company.collections || [];
+  const packageCount = company.packages?.length || 0;
   const moduleLinks = [
     { label: "General", href: `/admin/company/${company.slug}` },
     { label: "Catalog", href: `/admin/company/${company.slug}/catalog`, count: products.length },
-    { label: "Products", href: "#products", count: products.length },
     { label: "Collections", href: `/admin/company/${company.slug}/collections`, count: collections.length },
-    { label: "Packages", href: "#packages", count: company.packages?.length || 0 },
-    { label: "Assets", href: "#assets", count: company.assets?.length || 0 },
+    { label: "Packages", href: `/admin/company/${company.slug}/packages`, count: packageCount },
     { label: "Requests", href: `/admin/company/${company.slug}/requests`, count: company.requests?.length || 0 },
+    { label: "Products", href: "#products", count: products.length },
+    { label: "Assets", href: "#assets", count: company.assets?.length || 0 },
     { label: "Orders", href: "#orders", count: company.orders?.length || 0 },
+  ];
+
+  const managementModules = [
+    ["Package Builder", "Build company-specific service and merchandise packages from catalog items.", `/admin/company/${company.slug}/packages`],
+    ["Catalog", "Manage the unified product, service, digital item, and asset catalog.", `/admin/company/${company.slug}/catalog`],
+    ["Collections", "Organize catalog items into client-facing categories and merchandise groups.", `/admin/company/${company.slug}/collections`],
+    ["Requests", "Review incoming package and service requests and track them through completion.", `/admin/company/${company.slug}/requests`],
+    ["Assets", "Manage logos, brand guides, templates, email signatures, and downloads.", "#assets"],
   ];
 
   return (
@@ -172,7 +190,13 @@ export default function AdminCompanyPage() {
         <div className="admin-detail-topbar"><Link href="/admin">← Back to Admin</Link><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
         <header className="admin-detail-hero"><div className="admin-detail-logo" style={{ borderColor: company.primaryColor }}><img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} /></div><div><div className="admin-eyebrow">Company Settings</div><h1>{company.name}</h1><p>{company.heroText}</p></div></header>
         <nav className="admin-module-tabs" aria-label="Company admin modules">{moduleLinks.map((item) => <Link key={item.label} href={item.href}><span>{item.label}</span>{typeof item.count === "number" && <strong>{item.count}</strong>}</Link>)}</nav>
-        <section className="admin-stat-grid">{[["Products", products.length], ["Collections", collections.length], ["Assets", company.assets?.length || 0], ["Requests", company.requests?.length || 0]].map(([label, value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
+        <section className="admin-stat-grid">{[["Products", products.length], ["Collections", collections.length], ["Packages", packageCount], ["Requests", company.requests?.length || 0]].map(([label, value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
+
+        <section className="admin-section">
+          <div className="admin-section-heading"><div><span>Core Modules</span><h2>Manage this portal</h2></div><Link className="admin-primary-button" href={`/admin/company/${company.slug}/packages`}>Open Package Builder</Link></div>
+          <div className="admin-next-grid">{managementModules.map(([title, text, href]) => <article key={title}><h3>{title}</h3><p>{text}</p><Link href={href}>Open Module</Link></article>)}</div>
+        </section>
+
         <section className="admin-section">
           <div className="admin-section-heading"><div><span>Editable Settings</span><h2>Company control</h2></div></div>
           <form className="admin-settings-form" onSubmit={handleSaveCompany}>
@@ -190,17 +214,19 @@ export default function AdminCompanyPage() {
             <div className="admin-settings-actions"><button className="admin-primary-button" type="submit" disabled={saving}>{saving ? "Saving..." : "Save Company Settings"}</button>{saveMessage && <span>{saveMessage}</span>}</div>
           </form>
         </section>
+
         <section className="admin-detail-grid">
           <article className="admin-detail-card"><span>Brand</span><h2>Identity</h2><dl><div><dt>Company</dt><dd>{company.name}</dd></div><div><dt>Short Name</dt><dd>{company.shortName}</dd></div><div><dt>Slug</dt><dd>{company.slug}</dd></div><div><dt>Primary Color</dt><dd><code>{company.primaryColor}</code></dd></div><div><dt>Secondary Color</dt><dd><code>{company.secondaryColor}</code></dd></div><div><dt>Logo</dt><dd>{company.logo || "Default UPZ logo"}</dd></div></dl></article>
           <article className="admin-detail-card"><span>Access</span><h2>Portal</h2><dl><div><dt>Login Username</dt><dd>{company.slug.toUpperCase()}</dd></div><div><dt>Password</dt><dd>Stored in database settings</dd></div><div><dt>Portal URL</dt><dd>/portal/{company.slug}</dd></div><div><dt>Printful Token</dt><dd><code>{tokenEnv}</code></dd></div><div><dt>Status</dt><dd>{company.portalEnabled ? "Active" : "Disabled"}</dd></div></dl></article>
-          <article className="admin-detail-card admin-detail-wide"><span>Portal Content</span><h2>Modules</h2><div className="admin-chip-grid">{defaultModules.map((module) => <div key={module}>{module}</div>)}</div></article>
+          <article className="admin-detail-card admin-detail-wide"><span>Portal Content</span><h2>Enabled experiences</h2><div className="admin-chip-grid">{portalModules.map((module) => <div key={module}>{module}</div>)}</div></article>
         </section>
+
         <section id="products" className="admin-section">
           <div className="admin-section-heading"><div><span>Products</span><h2>Synced product catalog</h2></div><button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>{syncing ? "Syncing..." : "Sync Products"}</button></div>
           {syncMessage && <p>{syncMessage}</p>}
           {products.length === 0 ? <p>No products synced yet. Use the sync button to pull this company’s catalog into the database.</p> : <div className="admin-product-list">{products.slice(0, 12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}
         </section>
-        <section className="admin-next-grid">{[["Catalog", "Unified vendor-agnostic layer for products, services, digital items, and future store APIs.", `/admin/company/${company.slug}/catalog`], ["Collections", "Create client-specific catalog categories and manage which buckets appear in this portal.", `/admin/company/${company.slug}/collections`], ["Requests", "Review incoming service opportunities and track each project request through completion.", `/admin/company/${company.slug}/requests`], ["Packages", "Build company-specific broker kits and onboarding packages from catalog items.", "#packages"], ["Assets", "Upload logos, brand guides, templates, email signatures, and client downloads.", "#assets"]].map(([title, text, href]) => <article key={title} id={String(title).toLowerCase()}><h3>{title}</h3><p>{text}</p><Link href={String(href)}>Open Module</Link></article>)}</section>
+
         <section className="admin-section admin-danger-zone"><div className="admin-section-heading"><div><span>Danger Zone</span><h2>Delete client</h2></div><button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>{deleting ? "Deleting..." : "Delete Client"}</button></div><p>This permanently removes the client portal and related database records. Use this for test clients only unless you are sure.</p>{deleteMessage && <p className="admin-error">{deleteMessage}</p>}</section>
       </section>
     </main>
