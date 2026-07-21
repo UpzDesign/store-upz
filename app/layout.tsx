@@ -8,6 +8,7 @@ import "./admin.css";
 import "./admin-forms.css";
 import "./admin-requests.css";
 import "./packages.css";
+import "./projects.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 
