@@ -48,6 +48,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </div>
           </header>
           {children}
+          <footer className="upz-powered-footer">
+            <a href="https://www.upzdesign.com" target="_blank" rel="noreferrer" aria-label="Powered by UPZ Design">
+              <span>Powered by</span>
+              <img src="/upz-logo.svg" alt="UPZ Design" />
+            </a>
+          </footer>
           <Cart />
         </Providers>
       </body>
