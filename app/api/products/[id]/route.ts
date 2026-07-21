@@ -34,6 +34,7 @@ export async function GET(
   const companySlug = request.nextUrl.searchParams.get("company");
   let databaseProduct = null;
   let resolvedCompanySlug: string | null = null;
+  let resolvedProductId = String(id);
 
   if (companySlug) {
     const company = await prisma.company.findUnique({ where: { slug: companySlug } });
@@ -43,17 +44,25 @@ export async function GET(
     }
 
     resolvedCompanySlug = company.slug;
+    const databaseId = Number(id);
 
     databaseProduct = await prisma.product.findFirst({
       where: {
         companyId: company.id,
-        printfulId: String(id),
         active: true,
+        OR: [
+          { printfulId: String(id) },
+          ...(Number.isInteger(databaseId) ? [{ id: databaseId }] : []),
+        ],
       },
     });
+
+    if (databaseProduct?.printfulId) {
+      resolvedProductId = databaseProduct.printfulId;
+    }
   }
 
-  const product = await getProductById(id, { companySlug: resolvedCompanySlug });
+  const product = await getProductById(resolvedProductId, { companySlug: resolvedCompanySlug });
 
   if (!product && !databaseProduct) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
