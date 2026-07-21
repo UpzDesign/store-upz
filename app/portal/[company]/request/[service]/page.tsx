@@ -3,43 +3,31 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
+import { getIntakeForm, INTAKE_FORMS, type IntakeField } from "@/lib/intake-forms";
 
-const SERVICE_NAMES: Record<string, string> = {
-  signage: "Signage, Print & Installation",
-  brochure: "Brochure & Marketing Design",
-  photography: "Photography & Media",
-  web: "Web Development",
-  general: "General Marketing Request",
-};
-
-const SERVICE_DELIVERABLES: Record<string, string> = {
-  signage: "Window graphics, storefront vinyl, site signage, banners, printed materials, installation",
-  brochure: "Property brochure, flyer, presentation deck, map, floor plan layout, email campaign graphics",
-  photography: "Interior photography, exterior photography, drone, video, 360 tour, virtual staging",
-  web: "Property website, landing page, broker page, listing system, analytics, lead forms",
-  general: "Describe the marketing, design, print, photography, or web support you need",
-};
+function initialValues(fields: IntakeField[]) {
+  return fields.reduce<Record<string, string | boolean>>((values, field) => {
+    values[field.key] = field.type === "checkbox" ? false : field.key === "priority" ? "normal" : "";
+    return values;
+  }, {});
+}
 
 export default function ProjectRequestPage() {
   const params = useParams();
   const router = useRouter();
   const companySlug = Array.isArray(params?.company) ? params.company[0] : params?.company;
   const serviceSlug = Array.isArray(params?.service) ? params.service[0] : params?.service;
-  const serviceName = useMemo(() => SERVICE_NAMES[String(serviceSlug || "general")] || String(serviceSlug || "General Request").replace(/-/g, " "), [serviceSlug]);
+  const definition = useMemo(() => getIntakeForm(serviceSlug), [serviceSlug]);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState("");
+  const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({
-    projectTitle: "",
-    contactName: "",
-    contactEmail: "",
-    propertyAddress: "",
-    deadline: "",
-    budget: "",
-    deliverables: SERVICE_DELIVERABLES[String(serviceSlug || "general")] || "",
-    priority: "normal",
-    notes: "",
-  });
+  const [form, setForm] = useState<Record<string, string | boolean>>(() => initialValues(definition.fields));
+
+  useEffect(() => {
+    setForm(initialValues(definition.fields));
+    setSubmitted(false);
+    setToast(null);
+  }, [definition]);
 
   useEffect(() => {
     if (!companySlug) return;
@@ -47,7 +35,13 @@ export default function ProjectRequestPage() {
     if (savedSlug !== companySlug) router.push("/login");
   }, [companySlug, router]);
 
-  function updateForm(field: keyof typeof form, value: string) {
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 5000);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  function updateForm(field: string, value: string | boolean) {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
@@ -55,33 +49,59 @@ export default function ProjectRequestPage() {
     event.preventDefault();
     if (!companySlug) return;
     setSaving(true);
-    setMessage("");
+    setToast(null);
 
     try {
       const response = await fetch(`/api/portal/companies/${companySlug}/requests`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, service: serviceName }),
+        body: JSON.stringify({
+          service: definition.name,
+          serviceSlug: definition.slug,
+          projectTitle: form.projectTitle,
+          priority: form.priority || "normal",
+          answers: form,
+        }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data?.error || "Unable to submit project request");
       setSubmitted(true);
-      setMessage("Your project request has been submitted to UPZ Design.");
-    } catch (error: any) {
-      setMessage(error?.message || "Unable to submit project request");
+      setToast({ type: "success", message: "Your project request was submitted successfully." });
+    } catch (error: unknown) {
+      setToast({ type: "error", message: error instanceof Error ? error.message : "Unable to submit project request" });
     } finally {
       setSaving(false);
     }
   }
 
+  function renderField(field: IntakeField) {
+    const value = form[field.key] ?? "";
+    const className = field.wide ? "portal-request-wide" : undefined;
+
+    if (field.type === "textarea") {
+      return <label key={field.key} className={className}>{field.label}<textarea value={String(value)} onChange={(event) => updateForm(field.key, event.target.value)} placeholder={field.placeholder} required={field.required} /></label>;
+    }
+
+    if (field.type === "select") {
+      return <label key={field.key} className={className}>{field.label}<select value={String(value)} onChange={(event) => updateForm(field.key, event.target.value)} required={field.required}><option value="">Select an option</option>{field.options?.map((option) => <option key={option} value={option.toLowerCase()}>{option}</option>)}</select></label>;
+    }
+
+    if (field.type === "checkbox") {
+      return <label key={field.key} className={`portal-request-checkbox ${className || ""}`}><input type="checkbox" checked={Boolean(value)} onChange={(event) => updateForm(field.key, event.target.checked)} /><span>{field.label}</span></label>;
+    }
+
+    return <label key={field.key} className={className}>{field.label}<input type={field.type} value={String(value)} onChange={(event) => updateForm(field.key, event.target.value)} placeholder={field.placeholder} required={field.required} /></label>;
+  }
+
   if (submitted) {
     return (
       <main className="portal-page portal-request-page">
+        {toast && <div className={`upz-toast ${toast.type}`} role="status"><strong>{toast.type === "success" ? "✓" : "!"}</strong><span>{toast.message}</span></div>}
         <section className="portal-request-success">
           <span>Request received</span>
           <h1>Thank you.</h1>
-          <p>{message}</p>
-          <Link href={`/portal/${companySlug}`}>Return to Portal</Link>
+          <p>Your {definition.name.toLowerCase()} request is now in the UPZ Design project queue. We will review the details and follow up with scope, timing, and next steps.</p>
+          <div className="portal-request-success-actions"><Link href={`/portal/${companySlug}`}>Return to Portal</Link><button type="button" onClick={() => { setForm(initialValues(definition.fields)); setSubmitted(false); }}>Submit Another</button></div>
         </section>
       </main>
     );
@@ -89,25 +109,22 @@ export default function ProjectRequestPage() {
 
   return (
     <main className="portal-page portal-request-page">
+      {toast && <div className={`upz-toast ${toast.type}`} role="alert"><strong>{toast.type === "success" ? "✓" : "!"}</strong><span>{toast.message}</span></div>}
       <section className="portal-request-wrap">
         <div className="portal-request-intro">
           <Link href={`/portal/${companySlug}`}>← Back to Portal</Link>
           <span>Start a Project</span>
-          <h1>{serviceName}</h1>
-          <p>Tell us what you need. UPZ Design will review the request and follow up with scope, timing, and next steps.</p>
+          <h1>{definition.name}</h1>
+          <p>{definition.description}</p>
+          <nav className="portal-project-type-list" aria-label="Project types">
+            {Object.values(INTAKE_FORMS).map((item) => <Link key={item.slug} className={item.slug === definition.slug ? "active" : ""} href={`/portal/${companySlug}/request/${item.slug}`}>{item.name}</Link>)}
+          </nav>
         </div>
 
         <form className="portal-request-form" onSubmit={submitRequest}>
-          <label className="portal-request-wide">Project Title<input value={form.projectTitle} onChange={(event) => updateForm("projectTitle", event.target.value)} placeholder="625 Broadway marketing launch" required /></label>
-          <label>Contact Name<input value={form.contactName} onChange={(event) => updateForm("contactName", event.target.value)} required /></label>
-          <label>Email<input type="email" value={form.contactEmail} onChange={(event) => updateForm("contactEmail", event.target.value)} required /></label>
-          <label className="portal-request-wide">Property / Project Address<input value={form.propertyAddress} onChange={(event) => updateForm("propertyAddress", event.target.value)} placeholder="625 Broadway, New York, NY" /></label>
-          <label>Requested Deadline<input type="date" value={form.deadline} onChange={(event) => updateForm("deadline", event.target.value)} /></label>
-          <label>Budget / Range<input value={form.budget} onChange={(event) => updateForm("budget", event.target.value)} placeholder="$1,500–$3,000 or TBD" /></label>
-          <label>Priority<select value={form.priority} onChange={(event) => updateForm("priority", event.target.value)}><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></label>
-          <label className="portal-request-wide">Requested Deliverables<textarea value={form.deliverables} onChange={(event) => updateForm("deliverables", event.target.value)} /></label>
-          <label className="portal-request-wide">Project Notes<textarea value={form.notes} onChange={(event) => updateForm("notes", event.target.value)} placeholder="Share goals, dimensions, quantities, existing files, brand requirements, or anything else we should know." /></label>
-          <div className="portal-request-actions"><button type="submit" disabled={saving}>{saving ? "Submitting..." : "Submit Project Request"}</button>{message && <span>{message}</span>}</div>
+          <div className="portal-request-form-heading portal-request-wide"><span>{definition.name}</span><h2>Project intake</h2><p>Fields marked as required help us prepare an accurate scope and timeline.</p></div>
+          {definition.fields.map(renderField)}
+          <div className="portal-request-actions"><button type="submit" disabled={saving}>{saving ? "Submitting..." : "Submit Project Request"}</button></div>
         </form>
       </section>
     </main>
