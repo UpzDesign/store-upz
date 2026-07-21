@@ -11,6 +11,7 @@ import "./packages.css";
 import "./projects.css";
 import "./ui-polish.css";
 import "./client-portal-polish.css";
+import "./final-polish.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 
