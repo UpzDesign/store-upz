@@ -30,6 +30,7 @@ model Company {
   assets           BrandAsset[]
   requests         MarketingRequest[]
   orders           Order[]
+  projects         Project[]
 }
 
 model Product {
@@ -58,8 +59,8 @@ model CatalogItem {
   companyId       Int
   collectionId    Int?
   productId       Int?     @unique
-  itemType        String   @default("product") // product, service, digital, asset, custom
-  sourceVendor    String?  // printful, manual, upz, future vendor name
+  itemType        String   @default("product")
+  sourceVendor    String?
   sourceProductId String?
   title           String
   description     String?
@@ -92,7 +93,7 @@ model Collection {
   sortOrder   Int      @default(0)
   active      Boolean  @default(true)
 
-  company     Company  @relation(fields: [companyId], references: [id])
+  company      Company       @relation(fields: [companyId], references: [id])
   catalogItems CatalogItem[]
 
   @@unique([companyId, slug])
@@ -109,6 +110,7 @@ model Package {
 
   company     Company  @relation(fields: [companyId], references: [id])
   items       PackageItem[]
+  projects    Project[]
 }
 
 model PackageItem {
@@ -151,6 +153,81 @@ model MarketingRequest {
   updatedAt   DateTime @updatedAt
 
   company     Company  @relation(fields: [companyId], references: [id])
+  project     Project?
+}
+
+model Project {
+  id            Int      @id @default(autoincrement())
+  companyId     Int
+  requestId     Int?     @unique
+  packageId     Int?
+  title         String
+  description   String?
+  status        String   @default("new")
+  priority      String   @default("normal")
+  startDate     DateTime?
+  dueDate       DateTime?
+  budget        Float?
+  internalCost  Float?
+  clientVisible Boolean  @default(true)
+  assignedTo    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  company       Company          @relation(fields: [companyId], references: [id])
+  request       MarketingRequest? @relation(fields: [requestId], references: [id])
+  package       Package?          @relation(fields: [packageId], references: [id])
+  tasks         ProjectTask[]
+  notes         ProjectNote[]
+  activities    ProjectActivity[]
+
+  @@index([companyId, status])
+  @@index([companyId, dueDate])
+}
+
+model ProjectTask {
+  id          Int      @id @default(autoincrement())
+  projectId   Int
+  title       String
+  description String?
+  status      String   @default("todo")
+  priority    String   @default("normal")
+  assignedTo  String?
+  dueDate     DateTime?
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, status])
+}
+
+model ProjectNote {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  body      String
+  visibility String  @default("internal")
+  author    String?
+  createdAt DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+model ProjectActivity {
+  id        Int      @id @default(autoincrement())
+  projectId Int
+  type      String
+  message   String
+  actor     String?
+  metadata  String?
+  createdAt DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
 }
 
 model Order {
