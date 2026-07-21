@@ -1,0 +1,210 @@
+/* Global UI polish and layout safeguards */
+:root{
+  --ui-radius-sm:6px;
+  --ui-radius-md:10px;
+  --ui-radius-lg:14px;
+  --ui-border:rgba(1,1,1,.09);
+  --ui-shadow:0 16px 48px rgba(0,0,0,.06);
+  --ui-transition:180ms ease;
+}
+
+html,body{max-width:100%;}
+body{overflow-wrap:break-word;}
+main,section,article,header,footer,nav,aside,div{min-width:0;}
+
+h1,h2,h3,h4,h5,h6{
+  max-width:100%;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  text-wrap:balance;
+}
+
+p,li,dd,dt,strong,span,a,button,label{
+  overflow-wrap:anywhere;
+}
+
+h1{font-size:clamp(2rem,5vw,4.5rem);line-height:.96;letter-spacing:-.055em;}
+h2{font-size:clamp(1.6rem,3.5vw,3rem);line-height:1;letter-spacing:-.045em;}
+h3{font-size:clamp(1rem,2vw,1.45rem);line-height:1.12;letter-spacing:-.025em;}
+
+button,a,input,textarea,select{max-width:100%;}
+button{white-space:normal;}
+textarea{resize:vertical;}
+
+.admin-hero h1,
+.admin-detail-hero h1,
+.admin-login-card h1,
+.portal-hero h1,
+.portal-request-intro h1,
+.project-header h1,
+.project-workspace-header h1,
+.upz-hero-copy h1{
+  font-size:clamp(2rem,4.6vw,4rem);
+  line-height:.96;
+  max-width:100%;
+}
+
+.admin-section-heading h2,
+.portal-section-heading h2,
+.portal-collection-hero h2,
+.project-panel h2,
+.upz-section-title h2,
+.upz-package-copy h2,
+.upz-yellow-grid h2{
+  font-size:clamp(1.55rem,3vw,2.75rem);
+  line-height:1;
+}
+
+.admin-company-card h3,
+.admin-placeholder-card h3,
+.admin-next-grid h3,
+.portal-product-card h3,
+.portal-package-offer-grid h2,
+.portal-request-grid h3,
+.project-card h3,
+.upz-package-info h3,
+.upz-collection-card h3{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:3;
+  overflow:hidden;
+  min-height:0;
+}
+
+.admin-company-card,
+.admin-placeholder-card,
+.admin-detail-card,
+.admin-next-grid article,
+.portal-product-card,
+.portal-package-offer-grid article,
+.portal-request-grid article,
+.project-card,
+.project-panel,
+.upz-package-card,
+.upz-collection-card{
+  min-width:0;
+  transition:transform var(--ui-transition),box-shadow var(--ui-transition),border-color var(--ui-transition);
+}
+
+.admin-company-card:hover,
+.admin-placeholder-card:hover,
+.admin-next-grid article:hover,
+.portal-product-card:hover,
+.portal-package-offer-grid article:hover,
+.portal-request-grid article:hover,
+.project-card:hover,
+.upz-package-card:hover,
+.upz-collection-card:hover{
+  transform:translateY(-2px);
+}
+
+.admin-hero,
+.admin-section,
+.admin-detail-card,
+.admin-detail-hero,
+.portal-request-form,
+.project-panel{
+  border-radius:var(--ui-radius-lg);
+}
+
+.admin-primary-button,
+.admin-danger-button,
+.portal-request-actions button,
+.portal-package-offer-grid button,
+.project-inline-form button,
+.button{
+  min-height:42px;
+  border-radius:var(--ui-radius-sm);
+  padding:10px 15px;
+  line-height:1.2;
+}
+
+.admin-primary-button:focus-visible,
+.admin-danger-button:focus-visible,
+.portal-request-actions button:focus-visible,
+.portal-package-offer-grid button:focus-visible,
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible{
+  outline:3px solid rgba(237,191,45,.45);
+  outline-offset:2px;
+}
+
+.admin-section-heading,
+.portal-section-heading,
+.project-header,
+.project-workspace-header{
+  align-items:flex-start;
+  flex-wrap:wrap;
+}
+
+.admin-section-heading>*,
+.portal-section-heading>*,
+.project-header>*,
+.project-workspace-header>*{
+  min-width:0;
+}
+
+.admin-product-row,
+.project-card,
+.portal-product-card,
+.portal-package-offer-grid article{
+  overflow:hidden;
+}
+
+.admin-company-meta span,
+.admin-company-meta a,
+.admin-detail-card dd,
+.project-card p,
+.portal-product-card p,
+.portal-package-offer-grid p{
+  overflow-wrap:anywhere;
+}
+
+.project-board,
+.portal-product-grid,
+.portal-package-offer-grid,
+.admin-company-grid,
+.admin-placeholder-grid,
+.admin-next-grid{
+  align-items:stretch;
+}
+
+.project-card,
+.portal-package-offer-grid article,
+.portal-product-card,
+.admin-company-card,
+.admin-placeholder-card,
+.admin-next-grid article{
+  height:100%;
+}
+
+.project-card p,
+.portal-product-card p,
+.portal-package-offer-grid p,
+.admin-company-card p,
+.admin-placeholder-card p,
+.admin-next-grid p{
+  display:-webkit-box;
+  -webkit-box-orient:vertical;
+  -webkit-line-clamp:4;
+  overflow:hidden;
+}
+
+@media(max-width:900px){
+  .admin-main{padding:18px;}
+  .admin-hero,.project-header,.project-workspace-header{gap:18px;}
+  .portal-section-heading,.admin-section-heading{gap:14px;}
+}
+
+@media(max-width:640px){
+  .container,.full-container,.upz-wrap{width:min(100% - 28px,1180px);}
+  .admin-hero h1,.admin-detail-hero h1,.portal-hero h1,.portal-request-intro h1,.project-header h1,.project-workspace-header h1,.upz-hero-copy h1{font-size:clamp(1.85rem,10vw,3rem);}
+  .admin-section-heading h2,.portal-section-heading h2,.portal-collection-hero h2,.project-panel h2{font-size:clamp(1.4rem,8vw,2.25rem);}
+  .admin-section-heading,.portal-section-heading,.project-header,.project-workspace-header{display:grid;grid-template-columns:1fr;}
+  .admin-detail-topbar{gap:10px;}
+  .store-header-inner{width:min(100% - 28px,1180px);}
+  .store-nav{max-width:calc(100vw - 100px);overflow-x:auto;justify-content:flex-start;padding-bottom:2px;}
+}
