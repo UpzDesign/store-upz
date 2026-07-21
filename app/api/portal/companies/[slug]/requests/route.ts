@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+function labelFromKey(key: string) {
+  return key
+    .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 export async function GET(
   _request: NextRequest,
   context: { params: Promise<{ slug: string }> }
@@ -39,30 +46,33 @@ export async function POST(
       return NextResponse.json({ error: "Portal not found" }, { status: 404 });
     }
 
-    const service = String(body?.service || "General Marketing Request").trim();
-    const projectTitle = String(body?.projectTitle || service).trim();
+    const service = String(body?.service || body?.type || "Custom Project").trim();
+    const projectTitle = String(body?.projectTitle || body?.title || service).trim();
 
     if (!projectTitle) {
       return NextResponse.json({ error: "Project title is required" }, { status: 400 });
     }
 
-    const details = [
-      body?.contactName ? `Contact: ${String(body.contactName).trim()}` : null,
-      body?.contactEmail ? `Email: ${String(body.contactEmail).trim()}` : null,
-      body?.propertyAddress ? `Property / Address: ${String(body.propertyAddress).trim()}` : null,
-      body?.deadline ? `Requested Deadline: ${String(body.deadline).trim()}` : null,
-      body?.budget ? `Budget / Range: ${String(body.budget).trim()}` : null,
-      body?.deliverables ? `Requested Deliverables: ${String(body.deliverables).trim()}` : null,
-      body?.notes ? `Notes:\n${String(body.notes).trim()}` : null,
-    ].filter(Boolean).join("\n\n");
+    const ignoredKeys = new Set(["projectTitle", "priority"]);
+    const answers = body?.answers && typeof body.answers === "object" ? body.answers : body;
+    const details = Object.entries(answers || {})
+      .filter(([key, value]) => !ignoredKeys.has(key) && value !== "" && value !== null && value !== undefined && value !== false)
+      .map(([key, value]) => `${labelFromKey(key)}: ${Array.isArray(value) ? value.join(", ") : String(value).trim()}`)
+      .join("\n\n");
+
+    const packageSummary = body?.packageId
+      ? `Package ID: ${String(body.packageId)}${body?.packageTitle ? `\nPackage: ${String(body.packageTitle).trim()}` : ""}`
+      : "";
+
+    const description = [packageSummary, details].filter(Boolean).join("\n\n");
 
     const marketingRequest = await prisma.marketingRequest.create({
       data: {
         companyId: company.id,
         type: service,
         title: projectTitle,
-        description: details || null,
-        priority: String(body?.priority || "normal"),
+        description: description || null,
+        priority: String(body?.priority || answers?.priority || "normal"),
         status: "open",
       },
     });
