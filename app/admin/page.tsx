@@ -34,10 +34,8 @@ export default function AdminPage() {
 
   useEffect(() => {
     if (!authenticated) return;
-
     setLoadingCompanies(true);
     setCompanyError("");
-
     fetch("/api/admin/companies")
       .then((response) => {
         if (!response.ok) throw new Error("Unable to load companies");
@@ -52,8 +50,8 @@ export default function AdminPage() {
     () => [
       { label: "Companies", value: companies.length },
       { label: "Active Portals", value: companies.filter((company) => company.portalEnabled).length },
-      { label: "Requests", value: "0" },
-      { label: "Orders", value: "Stripe" },
+      { label: "Integrations", value: "Printful" },
+      { label: "Platform", value: "Live" },
     ],
     [companies]
   );
@@ -79,12 +77,7 @@ export default function AdminPage() {
           <form onSubmit={handleLogin} className="admin-login-form">
             <label>
               Password
-              <input
-                type="password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                placeholder="Enter admin password"
-              />
+              <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Enter admin password" />
             </label>
             {error && <div className="admin-error">{error}</div>}
             <button type="submit">Enter Admin</button>
@@ -102,11 +95,7 @@ export default function AdminPage() {
           <nav>
             <a href="#dashboard">Dashboard</a>
             <a href="#companies">Companies</a>
-            <a href="#products">Products</a>
-            <a href="#orders">Orders</a>
-            <a href="#requests">Requests</a>
-            <a href="#assets">Assets</a>
-            <a href="#settings">Settings</a>
+            <a href="#integrations">Integrations</a>
           </nav>
         </aside>
 
@@ -130,16 +119,9 @@ export default function AdminPage() {
           </section>
 
           <section id="companies" className="admin-section">
-            <div className="admin-section-heading">
-              <div>
-                <span>Companies</span>
-                <h2>Active client portals</h2>
-              </div>
-            </div>
-
+            <div className="admin-section-heading"><div><span>Companies</span><h2>Active client portals</h2></div></div>
             {loadingCompanies && <p>Loading companies...</p>}
             {companyError && <p className="admin-error">{companyError}</p>}
-
             <div className="admin-company-grid">
               {companies.map((company) => (
                 <article key={company.id} className="admin-company-card">
@@ -163,20 +145,17 @@ export default function AdminPage() {
             </div>
           </section>
 
-          <section id="products" className="admin-section admin-placeholder-grid">
-            {[
-              ["Products", "Sync from Printful, feature products, hide items, and assign collections."],
-              ["Orders", "Stripe and Printful order tracking will appear here after fulfillment routing is finalized."],
-              ["Requests", "Marketing request intake for brochures, photography, signage, websites, and campaigns."],
-              ["Assets", "Upload logos, brand guides, templates, email signatures, and approved downloads."],
-            ].map(([title, text]) => (
-              <article key={title} className="admin-placeholder-card">
-                <span>{title}</span>
-                <h3>{title} Module</h3>
-                <p>{text}</p>
-                <button>Coming Next</button>
+          <section id="integrations" className="admin-section">
+            <div className="admin-section-heading"><div><span>Integrations</span><h2>Connected platforms</h2></div></div>
+            <div className="admin-integration-grid">
+              <article className="admin-integration-card">
+                <div><span>Product API</span><h3>Printful</h3><p>Manage synced merchandise, variants, fulfillment settings, and source product data.</p></div>
+                <div className="admin-integration-actions">
+                  <a href="https://www.printful.com/dashboard" target="_blank" rel="noreferrer">Open Printful Dashboard</a>
+                  <a href="https://developers.printful.com/docs/" target="_blank" rel="noreferrer">API Documentation</a>
+                </div>
               </article>
-            ))}
+            </div>
           </section>
         </div>
       </section>
