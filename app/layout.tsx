@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import "./portal-responsive.css";
@@ -14,6 +13,7 @@ import "./client-portal-polish.css";
 import "./final-polish.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
+import SiteChrome from "@/components/SiteChrome";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -32,29 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className={montserrat.className}>
         <Providers>
-          <header className="store-header">
-            <div className="store-header-inner">
-              <Link href="/" className="store-logo" aria-label="UPZ Design Store">
-                <img src="/upz-logo.svg" alt="UPZ Design" />
-              </Link>
-
-              <nav className="store-nav" aria-label="Store navigation">
-                <a href="/collections/apparel">Apparel</a>
-                <a href="/collections/drinkware">Drinkware</a>
-                <a href="/collections/office">Office</a>
-                <a href="/collections/accessories">Accessories</a>
-                <a href="/#cre-packages">Broker Packages</a>
-                <a href="/#products">All Products</a>
-              </nav>
-            </div>
-          </header>
-          {children}
-          <footer className="upz-powered-footer">
-            <a href="https://www.upzdesign.com" target="_blank" rel="noreferrer" aria-label="Powered by UPZ Design">
-              <span>Powered by</span>
-              <img src="/upz-logo.svg" alt="UPZ Design" />
-            </a>
-          </footer>
+          <SiteChrome>{children}</SiteChrome>
           <Cart />
         </Providers>
       </body>
