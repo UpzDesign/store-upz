@@ -30,6 +30,7 @@ model Company {
   assets           BrandAsset[]
   requests         MarketingRequest[]
   orders           Order[]
+  engagements      Engagement[]
   projects         Project[]
   companyServices  CompanyService[]
 }
@@ -215,9 +216,52 @@ model MarketingRequest {
   project     Project?
 }
 
+model Engagement {
+  id            Int      @id @default(autoincrement())
+  companyId     Int
+  name          String
+  slug          String
+  type          String   @default("property")
+  address       String?
+  city          String?
+  state         String?
+  postalCode    String?
+  description   String?
+  status        String   @default("active")
+  budget        Float?
+  clientVisible Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  company       Company           @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  workOrders    Project[]
+  assets        EngagementAsset[]
+
+  @@unique([companyId, slug])
+  @@index([companyId, status])
+  @@index([companyId, address])
+}
+
+model EngagementAsset {
+  id           Int      @id @default(autoincrement())
+  engagementId Int
+  title        String
+  category     String
+  fileUrl      String?
+  description  String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  engagement   Engagement @relation(fields: [engagementId], references: [id], onDelete: Cascade)
+
+  @@index([engagementId, category])
+}
+
 model Project {
   id            Int      @id @default(autoincrement())
   companyId     Int
+  engagementId  Int?
   requestId     Int?     @unique
   packageId     Int?
   title         String
@@ -234,6 +278,7 @@ model Project {
   updatedAt     DateTime @updatedAt
 
   company       Company          @relation(fields: [companyId], references: [id])
+  engagement    Engagement?      @relation(fields: [engagementId], references: [id], onDelete: SetNull)
   request       MarketingRequest? @relation(fields: [requestId], references: [id])
   package       Package?          @relation(fields: [packageId], references: [id])
   tasks         ProjectTask[]
@@ -242,6 +287,7 @@ model Project {
 
   @@index([companyId, status])
   @@index([companyId, dueDate])
+  @@index([engagementId, status])
 }
 
 model ProjectTask {
