@@ -4,19 +4,31 @@ import { prisma } from "@/lib/prisma";
 export async function GET(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await context.params;
-    const company = await prisma.company.findUnique({
-      where: { slug },
-      include: {
-        products: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }] },
-        collections: { orderBy: [{ sortOrder: "asc" }, { name: "asc" }] },
-        packages: true,
-        assets: true,
-        requests: { include: { project: { select: { id: true, status: true } } }, orderBy: { createdAt: "desc" } },
-        orders: true,
-      },
-    });
-    if (!company) return NextResponse.json({ error: "Company not found" }, { status: 404 });
-    return NextResponse.json(company);
+    const company = await prisma.company.findUnique({ where: { slug } });
+
+    if (!company) {
+      return NextResponse.json({ error: "Company not found" }, { status: 404 });
+    }
+
+    const safe = async <T,>(loader: () => Promise<T>, fallback: T): Promise<T> => {
+      try {
+        return await loader();
+      } catch (error) {
+        console.error(`Unable to load related company data for ${slug}:`, error);
+        return fallback;
+      }
+    };
+
+    const [products, collections, packages, assets, requests, orders] = await Promise.all([
+      safe(() => prisma.product.findMany({ where: { companyId: company.id }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }), []),
+      safe(() => prisma.collection.findMany({ where: { companyId: company.id }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] }), []),
+      safe(() => prisma.package.findMany({ where: { companyId: company.id } }), []),
+      safe(() => prisma.brandAsset.findMany({ where: { companyId: company.id } }), []),
+      safe(() => prisma.marketingRequest.findMany({ where: { companyId: company.id }, orderBy: { createdAt: "desc" } }), []),
+      safe(() => prisma.order.findMany({ where: { companyId: company.id } }), []),
+    ]);
+
+    return NextResponse.json({ ...company, products, collections, packages, assets, requests, orders });
   } catch (error) {
     console.error("Admin company detail API error:", error);
     return NextResponse.json({ error: "Unable to load company" }, { status: 500 });
