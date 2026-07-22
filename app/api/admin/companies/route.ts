@@ -12,31 +12,62 @@ function normalizeSlug(value: string) {
 
 export async function GET() {
   try {
+    // Keep the core company query independent from optional dashboard data.
+    // This guarantees that the admin dashboard still loads if a newer
+    // request/project relation has not reached production yet.
     const companies = await prisma.company.findMany({
       orderBy: { name: "asc" },
-      include: {
-        requests: {
-          select: {
-            id: true,
-            status: true,
-            project: { select: { status: true } },
+    });
+
+    const requestCounts = new Map<number, number>();
+
+    try {
+      const requests = await prisma.marketingRequest.findMany({
+        select: {
+          companyId: true,
+          status: true,
+          project: {
+            select: { status: true },
           },
         },
-      },
-    });
+      });
 
-    const result = companies.map(({ requests, ...company }) => {
-      const newRequestCount = requests.filter((request) => {
-        const requestStatus = request.status.toLowerCase();
-        const projectStatus = request.project?.status?.toLowerCase();
-        const requestIsOpen = !["complete", "completed", "cancelled", "closed"].includes(requestStatus);
-        return requestIsOpen && (!projectStatus || projectStatus === "new");
-      }).length;
+      requests.forEach((request) => {
+        const requestStatus = String(request.status || "open").toLowerCase();
+        const projectStatus = request.project?.status
+          ? String(request.project.status).toLowerCase()
+          : null;
+        const requestIsOpen = ![
+          "complete",
+          "completed",
+          "cancelled",
+          "closed",
+        ].includes(requestStatus);
+        const stillNeedsAttention =
+          requestIsOpen && (!projectStatus || projectStatus === "new");
 
-      return { ...company, newRequestCount };
-    });
+        if (stillNeedsAttention) {
+          requestCounts.set(
+            request.companyId,
+            (requestCounts.get(request.companyId) || 0) + 1
+          );
+        }
+      });
+    } catch (notificationError) {
+      // Notifications are supplementary. Do not take down the dashboard if
+      // production is temporarily behind the latest project schema.
+      console.error(
+        "Admin request notification query unavailable:",
+        notificationError
+      );
+    }
 
-    return NextResponse.json(result);
+    return NextResponse.json(
+      companies.map((company) => ({
+        ...company,
+        newRequestCount: requestCounts.get(company.id) || 0,
+      }))
+    );
   } catch (error) {
     console.error("Admin companies API error:", error);
     return NextResponse.json(
@@ -75,7 +106,9 @@ export async function POST(request: Request) {
             `Approved merchandise, marketing materials, and brand assets for the ${shortName} team.`
         ).trim(),
         portalPassword,
-        printfulTokenEnv: body?.printfulTokenEnv ? String(body.printfulTokenEnv).trim() : null,
+        printfulTokenEnv: body?.printfulTokenEnv
+          ? String(body.printfulTokenEnv).trim()
+          : null,
         portalEnabled: Boolean(body?.portalEnabled ?? true),
       },
     });
@@ -94,7 +127,10 @@ export async function POST(request: Request) {
     console.error("Admin create company API error:", error);
 
     if (error?.code === "P2002") {
-      return NextResponse.json({ error: "That slug is already in use" }, { status: 409 });
+      return NextResponse.json(
+        { error: "That slug is already in use" },
+        { status: 409 }
+      );
     }
 
     return NextResponse.json(
