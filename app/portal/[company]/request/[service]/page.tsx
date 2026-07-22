@@ -27,6 +27,7 @@ export default function ProjectRequestPage() {
   const serviceSlug = Array.isArray(params?.service) ? params.service[0] : params?.service;
   const definition = useMemo(() => getIntakeForm(serviceSlug), [serviceSlug]);
   const [company, setCompany] = useState<PortalCompany | null>(null);
+  const [brandLoading, setBrandLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [submitted, setSubmitted] = useState(false);
@@ -45,10 +46,16 @@ export default function ProjectRequestPage() {
       router.push("/login");
       return;
     }
+
+    setBrandLoading(true);
     fetch(`/api/portal/companies/${companySlug}`)
-      .then((response) => response.ok ? response.json() : null)
-      .then((data) => data && setCompany(data))
-      .catch(() => setCompany(null));
+      .then((response) => {
+        if (!response.ok) throw new Error("Unable to load company branding");
+        return response.json();
+      })
+      .then((data) => setCompany(data))
+      .catch(() => setCompany(null))
+      .finally(() => setBrandLoading(false));
   }, [companySlug, router]);
 
   useEffect(() => {
@@ -99,18 +106,26 @@ export default function ProjectRequestPage() {
     return <label key={field.key} className={className}>{field.label}<input type={field.type} value={String(value)} onChange={(event) => updateForm(field.key, event.target.value)} placeholder={field.placeholder} required={field.required} /></label>;
   }
 
+  if (brandLoading) {
+    return <main className="portal-page portal-request-page request-brand-loading" aria-busy="true"><div className="request-brand-loading-mark" /></main>;
+  }
+
+  if (!company) {
+    return <main className="portal-page portal-request-page"><section className="portal-request-success"><span>Portal unavailable</span><h1>Unable to load branding.</h1><p>Please return to the portal and try again.</p><div className="portal-request-success-actions"><Link href={`/portal/${companySlug}`}>Return to Portal</Link></div></section></main>;
+  }
+
   const brandStyle = {
-    "--company-primary": company?.primaryColor || "#edbf2d",
-    "--company-secondary": company?.secondaryColor || "#010101",
+    "--company-primary": company.primaryColor,
+    "--company-secondary": company.secondaryColor,
   } as React.CSSProperties;
 
   if (submitted) {
     return <main className="portal-page portal-request-page branded-request-page" style={brandStyle}>
       {toast && <div className={`upz-toast ${toast.type}`} role="status"><strong>{toast.type === "success" ? "✓" : "!"}</strong><span>{toast.message}</span></div>}
       <section className="portal-request-success">
-        {company?.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}
+        {company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}
         <span>Request received</span><h1>Thank you.</h1>
-        <p>Your {definition.name.toLowerCase()} request is now in the {company?.shortName || "company"} project queue powered by UPZ Design. We will review the details and follow up with scope, timing, and next steps.</p>
+        <p>Your {definition.name.toLowerCase()} request is now in the {company.shortName} project queue powered by UPZ Design. We will review the details and follow up with scope, timing, and next steps.</p>
         <div className="portal-request-success-actions"><Link href={`/portal/${companySlug}`}>Return to Portal</Link><button type="button" onClick={() => { setForm(initialValues(definition.fields)); setSubmitted(false); }}>Submit Another</button></div>
       </section>
     </main>;
@@ -121,13 +136,13 @@ export default function ProjectRequestPage() {
     <section className="portal-request-wrap">
       <div className="portal-request-intro">
         <Link href={`/portal/${companySlug}`}>← Back to Portal</Link>
-        {company?.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}
-        <span>{company?.shortName || "Private Portal"} · Start a Project</span>
+        {company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}
+        <span>{company.shortName} · Start a Project</span>
         <h1>{definition.name}</h1><p>{definition.description}</p>
         <nav className="portal-project-type-list" aria-label="Project types">{Object.values(INTAKE_FORMS).map((item) => <Link key={item.slug} className={item.slug === definition.slug ? "active" : ""} href={`/portal/${companySlug}/request/${item.slug}`}>{item.name}</Link>)}</nav>
       </div>
       <form className="portal-request-form" onSubmit={submitRequest}>
-        <div className="portal-request-form-heading portal-request-wide"><span>{company?.name || "Client Portal"}</span><h2>{definition.name} intake</h2><p>Fields marked as required help us prepare an accurate scope and timeline.</p></div>
+        <div className="portal-request-form-heading portal-request-wide"><span>{company.name}</span><h2>{definition.name} intake</h2><p>Fields marked as required help us prepare an accurate scope and timeline.</p></div>
         {definition.fields.map(renderField)}
         <div className="portal-request-actions"><button type="submit" disabled={saving}>{saving ? "Submitting..." : "Submit Project Request"}</button></div>
       </form>
