@@ -1,0 +1,50 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const NAV = [
+  ["Dashboard", "/admin"],
+  ["Inbox", "/admin/inbox"],
+  ["Companies", "/admin#companies"],
+  ["Projects", "/admin/projects"],
+  ["Service Library", "/admin/services"],
+  ["Products", "/admin/products"],
+  ["Collections", "/admin/collections"],
+  ["Packages", "/admin/packages"],
+  ["Brand Assets", "/admin/assets"],
+] as const;
+
+export default function AdminWorkspaceShell({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const [ready, setReady] = useState(false);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    setAuthenticated(window.localStorage.getItem("upz_admin") === "true");
+    setReady(true);
+    const sync = () => setAuthenticated(window.localStorage.getItem("upz_admin") === "true");
+    window.addEventListener("storage", sync);
+    window.addEventListener("upz-admin-auth", sync as EventListener);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener("upz-admin-auth", sync as EventListener);
+    };
+  }, [pathname]);
+
+  const showShell = ready && (authenticated || pathname !== "/admin");
+  if (!showShell) return <>{children}</>;
+
+  return <div className="admin-workspace-shell">
+    <aside className="admin-workspace-sidebar">
+      <Link className="admin-workspace-brand" href="/admin"><img src="/upz-logo.svg" alt="UPZ Design"/><div><strong>UPZ Admin</strong><span>Creative Operations</span></div></Link>
+      <nav>{NAV.map(([label, href]) => {
+        const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href.split("#")[0]);
+        return <Link key={label} href={href} className={active ? "active" : ""}>{label}</Link>;
+      })}</nav>
+      <div className="admin-workspace-foot"><button type="button" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}>Search <kbd>⌘K</kbd></button><Link href="/">Open Store</Link></div>
+    </aside>
+    <div className="admin-workspace-content">{children}</div>
+  </div>;
+}
