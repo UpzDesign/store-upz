@@ -1,0 +1,16 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams, useRouter } from "next/navigation";
+
+type ProjectUpdate={id:number;title:string;description?:string|null;status:string;priority:string;dueDate?:string|null;updatedAt:string;notes:Array<{id:number;body:string;author?:string|null;createdAt:string}>;activities:Array<{id:number;message:string;actor?:string|null;createdAt:string}>};
+type Company={name:string;shortName:string;logo?:string|null;primaryColor:string;secondaryColor:string};
+
+export default function ClientProjectsPage(){
+  const params=useParams();const router=useRouter();const slug=Array.isArray(params?.company)?params.company[0]:params?.company;
+  const [company,setCompany]=useState<Company|null>(null);const [projects,setProjects]=useState<ProjectUpdate[]>([]);const [loading,setLoading]=useState(true);const [error,setError]=useState("");
+  useEffect(()=>{if(!slug)return;const savedSlug=window.localStorage.getItem("upz_company_slug");if(savedSlug!==slug){router.push("/login");return;}Promise.all([fetch(`/api/portal/companies/${slug}`).then((res)=>res.ok?res.json():null),fetch(`/api/portal/companies/${slug}/projects`).then((res)=>{if(!res.ok)throw new Error("Unable to load projects");return res.json();})]).then(([companyData,projectData])=>{setCompany(companyData);setProjects(Array.isArray(projectData)?projectData:[]);}).catch((err)=>setError(err?.message||"Unable to load projects")).finally(()=>setLoading(false));},[slug,router]);
+  const style={"--company-primary":company?.primaryColor||"#edbf2d","--company-secondary":company?.secondaryColor||"#010101"} as React.CSSProperties;
+  return <main className="portal-page client-projects-page" style={style}><section className="client-projects-wrap"><div className="client-projects-topbar"><Link href={`/portal/${slug}`}>← Back to Portal</Link>{company?.logo&&<img src={company.logo} alt={`${company.name} logo`}/>}</div><header className="client-projects-hero"><span>{company?.shortName||"Client"} Workspace</span><h1>Project Updates</h1><p>Track current status, deadlines, and messages shared by the UPZ team.</p></header>{loading&&<p>Loading projects...</p>}{error&&<p>{error}</p>}{!loading&&!error&&projects.length===0&&<div className="client-project-empty"><h2>No active projects yet</h2><p>Once a request is converted into a project, updates will appear here.</p></div>}<div className="client-project-list">{projects.map((project)=><article key={project.id} className="client-project-card"><div className="client-project-card-head"><div><span>{project.status}</span><h2>{project.title}</h2></div><em>{project.priority} priority</em></div>{project.description&&<p>{project.description}</p>}<div className="client-project-meta"><div><small>Due Date</small><strong>{project.dueDate?new Date(project.dueDate).toLocaleDateString():"To be confirmed"}</strong></div><div><small>Last Updated</small><strong>{new Date(project.updatedAt).toLocaleDateString()}</strong></div></div>{project.notes.length>0&&<section className="client-project-messages"><h3>Latest Messages</h3>{project.notes.map((note)=><article key={note.id}><p>{note.body}</p><small>{note.author||"UPZ Design"} · {new Date(note.createdAt).toLocaleString()}</small></article>)}</section>}</article>)}</div></section></main>;
+}
