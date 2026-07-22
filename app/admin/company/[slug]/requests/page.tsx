@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
 
@@ -30,7 +30,7 @@ export default function AdminRequestsPage(){
   if(loading)return <main className="admin-page"><section className="admin-simple-state"><h1>Loading requests...</h1></section></main>;
   if(!company)return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Company not found</h1></section></main>;
 
-  const requests=useMemo(()=>[...(company.requests||[])].sort((a,b)=>{const newDiff=Number(isNew(b))-Number(isNew(a));if(newDiff)return newDiff;const priorityDiff=(priorityWeight[a.priority]??2)-(priorityWeight[b.priority]??2);if(priorityDiff)return priorityDiff;return new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime();}),[company.requests]);
+  const requests=[...(company.requests||[])].sort((a,b)=>{const newDiff=Number(isNew(b))-Number(isNew(a));if(newDiff)return newDiff;const priorityDiff=(priorityWeight[a.priority]??2)-(priorityWeight[b.priority]??2);if(priorityDiff)return priorityDiff;return new Date(b.createdAt).getTime()-new Date(a.createdAt).getTime();});
   const newCount=requests.filter(isNew).length;
 
   return <main className="admin-page"><section className="admin-company-detail">
