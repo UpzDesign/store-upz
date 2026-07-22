@@ -28,7 +28,7 @@ export default function AdminCompanyPage() {
   function loadCompany() {
     if (!slug) return;
     setLoading(true); setError("");
-    fetch(`/api/admin/companies/${slug}`)
+    fetch(`/api/admin/companies/${slug}`, { cache: "no-store" })
       .then((response) => { if (!response.ok) throw new Error("Company not found"); return response.json(); })
       .then(setCompany)
       .catch((err) => setError(err?.message || "Unable to load company"))
@@ -42,7 +42,7 @@ export default function AdminCompanyPage() {
     try {
       const response = await fetch(`/api/admin/companies/${slug}`, { method:"PATCH", headers:{"Content-Type":"application/json"}, body:JSON.stringify({ name:company.name, slug:company.slug, shortName:company.shortName, logo:company.logo||"", primaryColor:company.primaryColor, secondaryColor:company.secondaryColor, heroTitle:company.heroTitle, heroText:company.heroText, portalPassword:company.portalPassword||"", printfulTokenEnv:company.printfulTokenEnv||"", portalEnabled:company.portalEnabled }) });
       const data = await response.json(); if (!response.ok) throw new Error(data?.error || "Unable to save company");
-      setCompany((current) => ({ ...current, ...data })); setSaveMessage("Company settings saved.");
+      setCompany((current) => current ? ({ ...current, ...data }) : current); setSaveMessage("Company settings saved.");
       if (data.slug && data.slug !== slug) router.replace(`/admin/company/${data.slug}`);
     } catch (err:any) { setSaveMessage(err?.message || "Unable to save company"); } finally { setSaving(false); }
   }
@@ -83,11 +83,6 @@ export default function AdminCompanyPage() {
         <div className="admin-detail-topbar"><Link href="/admin">← Back to Admin</Link><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
         <header className="admin-detail-hero"><div className="admin-detail-logo" style={{borderColor:company.primaryColor}}><img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} /></div><div><div className="admin-eyebrow">Company Settings</div><h1>{company.name}</h1><p>{company.heroText}</p></div></header>
         <nav className="admin-module-tabs" aria-label="Company admin modules">{moduleLinks.map((item) => <Link key={item.label} href={item.href}><span>{item.label}</span>{typeof item.count === "number" && <strong>{item.count}</strong>}</Link>)}</nav>
-
-        <section className="admin-section admin-priority-requests">
-          <div className="admin-section-heading"><div><span>Priority Queue</span><h2>Requests needing attention</h2></div><Link className="admin-primary-button" href={`/admin/company/${company.slug}/requests`}>Manage All Requests</Link></div>
-          {openRequests.length ? <div className="admin-priority-request-list">{openRequests.slice(0,5).map((request) => <article key={request.id} className="admin-priority-request"><div><span>{request.type}</span><h3>{request.title}</h3><p>{request.description || `Submitted ${new Date(request.createdAt).toLocaleDateString()}`}</p></div><div className="admin-priority-request-meta"><span className={request.status.toLowerCase()==="open"?"is-new":""}>{request.status}</span><span>{request.priority} priority</span><Link className="admin-secondary-button" href={`/admin/company/${company.slug}/requests`}>Review</Link></div></article>)}</div> : <p>No requests currently need attention.</p>}
-        </section>
 
         <section className="admin-stat-grid">{[["Open Requests",openRequests.length],["Products",products.length],["Collections",collections.length],["Packages",packageCount]].map(([label,value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
 
