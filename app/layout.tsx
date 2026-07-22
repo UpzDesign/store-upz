@@ -15,6 +15,7 @@ import "./workflow-polish.css";
 import "./service-list-fix.css";
 import "./client-projects.css";
 import "./command-palette.css";
+import "./service-library.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
