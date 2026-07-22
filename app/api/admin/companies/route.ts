@@ -14,9 +14,29 @@ export async function GET() {
   try {
     const companies = await prisma.company.findMany({
       orderBy: { name: "asc" },
+      include: {
+        requests: {
+          select: {
+            id: true,
+            status: true,
+            project: { select: { status: true } },
+          },
+        },
+      },
     });
 
-    return NextResponse.json(companies);
+    const result = companies.map(({ requests, ...company }) => {
+      const newRequestCount = requests.filter((request) => {
+        const requestStatus = request.status.toLowerCase();
+        const projectStatus = request.project?.status?.toLowerCase();
+        const requestIsOpen = !["complete", "completed", "cancelled", "closed"].includes(requestStatus);
+        return requestIsOpen && (!projectStatus || projectStatus === "new");
+      }).length;
+
+      return { ...company, newRequestCount };
+    });
+
+    return NextResponse.json(result);
   } catch (error) {
     console.error("Admin companies API error:", error);
     return NextResponse.json(
