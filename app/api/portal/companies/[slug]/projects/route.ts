@@ -1,22 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type ProjectWithWorkflow = {
-  id: number;
-  title: string;
-  description: string | null;
-  status: string;
-  priority: string;
-  dueDate: Date | null;
-  updatedAt: Date;
-  tasks: Array<{ id: number; title: string; description: string | null; status: string; dueDate: Date | null; sortOrder: number }>;
-  notes: Array<{ id: number; body: string; author: string | null; createdAt: Date }>;
-  activities: Array<{ id: number; message: string; actor: string | null; createdAt: Date }>;
-};
-
-function progressFor(project: ProjectWithWorkflow) {
-  const completed = project.tasks.filter((task) => task.status === "complete").length;
-  return project.tasks.length ? Math.round((completed / project.tasks.length) * 100) : 0;
+function progressFor(tasks: Array<{ status: string }>) {
+  const completed = tasks.filter((task) => task.status === "complete").length;
+  return tasks.length ? Math.round((completed / tasks.length) * 100) : 0;
 }
 
 export async function GET(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
@@ -25,27 +12,60 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ sl
     const company = await prisma.company.findUnique({ where: { slug }, select: { id: true } });
     if (!company) return NextResponse.json({ error: "Company not found" }, { status: 404 });
 
-    const projects = await prisma.project.findMany({
-      where: { companyId: company.id, clientVisible: true, status: { notIn: ["cancelled"] } },
+    const engagements = await prisma.engagement.findMany({
+      where: { companyId: company.id, clientVisible: true, status: { notIn: ["archived", "cancelled"] } },
       select: {
         id: true,
-        title: true,
+        name: true,
+        slug: true,
+        type: true,
+        address: true,
+        city: true,
+        state: true,
+        postalCode: true,
         description: true,
         status: true,
-        priority: true,
-        dueDate: true,
+        budget: true,
         updatedAt: true,
-        tasks: { orderBy: { sortOrder: "asc" }, select: { id: true, title: true, description: true, status: true, dueDate: true, sortOrder: true } },
-        notes: { where: { visibility: "client" }, orderBy: { createdAt: "desc" }, select: { id: true, body: true, author: true, createdAt: true } },
-        activities: { where: { type: { in: ["status_changed", "project_created"] } }, orderBy: { createdAt: "desc" }, take: 10, select: { id: true, message: true, actor: true, createdAt: true } },
+        assets: {
+          where: { active: true },
+          orderBy: { createdAt: "desc" },
+          select: { id: true, title: true, category: true, fileUrl: true, description: true, createdAt: true },
+        },
+        workOrders: {
+          where: { clientVisible: true, status: { notIn: ["cancelled"] } },
+          orderBy: { updatedAt: "desc" },
+          select: {
+            id: true,
+            title: true,
+            description: true,
+            status: true,
+            priority: true,
+            budget: true,
+            dueDate: true,
+            updatedAt: true,
+            tasks: { orderBy: { sortOrder: "asc" }, select: { id: true, title: true, description: true, status: true, dueDate: true, sortOrder: true } },
+            notes: { where: { visibility: "client" }, orderBy: { createdAt: "desc" }, select: { id: true, body: true, author: true, createdAt: true } },
+            activities: { where: { type: { in: ["status_changed", "project_created"] } }, orderBy: { createdAt: "desc" }, take: 10, select: { id: true, message: true, actor: true, createdAt: true } },
+          },
+        },
       },
       orderBy: { updatedAt: "desc" },
     });
 
-    const workOrders = projects.map((project) => ({ ...project, progress: progressFor(project) }));
-    return NextResponse.json(workOrders);
+    return NextResponse.json(engagements.map((engagement) => {
+      const workOrders = engagement.workOrders.map((workOrder) => ({
+        ...workOrder,
+        progress: progressFor(workOrder.tasks),
+      }));
+      const progress = workOrders.length
+        ? Math.round(workOrders.reduce((total, workOrder) => total + workOrder.progress, 0) / workOrders.length)
+        : 0;
+      const activeWorkOrders = workOrders.filter((workOrder) => !["complete", "completed", "delivered"].includes(workOrder.status.toLowerCase())).length;
+      return { ...engagement, workOrders, progress, activeWorkOrders };
+    }));
   } catch (error) {
-    console.error("Portal work orders error:", error);
-    return NextResponse.json({ error: "Unable to load work orders" }, { status: 500 });
+    console.error("Portal engagement workspaces error:", error);
+    return NextResponse.json({ error: "Unable to load workspaces" }, { status: 500 });
   }
 }
