@@ -47,7 +47,6 @@ export default function AdminCommandPalette(){
   if(!pathname?.startsWith("/admin"))return null;
 
   return <>
-    <button className="admin-command-trigger" type="button" onClick={()=>setOpen(true)} aria-label="Search admin"><span aria-hidden="true">⌕</span><strong>Search</strong><kbd>⌘K</kbd></button>
     {open&&<div className="admin-command-backdrop" role="presentation" onMouseDown={()=>setOpen(false)}>
       <section className="admin-command-palette" role="dialog" aria-modal="true" aria-label="Command palette" onMouseDown={(event)=>event.stopPropagation()}>
         <div className="admin-command-search"><span>⌕</span><input autoFocus value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search companies, requests, services, or pages..."/><kbd>ESC</kbd></div>
