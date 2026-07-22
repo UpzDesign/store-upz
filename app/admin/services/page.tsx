@@ -1,15 +1,34 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { INTAKE_FORMS } from "@/lib/intake-forms";
+import { INTAKE_FORMS, type IntakeDefinition, type IntakeFieldType } from "@/lib/intake-forms";
+
+const TYPES:IntakeFieldType[]=["text","email","number","date","textarea","select","checkbox"];
 
 export default function AdminServicesPage(){
-  const services=Object.values(INTAKE_FORMS);
-  return <main className="admin-page"><section className="admin-company-detail">
+  const [services,setServices]=useState<IntakeDefinition[]>(()=>Object.values(INTAKE_FORMS).map((service)=>({...service,fields:service.fields.map((field)=>({...field}))})));
+  const [active,setActive]=useState(services[0]?.slug||"");
+  const [query,setQuery]=useState("");
+  const selected=services.find((service)=>service.slug===active)||services[0];
+  const filtered=useMemo(()=>services.filter((service)=>`${service.name} ${service.description}`.toLowerCase().includes(query.toLowerCase())),[services,query]);
+  const updateService=(patch:Partial<IntakeDefinition>)=>setServices((items)=>items.map((item)=>item.slug===selected.slug?{...item,...patch}:item));
+  const addService=()=>{const slug=`new-service-${Date.now()}`;setServices((items)=>[...items,{slug,name:"New Service",description:"Add a service description.",fields:[]}]);setActive(slug);};
+  const addField=()=>updateService({fields:[...selected.fields,{key:`field_${Date.now()}`,label:"New Field",type:"text"}]});
+  const updateField=(index:number,patch:Record<string,unknown>)=>updateService({fields:selected.fields.map((field,i)=>i===index?{...field,...patch}:field)});
+  const removeField=(index:number)=>updateService({fields:selected.fields.filter((_,i)=>i!==index)});
+
+  return <main className="admin-page"><section className="admin-company-detail admin-service-editor-page">
     <div className="admin-detail-topbar"><Link href="/admin">← Back to Admin</Link><Link href="/admin/inbox">Open Inbox</Link></div>
-    <header className="admin-detail-hero"><div className="admin-detail-logo"><span>UPZ</span></div><div><div className="admin-eyebrow">Shared Architecture</div><h1>Service Library</h1><p>Every company portal uses these shared service definitions. Update a service once and the latest intake structure is available across RTL, KSR, BX, and future client portals without recreating it.</p></div></header>
-    <section className="admin-stat-grid">{[["Shared Services",services.length],["Company Duplication",0],["Global Updates","Instant"],["Overrides","Planned"]].map(([label,value])=><article className="admin-stat-card" key={String(label)}><span>{label}</span><strong>{value}</strong></article>)}</section>
-    <section className="admin-section"><div className="admin-section-heading"><div><span>UPZ Library</span><h2>Reusable services</h2></div></div>
-      <div className="admin-service-library-grid">{services.map((service)=><article className="admin-service-library-card" key={service.slug}><div><span>{service.slug}</span><h3>{service.name}</h3><p>{service.description}</p></div><dl><div><dt>Intake Fields</dt><dd>{service.fields.length}</dd></div><div><dt>Availability</dt><dd>All Companies</dd></div></dl><div className="admin-service-library-actions"><Link className="admin-secondary-button" href={`/portal/rtl/request/${service.slug}`}>Preview Form</Link></div></article>)}</div>
+    <header className="admin-detail-hero"><div className="admin-detail-logo"><span>UPZ</span></div><div><div className="admin-eyebrow">Service Platform</div><h1>Service Library</h1><p>Add and edit reusable services and build the exact intake form clients complete.</p></div></header>
+    <section className="admin-stat-grid">{[["Services",services.length],["Form Fields",services.reduce((sum,item)=>sum+item.fields.length,0)],["Shared Source","Global"],["Editor","Active"]].map(([label,value])=><article className="admin-stat-card" key={String(label)}><span>{label}</span><strong>{value}</strong></article>)}</section>
+    <section className="admin-section service-editor-shell">
+      <aside className="service-editor-list"><div className="service-editor-list-head"><div><span>Library</span><h2>Services</h2></div><button className="admin-primary-button" type="button" onClick={addService}>+ Add</button></div><input className="service-library-search" value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search services..."/><div className="service-editor-nav">{filtered.map((service)=><button type="button" key={service.slug} className={selected?.slug===service.slug?"active":""} onClick={()=>setActive(service.slug)}><strong>{service.name}</strong><span>{service.fields.length} fields</span></button>)}</div></aside>
+      {selected&&<div className="service-editor-workspace"><div className="service-editor-toolbar"><div><span>Editing Service</span><h2>{selected.name}</h2></div><Link className="admin-secondary-button" href={`/portal/rtl/request/${selected.slug}`}>Preview Form</Link></div>
+        <div className="service-definition-form"><label>Service Name<input value={selected.name} onChange={(event)=>updateService({name:event.target.value})}/></label><label>Slug<input value={selected.slug} readOnly/></label><label className="wide">Description<textarea value={selected.description} onChange={(event)=>updateService({description:event.target.value})}/></label></div>
+        <div className="form-builder-heading"><div><span>Intake Form</span><h2>{selected.fields.length} fields</h2></div><button className="admin-primary-button" type="button" onClick={addField}>+ Add Field</button></div>
+        <div className="form-builder-list">{selected.fields.map((field,index)=><article className="form-builder-card" key={`${field.key}-${index}`}><div className="form-builder-grid"><label>Label<input value={field.label} onChange={(event)=>updateField(index,{label:event.target.value})}/></label><label>Field Key<input value={field.key} onChange={(event)=>updateField(index,{key:event.target.value})}/></label><label>Type<select value={field.type} onChange={(event)=>updateField(index,{type:event.target.value})}>{TYPES.map((type)=><option key={type}>{type}</option>)}</select></label><label>Placeholder<input value={field.placeholder||""} onChange={(event)=>updateField(index,{placeholder:event.target.value})}/></label><div className="form-builder-toggles"><label><input type="checkbox" checked={Boolean(field.required)} onChange={(event)=>updateField(index,{required:event.target.checked})}/>Required</label><label><input type="checkbox" checked={Boolean(field.wide)} onChange={(event)=>updateField(index,{wide:event.target.checked})}/>Full width</label></div></div><button className="form-builder-remove" type="button" onClick={()=>removeField(index)}>Remove</button></article>)}</div>
+      </div>}
     </section>
-    <section className="admin-section"><div className="admin-section-heading"><div><span>How it works</span><h2>No service copying required</h2></div></div><div className="admin-detail-grid"><article className="admin-detail-card"><span>Shared by default</span><h2>One source of truth</h2><p>Photography, signage, websites, branding, print, and other service forms are defined once in the shared library rather than stored as duplicate company records.</p></article><article className="admin-detail-card"><span>Company flexibility</span><h2>Enablement and overrides</h2><p>The current release shares the full service set across companies. Company-specific visibility and field overrides can be layered on top without duplicating the underlying service definition.</p></article></div></section>
   </section></main>;
 }
