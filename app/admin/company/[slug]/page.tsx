@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
-import { getEnabledServiceSlugs, getServiceLibrary, saveEnabledServiceSlugs } from "@/lib/company-services";
 import type { IntakeDefinition } from "@/lib/intake-forms";
 
 type AdminProduct = { id:number; printfulId:string; name:string; thumbnail?:string|null; price?:number|null; collection?:string|null; featured:boolean; active:boolean };
 type AdminRequest = { id:number; type:string; title:string; description?:string|null; priority:string; status:string; createdAt:string; updatedAt:string };
 type AdminCompanyDetail = { id:number; name:string; slug:string; shortName:string; logo?:string|null; primaryColor:string; secondaryColor:string; heroTitle:string; heroText:string; portalPassword?:string; portalEnabled:boolean; printfulTokenEnv?:string|null; products?:AdminProduct[]; collections?:unknown[]; packages?:unknown[]; assets?:unknown[]; requests?:AdminRequest[]; orders?:unknown[] };
+type AssignedService = IntakeDefinition & { enabled:boolean };
 
 function formatPrice(value?: number | null) { return value ? `$${Number(value).toFixed(2)}` : "—"; }
 
@@ -25,27 +25,23 @@ export default function AdminCompanyPage() {
   const [saveMessage, setSaveMessage] = useState("");
   const [deleting, setDeleting] = useState(false);
   const [deleteMessage, setDeleteMessage] = useState("");
-  const [services, setServices] = useState<IntakeDefinition[]>([]);
+  const [services, setServices] = useState<AssignedService[]>([]);
   const [enabledServices, setEnabledServices] = useState<string[]>([]);
   const [serviceMessage, setServiceMessage] = useState("");
+  const [savingServices,setSavingServices]=useState(false);
 
   function updateCompanyField<K extends keyof AdminCompanyDetail>(field: K, value: AdminCompanyDetail[K]) { setCompany((current) => current ? { ...current, [field]: value } : current); }
   function loadCompany() {
     if (!slug) return;
     setLoading(true); setError("");
-    fetch(`/api/admin/companies/${slug}`, { cache: "no-store" })
-      .then((response) => { if (!response.ok) throw new Error("Company not found"); return response.json(); })
-      .then(setCompany)
+    Promise.all([
+      fetch(`/api/admin/companies/${slug}`, { cache: "no-store" }).then(async(response) => { const data=await response.json(); if (!response.ok) throw new Error(data?.error||"Company not found"); return data; }),
+      fetch(`/api/admin/companies/${slug}/services`,{cache:"no-store"}).then(async(response)=>{const data=await response.json();if(!response.ok)throw new Error(data?.error||"Unable to load services");return data;}),
+    ]).then(([companyData,serviceData])=>{setCompany(companyData);const list=Array.isArray(serviceData)?serviceData:[];setServices(list);setEnabledServices(list.filter((service:AssignedService)=>service.enabled).map((service:AssignedService)=>service.slug));})
       .catch((err) => setError(err?.message || "Unable to load company"))
       .finally(() => setLoading(false));
   }
   useEffect(() => { loadCompany(); }, [slug]);
-  useEffect(()=>{
-    if(!slug)return;
-    const library=getServiceLibrary();
-    setServices(library);
-    setEnabledServices(getEnabledServiceSlugs(slug,library));
-  },[slug]);
 
   async function handleSaveCompany(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); if (!company || !slug) return;
@@ -71,14 +67,11 @@ export default function AdminCompanyPage() {
     catch (err:any) { setSyncMessage(err?.message || "Unable to sync products"); } finally { setSyncing(false); }
   }
 
-  function toggleService(serviceSlug:string){
-    setEnabledServices((current)=>current.includes(serviceSlug)?current.filter((item)=>item!==serviceSlug):[...current,serviceSlug]);
-  }
-  function saveServices(){
-    if(!company)return;
-    saveEnabledServiceSlugs(company.slug,enabledServices);
-    setServiceMessage("Portal services updated.");
-    window.setTimeout(()=>setServiceMessage(""),2200);
+  function toggleService(serviceSlug:string){ setEnabledServices((current)=>current.includes(serviceSlug)?current.filter((item)=>item!==serviceSlug):[...current,serviceSlug]); }
+  async function saveServices(){
+    if(!company)return;setSavingServices(true);setServiceMessage("");
+    try{const response=await fetch(`/api/admin/companies/${company.slug}/services`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({enabledSlugs:enabledServices})});const data=await response.json();if(!response.ok)throw new Error(data?.error||"Unable to save services");setServices(data);setServiceMessage("Portal services saved to the database.");window.setTimeout(()=>setServiceMessage(""),2400);}
+    catch(error:any){setServiceMessage(error?.message||"Unable to save services");}finally{setSavingServices(false);}
   }
 
   if (loading) return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Loading company...</h1></section></main>;
@@ -109,7 +102,7 @@ export default function AdminCompanyPage() {
         <section className="admin-stat-grid">{[["Open Requests",openRequests.length],["Enabled Services",enabledDefinitions.length],["Products",products.length],["Packages",packageCount]].map(([label,value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
 
         <section id="services" className="admin-section">
-          <div className="admin-section-heading"><div><span>Company Catalog</span><h2>Portal services</h2></div><div className="admin-heading-actions"><Link className="admin-secondary-button" href="/admin/services">Edit Library</Link><button className="admin-primary-button" type="button" onClick={saveServices}>Save Services</button></div></div>
+          <div className="admin-section-heading"><div><span>Company Catalog</span><h2>Portal services</h2></div><div className="admin-heading-actions"><Link className="admin-secondary-button" href="/admin/services">Edit Library</Link><button className="admin-primary-button" type="button" onClick={saveServices} disabled={savingServices}>{savingServices?"Saving...":"Save Services"}</button></div></div>
           {serviceMessage&&<div className="admin-inline-success">{serviceMessage}</div>}
           <div className="admin-service-assignment-grid">{services.map((service)=>{const enabled=enabledServices.includes(service.slug);return <article key={service.slug} className={`admin-service-assignment-card ${enabled?"is-enabled":""}`}><div><span>{enabled?"Enabled":"Hidden"}</span><h3>{service.name}</h3><p>{service.description}</p></div><div className="admin-service-assignment-meta"><strong>{service.fields.length} intake fields</strong><label className="admin-service-switch"><input type="checkbox" checked={enabled} onChange={()=>toggleService(service.slug)}/><i/><b>{enabled?"Visible in portal":"Not visible"}</b></label></div><Link href={`/portal/${company.slug}/request/${service.slug}`}>Preview form →</Link></article>})}</div>
         </section>
@@ -117,27 +110,11 @@ export default function AdminCompanyPage() {
         <section id="settings" className="admin-section">
           <div className="admin-section-heading"><div><span>Settings</span><h2>Company details</h2></div></div>
           <form className="admin-settings-form" onSubmit={handleSaveCompany}>
-            <label>Company Name<input value={company.name} onChange={(e) => updateCompanyField("name", e.target.value)} /></label>
-            <label>Short Name<input value={company.shortName} onChange={(e) => updateCompanyField("shortName", e.target.value)} /></label>
-            <label>Slug / Username<input value={company.slug} onChange={(e) => updateCompanyField("slug", e.target.value)} /></label>
-            <label>Logo Path<input value={company.logo || ""} onChange={(e) => updateCompanyField("logo", e.target.value)} placeholder="/rtl-logo.svg" /></label>
-            <label>Primary Color<input value={company.primaryColor} onChange={(e) => updateCompanyField("primaryColor", e.target.value)} /></label>
-            <label>Secondary Color<input value={company.secondaryColor} onChange={(e) => updateCompanyField("secondaryColor", e.target.value)} /></label>
-            <label className="admin-settings-wide">Hero Title<input value={company.heroTitle} onChange={(e) => updateCompanyField("heroTitle", e.target.value)} /></label>
-            <label className="admin-settings-wide">Hero Description<textarea value={company.heroText} onChange={(e) => updateCompanyField("heroText", e.target.value)} /></label>
-            <label>Portal Password<input value={company.portalPassword || ""} onChange={(e) => updateCompanyField("portalPassword", e.target.value)} /></label>
-            <label>Printful Token Env<input value={company.printfulTokenEnv || ""} onChange={(e) => updateCompanyField("printfulTokenEnv", e.target.value)} placeholder={tokenEnv} /></label>
-            <label className="admin-settings-toggle"><input type="checkbox" checked={company.portalEnabled} onChange={(e) => updateCompanyField("portalEnabled", e.target.checked)} />Portal Enabled</label>
-            <div className="admin-settings-actions"><button className="admin-primary-button" type="submit" disabled={saving}>{saving ? "Saving..." : "Save Changes"}</button>{saveMessage && <span>{saveMessage}</span>}</div>
+            <label>Company Name<input value={company.name} onChange={(e) => updateCompanyField("name", e.target.value)} /></label><label>Short Name<input value={company.shortName} onChange={(e) => updateCompanyField("shortName", e.target.value)} /></label><label>Slug / Username<input value={company.slug} onChange={(e) => updateCompanyField("slug", e.target.value)} /></label><label>Logo Path<input value={company.logo || ""} onChange={(e) => updateCompanyField("logo", e.target.value)} placeholder="/rtl-logo.svg" /></label><label>Primary Color<input value={company.primaryColor} onChange={(e) => updateCompanyField("primaryColor", e.target.value)} /></label><label>Secondary Color<input value={company.secondaryColor} onChange={(e) => updateCompanyField("secondaryColor", e.target.value)} /></label><label className="admin-settings-wide">Hero Title<input value={company.heroTitle} onChange={(e) => updateCompanyField("heroTitle", e.target.value)} /></label><label className="admin-settings-wide">Hero Description<textarea value={company.heroText} onChange={(e) => updateCompanyField("heroText", e.target.value)} /></label><label>Portal Password<input value={company.portalPassword || ""} onChange={(e) => updateCompanyField("portalPassword", e.target.value)} /></label><label>Printful Token Env<input value={company.printfulTokenEnv || ""} onChange={(e) => updateCompanyField("printfulTokenEnv", e.target.value)} placeholder={tokenEnv} /></label><label className="admin-settings-toggle"><input type="checkbox" checked={company.portalEnabled} onChange={(e) => updateCompanyField("portalEnabled", e.target.checked)} />Portal Enabled</label><div className="admin-settings-actions"><button className="admin-primary-button" type="submit" disabled={saving}>{saving ? "Saving..." : "Save Changes"}</button>{saveMessage && <span>{saveMessage}</span>}</div>
           </form>
         </section>
 
-        <section id="products" className="admin-section">
-          <div className="admin-section-heading"><div><span>Products</span><h2>Product catalog</h2></div><div className="admin-heading-actions"><a className="admin-secondary-button" href="https://www.printful.com/dashboard" target="_blank" rel="noreferrer">Open Printful ↗</a><button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>{syncing ? "Syncing..." : "Sync Products"}</button></div></div>
-          {syncMessage && <p>{syncMessage}</p>}
-          {products.length === 0 ? <p>No products synced yet.</p> : <div className="admin-product-list">{products.slice(0,12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}
-        </section>
-
+        <section id="products" className="admin-section"><div className="admin-section-heading"><div><span>Products</span><h2>Product catalog</h2></div><div className="admin-heading-actions"><a className="admin-secondary-button" href="https://www.printful.com/dashboard" target="_blank" rel="noreferrer">Open Printful ↗</a><button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>{syncing ? "Syncing..." : "Sync Products"}</button></div></div>{syncMessage && <p>{syncMessage}</p>}{products.length === 0 ? <p>No products synced yet.</p> : <div className="admin-product-list">{products.slice(0,12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}</section>
         <section className="admin-section admin-danger-zone"><div className="admin-section-heading"><div><span>Danger Zone</span><h2>Delete client</h2></div><button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>{deleting ? "Deleting..." : "Delete Client"}</button></div>{deleteMessage && <p className="admin-error">{deleteMessage}</p>}</section>
       </section>
     </main>
