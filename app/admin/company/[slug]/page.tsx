@@ -5,7 +5,8 @@ import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 
 type AdminProduct = { id:number; printfulId:string; name:string; thumbnail?:string|null; price?:number|null; collection?:string|null; featured:boolean; active:boolean };
-type AdminCompanyDetail = { id:number; name:string; slug:string; shortName:string; logo?:string|null; primaryColor:string; secondaryColor:string; heroTitle:string; heroText:string; portalPassword?:string; portalEnabled:boolean; printfulTokenEnv?:string|null; products?:AdminProduct[]; collections?:unknown[]; packages?:unknown[]; assets?:unknown[]; requests?:unknown[]; orders?:unknown[] };
+type AdminRequest = { id:number; type:string; title:string; description?:string|null; priority:string; status:string; createdAt:string; updatedAt:string };
+type AdminCompanyDetail = { id:number; name:string; slug:string; shortName:string; logo?:string|null; primaryColor:string; secondaryColor:string; heroTitle:string; heroText:string; portalPassword?:string; portalEnabled:boolean; printfulTokenEnv?:string|null; products?:AdminProduct[]; collections?:unknown[]; packages?:unknown[]; assets?:unknown[]; requests?:AdminRequest[]; orders?:unknown[] };
 
 function formatPrice(value?: number | null) { return value ? `$${Number(value).toFixed(2)}` : "—"; }
 
@@ -66,12 +67,14 @@ export default function AdminCompanyPage() {
   const products = company.products || [];
   const collections = company.collections || [];
   const packageCount = company.packages?.length || 0;
+  const requests = company.requests || [];
+  const openRequests = requests.filter((request) => !["complete","completed","cancelled","closed"].includes(request.status.toLowerCase()));
   const moduleLinks = [
+    { label:"Requests", href:`/admin/company/${company.slug}/requests`, count:openRequests.length },
     { label:"General", href:`/admin/company/${company.slug}` },
     { label:"Catalog", href:`/admin/company/${company.slug}/catalog`, count:products.length },
     { label:"Collections", href:`/admin/company/${company.slug}/collections`, count:collections.length },
     { label:"Packages", href:`/admin/company/${company.slug}/packages`, count:packageCount },
-    { label:"Requests", href:`/admin/company/${company.slug}/requests`, count:company.requests?.length || 0 },
   ];
 
   return (
@@ -80,7 +83,13 @@ export default function AdminCompanyPage() {
         <div className="admin-detail-topbar"><Link href="/admin">← Back to Admin</Link><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
         <header className="admin-detail-hero"><div className="admin-detail-logo" style={{borderColor:company.primaryColor}}><img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} /></div><div><div className="admin-eyebrow">Company Settings</div><h1>{company.name}</h1><p>{company.heroText}</p></div></header>
         <nav className="admin-module-tabs" aria-label="Company admin modules">{moduleLinks.map((item) => <Link key={item.label} href={item.href}><span>{item.label}</span>{typeof item.count === "number" && <strong>{item.count}</strong>}</Link>)}</nav>
-        <section className="admin-stat-grid">{[["Products",products.length],["Collections",collections.length],["Packages",packageCount],["Requests",company.requests?.length || 0]].map(([label,value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
+
+        <section className="admin-section admin-priority-requests">
+          <div className="admin-section-heading"><div><span>Priority Queue</span><h2>Requests needing attention</h2></div><Link className="admin-primary-button" href={`/admin/company/${company.slug}/requests`}>Manage All Requests</Link></div>
+          {openRequests.length ? <div className="admin-priority-request-list">{openRequests.slice(0,5).map((request) => <article key={request.id} className="admin-priority-request"><div><span>{request.type}</span><h3>{request.title}</h3><p>{request.description || `Submitted ${new Date(request.createdAt).toLocaleDateString()}`}</p></div><div className="admin-priority-request-meta"><span className={request.status.toLowerCase()==="open"?"is-new":""}>{request.status}</span><span>{request.priority} priority</span><Link className="admin-secondary-button" href={`/admin/company/${company.slug}/requests`}>Review</Link></div></article>)}</div> : <p>No requests currently need attention.</p>}
+        </section>
+
+        <section className="admin-stat-grid">{[["Open Requests",openRequests.length],["Products",products.length],["Collections",collections.length],["Packages",packageCount]].map(([label,value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
 
         <section className="admin-detail-grid admin-company-summary-grid">
           <article className="admin-detail-card"><span>Brand</span><h2>Identity</h2><dl><div><dt>Company</dt><dd>{company.name}</dd></div><div><dt>Short Name</dt><dd>{company.shortName}</dd></div><div><dt>Slug</dt><dd>{company.slug}</dd></div><div><dt>Primary Color</dt><dd><code>{company.primaryColor}</code></dd></div><div><dt>Secondary Color</dt><dd><code>{company.secondaryColor}</code></dd></div><div><dt>Logo</dt><dd>{company.logo || "Default UPZ logo"}</dd></div></dl></article>
@@ -108,7 +117,7 @@ export default function AdminCompanyPage() {
         <section id="products" className="admin-section">
           <div className="admin-section-heading"><div><span>Products</span><h2>Synced product catalog</h2></div><div className="admin-heading-actions"><a className="admin-secondary-button" href="https://www.printful.com/dashboard" target="_blank" rel="noreferrer">Open Printful ↗</a><button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>{syncing ? "Syncing..." : "Sync Products"}</button></div></div>
           {syncMessage && <p>{syncMessage}</p>}
-          {products.length === 0 ? <p>No products synced yet.</p> : <div className="admin-product-list">{products.slice(0,12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span><a className="admin-source-link" href={`https://www.printful.com/dashboard/sync/products`} target="_blank" rel="noreferrer">View source product ↗</a></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}
+          {products.length === 0 ? <p>No products synced yet.</p> : <div className="admin-product-list">{products.slice(0,12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)} · Printful #{product.printfulId}</span><a className="admin-source-link" href="https://www.printful.com/dashboard/sync/products" target="_blank" rel="noreferrer">View source product ↗</a></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}
         </section>
 
         <section className="admin-section admin-danger-zone"><div className="admin-section-heading"><div><span>Danger Zone</span><h2>Delete client</h2></div><button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>{deleting ? "Deleting..." : "Delete Client"}</button></div><p>This permanently removes the client portal and related database records.</p>{deleteMessage && <p className="admin-error">{deleteMessage}</p>}</section>
