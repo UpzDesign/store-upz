@@ -6,11 +6,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const { id } = await context.params;
     const requestId = Number(id);
     const body = await request.json().catch(() => ({}));
-    if (!Number.isFinite(requestId)) return NextResponse.json({ error: "Invalid request id" }, { status: 400 });
+    if (!Number.isInteger(requestId) || requestId <= 0) return NextResponse.json({ error: "Invalid request id" }, { status: 400 });
 
-    const source = await prisma.marketingRequest.findUnique({ where: { id: requestId }, include: { project: true } });
+    const source = await prisma.marketingRequest.findUnique({ where: { id: requestId } });
     if (!source) return NextResponse.json({ error: "Request not found" }, { status: 404 });
-    if (source.project) return NextResponse.json(source.project);
+
+    const existingProject = await prisma.project.findUnique({ where: { requestId: source.id } });
+    if (existingProject) return NextResponse.json(existingProject);
 
     const project = await prisma.$transaction(async (tx) => {
       const created = await tx.project.create({
@@ -22,7 +24,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           status: "new",
           priority: String(body?.priority || source.priority || "normal"),
           assignedTo: body?.assignedTo ? String(body.assignedTo).trim() : null,
-          dueDate: body?.dueDate ? new Date(body.dueDate) : null,
+          dueDate: body?.dueDate ? new Date(`${body.dueDate}T12:00:00`) : null,
         },
       });
       await tx.marketingRequest.update({ where: { id: source.id }, data: { status: "reviewing" } });
@@ -31,8 +33,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     });
 
     return NextResponse.json(project, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Convert request error:", error);
+    if (error?.code === "P2002") {
+      const { id } = await context.params;
+      const existing = await prisma.project.findUnique({ where: { requestId: Number(id) } });
+      if (existing) return NextResponse.json(existing);
+    }
     return NextResponse.json({ error: "Unable to create project" }, { status: 500 });
   }
 }
