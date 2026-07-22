@@ -10,7 +10,7 @@ type Command = { label:string; detail:string; href:string; keywords:string };
 const baseCommands:Command[] = [
   { label:"Admin Dashboard", detail:"Overview and company portals", href:"/admin", keywords:"dashboard home companies" },
   { label:"Inbox", detail:"Review incoming client requests", href:"/admin/inbox", keywords:"inbox requests notifications queue" },
-  { label:"Service Library", detail:"Shared intake services for every company", href:"/admin/services", keywords:"services photography signage website branding print" },
+  { label:"Service Library", detail:"Add, edit, and manage shared intake services", href:"/admin/services", keywords:"services photography signage website branding print form editor" },
   { label:"New Company", detail:"Create a client portal", href:"/admin/new-company", keywords:"new company client portal" },
 ];
 
@@ -47,7 +47,7 @@ export default function AdminCommandPalette(){
   if(!pathname?.startsWith("/admin"))return null;
 
   return <>
-    <button className="admin-command-trigger" type="button" onClick={()=>setOpen(true)} aria-label="Open command palette">⌘K</button>
+    <button className="admin-command-trigger" type="button" onClick={()=>setOpen(true)} aria-label="Search admin"><span aria-hidden="true">⌕</span><strong>Search</strong><kbd>⌘K</kbd></button>
     {open&&<div className="admin-command-backdrop" role="presentation" onMouseDown={()=>setOpen(false)}>
       <section className="admin-command-palette" role="dialog" aria-modal="true" aria-label="Command palette" onMouseDown={(event)=>event.stopPropagation()}>
         <div className="admin-command-search"><span>⌕</span><input autoFocus value={query} onChange={(event)=>setQuery(event.target.value)} placeholder="Search companies, requests, services, or pages..."/><kbd>ESC</kbd></div>
