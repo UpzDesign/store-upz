@@ -17,6 +17,7 @@ import "./client-projects.css";
 import "./command-palette.css";
 import "./service-library.css";
 import "./admin-workspace.css";
+import "./admin-contrast.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
