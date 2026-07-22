@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { getIntakeForm, type IntakeDefinition, type IntakeField } from "@/lib/intake-forms";
 
 type PortalCompany = { name:string; shortName:string; logo?:string|null; primaryColor:string; secondaryColor:string };
+type EngagementOption = { id:number; name:string; address?:string|null; type:string };
 
 function initialValues(fields: IntakeField[]) {
   return fields.reduce<Record<string, string | boolean>>((values, field) => {
@@ -17,11 +18,15 @@ function initialValues(fields: IntakeField[]) {
 export default function ProjectRequestPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const companySlug = Array.isArray(params?.company) ? params.company[0] : params?.company;
   const serviceSlug = Array.isArray(params?.service) ? params.service[0] : params?.service;
   const fallback=getIntakeForm(serviceSlug);
   const [definition,setDefinition]=useState<IntakeDefinition>(fallback);
   const [availableServices,setAvailableServices]=useState<IntakeDefinition[]>([]);
+  const [engagements,setEngagements]=useState<EngagementOption[]>([]);
+  const [engagementId,setEngagementId]=useState(searchParams.get("engagementId")||"");
+  const [engagementName,setEngagementName]=useState(searchParams.get("engagementName")||"");
   const [company, setCompany] = useState<PortalCompany | null>(null);
   const [brandLoading, setBrandLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -37,10 +42,12 @@ export default function ProjectRequestPage() {
     Promise.all([
       fetch(`/api/portal/companies/${companySlug}`).then(async(response)=>{const data=await response.json();if(!response.ok)throw new Error("Unable to load company branding");return data;}),
       fetch(`/api/portal/companies/${companySlug}/services`,{cache:"no-store"}).then((response)=>response.ok?response.json():[]),
-    ]).then(([companyData,serviceData])=>{
+      fetch(`/api/portal/companies/${companySlug}/projects`,{cache:"no-store"}).then((response)=>response.ok?response.json():[]),
+    ]).then(([companyData,serviceData,engagementData])=>{
       setCompany(companyData);
       const list=Array.isArray(serviceData)?serviceData:[];
       setAvailableServices(list);
+      setEngagements(Array.isArray(engagementData)?engagementData.map((item:EngagementOption)=>({id:item.id,name:item.name,address:item.address,type:item.type})):[]);
       const selected=list.find((item:IntakeDefinition)=>item.slug===serviceSlug)||getIntakeForm(serviceSlug);
       setDefinition(selected);
       setForm(initialValues(selected.fields));
@@ -51,14 +58,34 @@ export default function ProjectRequestPage() {
   useEffect(() => { if (!toast) return; const timer = window.setTimeout(() => setToast(null), 5000); return () => window.clearTimeout(timer); }, [toast]);
 
   function updateForm(field: string, value: string | boolean) { setForm((current) => ({ ...current, [field]: value })); }
+  function selectEngagement(value:string){
+    setEngagementId(value);
+    if(value){const selected=engagements.find((item)=>String(item.id)===value);if(selected)setEngagementName(selected.name);}
+  }
 
   async function submitRequest(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); if (!companySlug) return; setSaving(true); setToast(null);
     try {
-      const response = await fetch(`/api/portal/companies/${companySlug}/requests`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ service: definition.name, serviceSlug: definition.slug, projectTitle: form.projectTitle, priority: form.priority || "normal", answers: form }) });
-      const data = await response.json(); if (!response.ok) throw new Error(data?.error || "Unable to submit project request");
-      setSubmitted(true); setToast({ type: "success", message: "Your project request was submitted successfully." });
-    } catch (error: unknown) { setToast({ type: "error", message: error instanceof Error ? error.message : "Unable to submit project request" }); }
+      const propertyAddress=String(form.propertyAddress||form.address||"").trim();
+      const resolvedName=engagementName.trim()||String(form.projectTitle||propertyAddress||definition.name).trim();
+      const response = await fetch(`/api/portal/companies/${companySlug}/requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          service: definition.name,
+          serviceSlug: definition.slug,
+          engagementId: engagementId||undefined,
+          engagementName: resolvedName,
+          workOrderTitle: `${definition.name} — ${resolvedName}`,
+          projectTitle: form.projectTitle,
+          propertyAddress,
+          priority: form.priority || "normal",
+          answers: form,
+        })
+      });
+      const data = await response.json(); if (!response.ok) throw new Error(data?.error || "Unable to submit service request");
+      setSubmitted(true); setToast({ type: "success", message: `${definition.name} was added to ${data?.engagement?.name||resolvedName}.` });
+    } catch (error: unknown) { setToast({ type: "error", message: error instanceof Error ? error.message : "Unable to submit service request" }); }
     finally { setSaving(false); }
   }
 
@@ -77,14 +104,22 @@ export default function ProjectRequestPage() {
 
   if (submitted) return <main className="portal-page portal-request-page branded-request-page" style={brandStyle}>
     {toast && <div className={`upz-toast ${toast.type}`} role="status"><strong>{toast.type === "success" ? "✓" : "!"}</strong><span>{toast.message}</span></div>}
-    <section className="portal-request-success">{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>Request received</span><h1>Thank you.</h1><p>Your {definition.name.toLowerCase()} request is now in the {company.shortName} project queue powered by UPZ Design. We will review the details and follow up with scope, timing, and next steps.</p><div className="portal-request-success-actions"><Link href={`/portal/${companySlug}`}>Return to Portal</Link><button type="button" onClick={() => { setForm(initialValues(definition.fields)); setSubmitted(false); }}>Submit Another</button></div></section>
+    <section className="portal-request-success">{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>Work order created</span><h1>Added to the workspace.</h1><p>Your {definition.name.toLowerCase()} request now has its own workflow while remaining connected to the same property or campaign.</p><div className="portal-request-success-actions"><Link href={`/portal/${companySlug}/projects`}>View Workspaces</Link><button type="button" onClick={() => { setForm(initialValues(definition.fields)); setSubmitted(false); }}>Add Another Service</button></div></section>
   </main>;
 
   return <main className="portal-page portal-request-page branded-request-page" style={brandStyle}>
     {toast && <div className={`upz-toast ${toast.type}`} role="alert"><strong>{toast.type === "success" ? "✓" : "!"}</strong><span>{toast.message}</span></div>}
     <section className="portal-request-wrap">
-      <div className="portal-request-intro"><Link href={`/portal/${companySlug}`}>← Back to Portal</Link>{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>{company.shortName} · Start a Project</span><h1>{definition.name}</h1><p>{definition.description}</p><nav className="portal-project-type-list" aria-label="Project types">{availableServices.map((item) => <Link key={item.slug} className={item.slug === definition.slug ? "active" : ""} href={`/portal/${companySlug}/request/${item.slug}`}>{item.name}</Link>)}</nav></div>
-      <form className="portal-request-form" onSubmit={submitRequest}><div className="portal-request-form-heading portal-request-wide"><span>{company.name}</span><h2>{definition.name} intake</h2><p>Fields marked as required help us prepare an accurate scope and timeline.</p></div>{definition.fields.map(renderField)}<div className="portal-request-actions"><button type="submit" disabled={saving}>{saving ? "Submitting..." : "Submit Project Request"}</button></div></form>
+      <div className="portal-request-intro"><Link href={`/portal/${companySlug}`}>← Back to Workspace</Link>{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>{company.shortName} · Add a Work Order</span><h1>{definition.name}</h1><p>{definition.description}</p><nav className="portal-project-type-list" aria-label="Project types">{availableServices.map((item) => <Link key={item.slug} className={item.slug === definition.slug ? "active" : ""} href={`/portal/${companySlug}/request/${item.slug}${engagementId?`?engagementId=${engagementId}&engagementName=${encodeURIComponent(engagementName)}`:""}`}>{item.name}</Link>)}</nav></div>
+      <form className="portal-request-form" onSubmit={submitRequest}>
+        <div className="portal-request-form-heading portal-request-wide"><span>{company.name}</span><h2>{definition.name} intake</h2><p>Attach this service to an existing workspace or create a new property or campaign.</p></div>
+        <div className="engagement-request-selector portal-request-wide">
+          <label>Existing workspace<select value={engagementId} onChange={(event)=>selectEngagement(event.target.value)}><option value="">Create a new workspace</option>{engagements.map((item)=><option key={item.id} value={item.id}>{item.name}{item.address?` — ${item.address}`:""}</option>)}</select></label>
+          {!engagementId&&<label>New property or campaign name<input value={engagementName} onChange={(event)=>setEngagementName(event.target.value)} placeholder="Example: 645 Madison Avenue" required /></label>}
+        </div>
+        {definition.fields.map(renderField)}
+        <div className="portal-request-actions"><button type="submit" disabled={saving}>{saving ? "Creating Work Order..." : engagementId ? "Add Service to Workspace" : "Create Workspace & Work Order"}</button></div>
+      </form>
     </section>
   </main>;
 }
