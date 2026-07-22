@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { getEnabledServiceSlugs, getServiceLibrary, saveEnabledServiceSlugs } from "@/lib/company-services";
@@ -89,7 +89,7 @@ export default function AdminCompanyPage() {
   const packageCount = company.packages?.length || 0;
   const requests = company.requests || [];
   const openRequests = requests.filter((request) => !["complete","completed","cancelled","closed"].includes(request.status.toLowerCase()));
-  const enabledDefinitions=useMemo(()=>services.filter((service)=>enabledServices.includes(service.slug)),[services,enabledServices]);
+  const enabledDefinitions=services.filter((service)=>enabledServices.includes(service.slug));
   const moduleLinks = [
     { label:"Overview", href:`/admin/company/${company.slug}` },
     { label:"Services", href:"#services", count:enabledDefinitions.length },
