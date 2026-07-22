@@ -8,12 +8,7 @@ const NAV = [
   ["Dashboard", "/admin"],
   ["Inbox", "/admin/inbox"],
   ["Companies", "/admin#companies"],
-  ["Projects", "/admin/projects"],
   ["Service Library", "/admin/services"],
-  ["Products", "/admin/products"],
-  ["Collections", "/admin/collections"],
-  ["Packages", "/admin/packages"],
-  ["Brand Assets", "/admin/assets"],
 ] as const;
 
 export default function AdminWorkspaceShell({ children }: { children: React.ReactNode }) {
@@ -40,9 +35,11 @@ export default function AdminWorkspaceShell({ children }: { children: React.Reac
     <aside className="admin-workspace-sidebar">
       <Link className="admin-workspace-brand" href="/admin"><img src="/upz-logo.svg" alt="UPZ Design"/><div><strong>UPZ Admin</strong><span>Creative Operations</span></div></Link>
       <nav>{NAV.map(([label, href]) => {
-        const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href.split("#")[0]);
+        const route = href.split("#")[0];
+        const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(route);
         return <Link key={label} href={href} className={active ? "active" : ""}>{label}</Link>;
       })}</nav>
+      <div className="admin-workspace-library-note"><span>Library Structure</span><p>Services, products, assets, and templates will share one source library. Company catalogs remain the publishing layer.</p></div>
       <div className="admin-workspace-foot"><button type="button" onClick={() => window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true }))}>Search <kbd>⌘K</kbd></button><Link href="/">Open Store</Link></div>
     </aside>
     <div className="admin-workspace-content">{children}</div>
