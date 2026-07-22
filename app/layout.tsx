@@ -20,33 +20,19 @@ import "./admin-workspace.css";
 import "./admin-contrast.css";
 import "./company-workspace.css";
 import "./portal-admin-polish.css";
+import "./workflow-engine.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
 import AdminCommandPalette from "@/components/AdminCommandPalette";
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  display: "swap",
-});
+const montserrat = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"], display: "swap" });
 
 export const metadata: Metadata = {
   title: "UPZ Store | Branded Merchandise & CRE Packages",
-  description:
-    "Branded merchandise, promotional products, and curated CRE packages by UPZ Design.",
+  description: "Branded merchandise, promotional products, and curated CRE packages by UPZ Design.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body className={montserrat.className}>
-        <Providers>
-          <SiteChrome>{children}</SiteChrome>
-          <AdminCommandPalette />
-          <Cart />
-        </Providers>
-      </body>
-    </html>
-  );
+  return <html lang="en"><body className={montserrat.className}><Providers><SiteChrome>{children}</SiteChrome><AdminCommandPalette /><Cart /></Providers></body></html>;
 }
