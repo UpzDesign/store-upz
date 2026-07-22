@@ -6,6 +6,9 @@ import { usePathname } from "next/navigation";
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isWorkspace = pathname.startsWith("/admin") || pathname.startsWith("/portal") || pathname === "/login";
+  const portalParts = pathname.split("/").filter(Boolean);
+  const portalSlug = portalParts[0] === "portal" ? portalParts[1] : null;
+  const showProjectUpdates = Boolean(portalSlug && !pathname.endsWith("/projects"));
 
   return (
     <>
@@ -25,6 +28,12 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
             </nav>
           </div>
         </header>
+      )}
+
+      {showProjectUpdates && (
+        <Link className="portal-project-updates-link" href={`/portal/${portalSlug}/projects`}>
+          Project Updates
+        </Link>
       )}
 
       {children}
