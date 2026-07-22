@@ -16,6 +16,7 @@ type AdminCompany = {
   heroText: string;
   printfulTokenEnv?: string | null;
   portalEnabled: boolean;
+  newRequestCount?: number;
 };
 
 export default function AdminPage() {
@@ -50,7 +51,7 @@ export default function AdminPage() {
     () => [
       { label: "Companies", value: companies.length },
       { label: "Active Portals", value: companies.filter((company) => company.portalEnabled).length },
-      { label: "Integrations", value: "Printful" },
+      { label: "New Requests", value: companies.reduce((sum, company) => sum + Number(company.newRequestCount || 0), 0) },
       { label: "Platform", value: "Live" },
     ],
     [companies]
@@ -125,6 +126,11 @@ export default function AdminPage() {
             <div className="admin-company-grid">
               {companies.map((company) => (
                 <article key={company.id} className="admin-company-card">
+                  {Number(company.newRequestCount || 0) > 0 && (
+                    <Link className="admin-request-badge" href={`/admin/company/${company.slug}/requests`}>
+                      {company.newRequestCount} new request{company.newRequestCount === 1 ? "" : "s"}
+                    </Link>
+                  )}
                   <div className="admin-company-logo" style={{ borderColor: company.primaryColor }}>
                     <img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} />
                   </div>
@@ -137,6 +143,7 @@ export default function AdminPage() {
                     <div><strong>Slug</strong><span>{company.slug}</span></div>
                     <div><strong>Printful Env</strong><span>{company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`}</span></div>
                     <div><strong>Status</strong><span>{company.portalEnabled ? "Active" : "Disabled"}</span></div>
+                    <div><strong>Requests</strong><Link href={`/admin/company/${company.slug}/requests`}>{company.newRequestCount ? `${company.newRequestCount} need attention` : "View Requests"}</Link></div>
                     <div><strong>Manage</strong><Link href={`/admin/company/${company.slug}`}>Company Settings</Link></div>
                     <div><strong>Portal</strong><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
                   </div>
