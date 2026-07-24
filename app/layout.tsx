@@ -26,6 +26,7 @@ import "./admin-engagement-prototype.css";
 import "./operations-core.css";
 import "./admin-design-system.css";
 import "./admin-consistency.css";
+import "./admin-ui-v1.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
