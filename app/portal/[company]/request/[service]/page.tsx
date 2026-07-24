@@ -74,7 +74,7 @@ export default function ProjectRequestPage() {
         body: JSON.stringify({ service: definition.name, serviceSlug: definition.slug, engagementId: engagementId||undefined, engagementName: resolvedName, workOrderTitle: `${definition.name} — ${resolvedName}`, projectTitle: form.projectTitle, propertyAddress, priority: form.priority || "normal", answers: form })
       });
       const data = await response.json(); if (!response.ok) throw new Error(data?.error || "Unable to submit service request");
-      setSubmitted(true); setToast({ type: "success", message: `${definition.name} was added to ${data?.engagement?.name||resolvedName}.` });
+      setSubmitted(true); setToast({ type: "success", message: `${definition.name} was submitted for review.` });
     } catch (error: unknown) { setToast({ type: "error", message: error instanceof Error ? error.message : "Unable to submit service request" }); }
     finally { setSaving(false); }
   }
@@ -94,21 +94,21 @@ export default function ProjectRequestPage() {
 
   if (submitted) return <main className="portal-page portal-request-page branded-request-page" style={brandStyle}>
     {toast && <div className={`upz-toast ${toast.type}`} role="status"><strong>{toast.type === "success" ? "✓" : "!"}</strong><span>{toast.message}</span></div>}
-    <section className="portal-request-success">{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>Project created</span><h1>Added to Projects &amp; Campaigns.</h1><p>Your {definition.name.toLowerCase()} request now has its own production workflow and is connected to the selected property or campaign.</p><div className="portal-request-success-actions"><Link href={`/portal/${companySlug}/projects`}>View Projects &amp; Campaigns</Link><button type="button" onClick={() => { setForm(initialValues(definition.fields)); setSubmitted(false); }}>Add Another Service</button></div></section>
+    <section className="portal-request-success">{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>Request submitted</span><h1>Pending UPZ review.</h1><p>Your {definition.name.toLowerCase()} request is now in the review queue. Once approved, it will appear in Projects &amp; Campaigns with its live production stage and schedule.</p><div className="portal-request-success-actions"><Link href={`/portal/${companySlug}`}>Return to Portal</Link><button type="button" onClick={() => { setForm(initialValues(definition.fields)); setSubmitted(false); }}>Submit Another Request</button></div></section>
   </main>;
 
   return <main className="portal-page portal-request-page branded-request-page" style={brandStyle}>
     {toast && <div className={`upz-toast ${toast.type}`} role="alert"><strong>{toast.type === "success" ? "✓" : "!"}</strong><span>{toast.message}</span></div>}
     <section className="portal-request-wrap">
-      <div className="portal-request-intro"><Link href={`/portal/${companySlug}`}>← Back to Portal</Link>{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>{company.shortName} · Add a Service</span><h1>{definition.name}</h1><p>{definition.description}</p><nav className="portal-project-type-list" aria-label="Project types">{availableServices.map((item) => <Link key={item.slug} className={item.slug === definition.slug ? "active" : ""} href={`/portal/${companySlug}/request/${item.slug}${engagementId?`?engagementId=${engagementId}&engagementName=${encodeURIComponent(engagementName)}`:""}`}>{item.name}</Link>)}</nav></div>
+      <div className="portal-request-intro"><Link href={`/portal/${companySlug}`}>← Back to Portal</Link>{company.logo && <img className="request-company-logo" src={company.logo} alt={`${company.name} logo`} />}<span>{company.shortName} · Submit a Request</span><h1>{definition.name}</h1><p>{definition.description}</p><nav className="portal-project-type-list" aria-label="Project types">{availableServices.map((item) => <Link key={item.slug} className={item.slug === definition.slug ? "active" : ""} href={`/portal/${companySlug}/request/${item.slug}${engagementId?`?engagementId=${engagementId}&engagementName=${encodeURIComponent(engagementName)}`:""}`}>{item.name}</Link>)}</nav></div>
       <form className="portal-request-form" onSubmit={submitRequest}>
-        <div className="portal-request-form-heading portal-request-wide"><span>{company.name}</span><h2>{definition.name} intake</h2><p>Attach this service to an existing project or campaign, or create a new one.</p></div>
+        <div className="portal-request-form-heading portal-request-wide"><span>{company.name}</span><h2>{definition.name} intake</h2><p>Submit this service for review and connect it to an existing project or campaign when applicable.</p></div>
         <div className="engagement-request-selector portal-request-wide">
-          <label>Existing project or campaign<select value={engagementId} onChange={(event)=>selectEngagement(event.target.value)}><option value="">Create a new project or campaign</option>{engagements.map((item)=><option key={item.id} value={item.id}>{item.name}{item.address?` — ${item.address}`:""}</option>)}</select></label>
+          <label>Existing project or campaign<select value={engagementId} onChange={(event)=>selectEngagement(event.target.value)}><option value="">New project or campaign</option>{engagements.map((item)=><option key={item.id} value={item.id}>{item.name}{item.address?` — ${item.address}`:""}</option>)}</select></label>
           {!engagementId&&<label>New project or campaign name<input value={engagementName} onChange={(event)=>setEngagementName(event.target.value)} placeholder="Example: 645 Madison Avenue" required /></label>}
         </div>
         {definition.fields.map(renderField)}
-        <div className="portal-request-actions"><button type="submit" disabled={saving}>{saving ? "Creating Project..." : engagementId ? "Add Service to Project" : "Create Project & Work Order"}</button></div>
+        <div className="portal-request-actions"><button type="submit" disabled={saving}>{saving ? "Submitting Request..." : "Submit for Review"}</button></div>
       </form>
     </section>
   </main>;
