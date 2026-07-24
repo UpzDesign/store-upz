@@ -16,3 +16,9 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   });
   return NextResponse.json(member);
 }
+
+export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const { id } = await context.params;
+  await prisma.teamMember.delete({ where: { id: Number(id) } });
+  return NextResponse.json({ deleted: true });
+}
