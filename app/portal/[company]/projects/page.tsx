@@ -69,7 +69,7 @@ export default function ClientProjectsPage() {
     Promise.all([
       fetch(`/api/portal/companies/${slug}`).then((res) => (res.ok ? res.json() : null)),
       fetch(`/api/portal/companies/${slug}/projects`, { cache: "no-store" }).then((res) => {
-        if (!res.ok) throw new Error("Unable to load workspaces");
+        if (!res.ok) throw new Error("Unable to load projects and campaigns");
         return res.json();
       }),
     ])
@@ -79,7 +79,7 @@ export default function ClientProjectsPage() {
         setEngagements(next);
         if (next.length) setOpenEngagement(next[0].id);
       })
-      .catch((err) => setError(err?.message || "Unable to load workspaces"))
+      .catch((err) => setError(err?.message || "Unable to load projects and campaigns"))
       .finally(() => setLoading(false));
   }, [slug, router]);
 
@@ -92,22 +92,22 @@ export default function ClientProjectsPage() {
     <main className="portal-page client-projects-page workflow-projects-page engagement-workspaces-page" style={style}>
       <section className="client-projects-wrap">
         <div className="client-projects-topbar">
-          <Link href={`/portal/${slug}`}>← Back to Workspace</Link>
+          <Link href={`/portal/${slug}`}>← Back to Portal</Link>
           {company?.logo && <img src={company.logo} alt={`${company.name} logo`} />}
         </div>
 
         <header className="client-projects-hero">
-          <span>{company?.shortName || "Client"} Workspace</span>
-          <h1>Properties &amp; Campaigns</h1>
-          <p>Manage every service, deliverable, and update under one shared workspace.</p>
+          <span>{company?.shortName || "Client"} Portal</span>
+          <h1>Projects &amp; Campaigns</h1>
+          <p>Follow every project, service, deliverable, and update from one organized hub.</p>
         </header>
 
-        {loading && <p>Loading workspaces...</p>}
+        {loading && <p>Loading projects and campaigns...</p>}
         {error && <p>{error}</p>}
         {!loading && !error && engagements.length === 0 && (
           <div className="client-project-empty">
-            <h2>No active workspaces yet</h2>
-            <p>Your first service request will create a property or campaign workspace automatically.</p>
+            <h2>No active projects or campaigns yet</h2>
+            <p>Your first service request will create a project or campaign automatically.</p>
           </div>
         )}
 
@@ -119,7 +119,7 @@ export default function ClientProjectsPage() {
               <article key={engagement.id} className={`engagement-card ${expanded ? "is-open" : ""}`}>
                 <button className="engagement-summary" type="button" onClick={() => setOpenEngagement(expanded ? null : engagement.id)}>
                   <div className="engagement-summary-copy">
-                    <span>{engagement.type === "property" ? "Property Workspace" : "Campaign Workspace"}</span>
+                    <span>{engagement.type === "property" ? "Property Project" : "Campaign"}</span>
                     <h2>{engagement.name}</h2>
                     {location && <p>{location}</p>}
                   </div>
@@ -145,7 +145,7 @@ export default function ClientProjectsPage() {
                       </Link>
                     </div>
 
-                    {engagement.workOrders.length === 0 && <p>No services have been added to this workspace yet.</p>}
+                    {engagement.workOrders.length === 0 && <p>No services have been added to this project or campaign yet.</p>}
                     <div className="client-project-list engagement-work-order-list">
                       {engagement.workOrders.map((project) => (
                         <article key={project.id} className="client-project-card workflow-project-card engagement-work-order-card">
