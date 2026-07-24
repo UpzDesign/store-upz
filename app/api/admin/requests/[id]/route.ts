@@ -43,12 +43,31 @@ export async function DELETE(_request:NextRequest,context:{params:Promise<{id:st
   try{
     const {id}=await context.params;const requestId=parseId(id);
     if(!requestId)return NextResponse.json({error:"Invalid request id"},{status:400});
-    const existing=await prisma.marketingRequest.findUnique({where:{id:requestId},select:{id:true,project:{select:{id:true}}}});
-    if(!existing)return NextResponse.json({error:"Request not found"},{status:404});
-    await prisma.$transaction(async(tx)=>{
-      if(existing.project)await tx.project.update({where:{id:existing.project.id},data:{requestId:null}});
-      await tx.marketingRequest.delete({where:{id:requestId}});
+
+    const existing=await prisma.marketingRequest.findUnique({
+      where:{id:requestId},
+      select:{id:true,project:{select:{id:true,engagementId:true}}}
     });
-    return NextResponse.json({deleted:true,id:requestId,projectPreserved:Boolean(existing.project)});
-  }catch(error){console.error("Admin request delete error:",error);return NextResponse.json({error:"Unable to delete request"},{status:500});}
+    if(!existing)return NextResponse.json({error:"Request not found"},{status:404});
+
+    const projectId=existing.project?.id||null;
+    const engagementId=existing.project?.engagementId||null;
+
+    await prisma.$transaction(async(tx)=>{
+      if(projectId)await tx.project.delete({where:{id:projectId}});
+      await tx.marketingRequest.delete({where:{id:requestId}});
+
+      if(engagementId){
+        const [remainingOrders,remainingAssets]=await Promise.all([
+          tx.project.count({where:{engagementId}}),
+          tx.engagementAsset.count({where:{engagementId}}),
+        ]);
+        if(remainingOrders===0&&remainingAssets===0){
+          await tx.engagement.delete({where:{id:engagementId}});
+        }
+      }
+    });
+
+    return NextResponse.json({deleted:true,id:requestId,projectDeleted:Boolean(projectId)});
+  }catch(error){console.error("Admin request delete error:",error);return NextResponse.json({error:"Unable to delete request and linked project"},{status:500});}
 }
