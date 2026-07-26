@@ -31,8 +31,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const parsed = parseRequestDescription(source.description);
     const requestContext = parsed.context || {};
     const workflow = getWorkflowTemplate(source.type || source.title);
-    const createdAt = new Date();
-    const dueDate = body?.dueDate ? new Date(`${body.dueDate}T12:00:00`) : new Date(createdAt.getTime() + Math.max(...workflow.map((step) => step.durationDays || 0), 7) * 86400000);
+    const startDate = body?.startDate ? new Date(`${body.startDate}T12:00:00`) : new Date();
+    const dueDate = body?.dueDate ? new Date(`${body.dueDate}T12:00:00`) : new Date(startDate.getTime() + Math.max(...workflow.map((step) => step.durationDays || 0), 7) * 86400000);
 
     const project = await prisma.$transaction(async (tx) => {
       let engagement = requestContext.engagementId ? await tx.engagement.findFirst({ where: { id: Number(requestContext.engagementId), companyId: source.companyId } }) : null;
@@ -43,15 +43,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           let uniqueSlug = baseSlug;
           let suffix = 2;
           while (await tx.engagement.findUnique({ where: { companyId_slug: { companyId: source.companyId, slug: uniqueSlug } } })) uniqueSlug = `${baseSlug}-${suffix++}`;
-          engagement = await tx.engagement.create({
-            data: {
-              companyId: source.companyId,
-              name: String(requestContext.engagementName),
-              slug: uniqueSlug,
-              type: String(requestContext.engagementType || "campaign"),
-              address: requestContext.propertyAddress ? String(requestContext.propertyAddress) : null,
-            },
-          });
+          engagement = await tx.engagement.create({ data: { companyId: source.companyId, name: String(requestContext.engagementName), slug: uniqueSlug, type: String(requestContext.engagementType || "campaign"), address: requestContext.propertyAddress ? String(requestContext.propertyAddress) : null } });
         }
       }
 
@@ -66,17 +58,15 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           status: "new",
           priority: String(body?.priority || source.priority || "normal"),
           assignedTo: body?.assignedTo ? String(body.assignedTo).trim() : null,
-          startDate: createdAt,
+          startDate,
           dueDate,
-          clientVisible: true,
-          tasks: {
-            create: workflow.map((step, index) => {
-              const taskDueDate = new Date(createdAt);
-              taskDueDate.setDate(taskDueDate.getDate() + (step.durationDays || index));
-              return { title: step.title, description: step.description, status: index === 0 ? "in_progress" : "todo", priority: source.priority || "normal", dueDate: taskDueDate, sortOrder: index };
-            }),
-          },
-          activities: { create: [{ type: "project_created", message: "Request approved and converted into a project.", actor: "UPZ Admin" }] },
+          clientVisible: body?.clientVisible === undefined ? true : Boolean(body.clientVisible),
+          tasks: { create: workflow.map((step, index) => { const taskDueDate = new Date(startDate); taskDueDate.setDate(taskDueDate.getDate() + (step.durationDays || index)); return { title: step.title, description: step.description, status: index === 0 ? "in_progress" : "todo", priority: source.priority || "normal", dueDate: taskDueDate, sortOrder: index }; }) },
+          activities: { create: [
+            { type: "project_created", message: "Request approved and converted into a project.", actor: "UPZ Admin" },
+            { type: "assignment_changed", message: body?.assignedTo ? `Assigned to ${String(body.assignedTo).trim()}.` : "Project created without an assignee.", actor: "UPZ Admin" },
+            { type: "schedule_created", message: `Project scheduled from ${startDate.toLocaleDateString("en-US")} to ${dueDate.toLocaleDateString("en-US")}.`, actor: "UPZ Admin" },
+          ] },
         },
       });
       await tx.marketingRequest.update({ where: { id: source.id }, data: { status: "approved" } });
