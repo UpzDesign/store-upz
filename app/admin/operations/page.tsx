@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { DragEvent, FormEvent, useEffect, useMemo, useState } from "react";
 
 const COLUMNS = [["new", "New"], ["in_progress", "In Progress"], ["waiting_client", "Waiting Client"], ["review", "Review"], ["complete", "Complete"]] as const;
@@ -19,8 +18,7 @@ const isComplete = (status:string) => ["complete", "completed", "cancelled"].inc
 const isOverdue = (project:Project) => Boolean(project.dueDate && new Date(project.dueDate) < new Date() && !isComplete(project.status));
 
 export default function OperationsPage() {
-  const searchParams=useSearchParams();
-  const requestedProject=Number(searchParams.get("project")||0);
+  const [requestedProject,setRequestedProject] = useState(0);
   const [data,setData] = useState<Data|null>(null);
   const [query,setQuery] = useState("");
   const [assignee,setAssignee] = useState("all");
@@ -38,14 +36,18 @@ export default function OperationsPage() {
   const [postingNote,setPostingNote]=useState(false);
 
   const open=(project:Project)=>{setSelected(project);setDraft({...project,status:normalizedStatus(project.status),startDate:dateInput(project.startDate),dueDate:dateInput(project.dueDate)})};
-  const load = () => fetch("/api/admin/operations", { cache:"no-store" }).then(r=>r.json()).then((value:Data) => {
+  const load = (projectId=requestedProject) => fetch("/api/admin/operations", { cache:"no-store" }).then(r=>r.json()).then((value:Data) => {
     const normalized = { ...value, projects:value.projects.map(project => ({ ...project, status:normalizedStatus(project.status) })) };
     setData(normalized);
-    const target=selected?normalized.projects.find(project=>project.id===selected.id):requestedProject?normalized.projects.find(project=>project.id===requestedProject):null;
+    const target=selected?normalized.projects.find(project=>project.id===selected.id):projectId?normalized.projects.find(project=>project.id===projectId):null;
     if(target)open(target);
   });
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    const projectId=Number(new URLSearchParams(window.location.search).get("project")||0);
+    setRequestedProject(projectId);
+    load(projectId);
+  }, []);
   const projects = useMemo(() => !data ? [] : data.projects.filter(project => {
     const text = `${project.title} ${project.company.name} ${project.engagement?.name || ""}`.toLowerCase();
     return text.includes(query.toLowerCase()) && (assignee === "all" || project.assignedTo === assignee) && (priority === "all" || project.priority === priority) && (!attentionOnly || isOverdue(project) || ["urgent","high"].includes(project.priority));
@@ -59,7 +61,7 @@ export default function OperationsPage() {
   async function updateTask(task:Task,body:any) { await fetch(`/api/admin/tasks/${task.id}`,{method:"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}); await load(); }
   async function addTask(event:FormEvent) { event.preventDefault(); if(!selected||!newTask.trim())return; await fetch(`/api/admin/work-orders/${selected.id}/tasks`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({title:newTask})}); setNewTask(""); await load(); }
   async function addNote(event:FormEvent){event.preventDefault();if(!selected||!note.trim())return;setPostingNote(true);const response=await fetch(`/api/admin/projects/${selected.id}/notes`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({body:note,visibility,author:"UPZ Admin"})});setPostingNote(false);if(response.ok){setNote("");await load();}}
-  async function removeWorkOrder() { if(!selected || deleting) return; if(!window.confirm(`Permanently remove “${selected.title}”? It will disappear from Operations, Timeline, and the client Projects & Campaigns page.`)) return; setDeleting(true); const response = await fetch(`/api/admin/work-orders/${selected.id}`, { method:"DELETE" }); setDeleting(false); if (!response.ok) return; setSelected(null); await load(); }
+  async function removeWorkOrder() { if(!selected || deleting) return; if(!window.confirm(`Permanently remove “${selected.title}”? It will disappear from Operations, Timeline, and the client Projects & Campaigns page.`)) return; setDeleting(true); const response = await fetch(`/api/admin/work-orders/${selected.id}`, { method:"DELETE" }); setDeleting(false); if (!response.ok) return; setSelected(null); await load(0); }
 
   if(!data) return <main className="ops-page"><p>Loading operations...</p></main>;
   const active=projects.filter(project=>!isComplete(project.status)).length;
