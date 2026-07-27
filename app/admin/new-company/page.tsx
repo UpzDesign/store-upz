@@ -11,6 +11,7 @@ const initialForm = {
 };
 
 function slugify(value: string) { return value.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, ""); }
+function envSlug(value:string){return value.toUpperCase().replace(/[^A-Z0-9]/g,"_");}
 
 export default function NewCompanyPage() {
   const router = useRouter();
@@ -30,6 +31,9 @@ export default function NewCompanyPage() {
   }
 
   const previewCompany = { ...form, shortName: form.shortName || form.name || "NEW CLIENT", logoText: form.logoText || form.shortName || form.name || "NEW CLIENT", name: form.name || "New Client" };
+  const environmentSlug=envSlug(form.slug||"CLIENT");
+  const defaultTokenEnv=`PRINTFUL_ACCESS_TOKEN_${environmentSlug}`;
+  const storeIdEnv=`PRINTFUL_STORE_ID_${environmentSlug}`;
 
   return <main className="admin-page"><section className="admin-company-detail"><div className="admin-detail-topbar"><Link href="/admin/companies">← Back to Companies</Link></div>
     <header className="admin-detail-hero"><div className="admin-detail-logo" style={{ borderColor: form.primaryColor }}><CompanyLogo company={previewCompany}/></div><div><div className="admin-eyebrow">Client Registration</div><h1>New Client</h1><p>Create the client profile, branding, portal access, and optional integrations from one form.</p></div></header>
@@ -49,8 +53,10 @@ export default function NewCompanyPage() {
         <label className="admin-settings-wide">Portal Title<input value={form.heroTitle} onChange={(e)=>updateField("heroTitle",e.target.value)} placeholder="Client Brand Portal"/></label>
         <label className="admin-settings-wide">Portal Description<textarea value={form.heroText} onChange={(e)=>updateField("heroText",e.target.value)}/></label>
 
-        <div className="admin-settings-wide admin-section-heading"><div><span>Step 3</span><h2>Optional integration</h2></div></div>
-        <label className="admin-settings-wide">Printful Token Environment Variable<input value={form.printfulTokenEnv} onChange={(e)=>updateField("printfulTokenEnv",e.target.value)} placeholder={`PRINTFUL_ACCESS_TOKEN_${(form.slug||"CLIENT").toUpperCase().replace(/[^A-Z0-9]/g,"_")}`}/><small>Add this environment variable in Vercel after creating the client. Printful is optional and can be connected later.</small></label>
+        <div className="admin-settings-wide admin-section-heading"><div><span>Step 3</span><h2>Optional Printful integration</h2></div></div>
+        <label className="admin-settings-wide">Printful Token Environment Variable<input value={form.printfulTokenEnv} onChange={(e)=>updateField("printfulTokenEnv",e.target.value)} placeholder={defaultTokenEnv}/><small>Create this secret in Vercel. The default name is based on the client slug.</small></label>
+        <label className="admin-settings-wide">Printful Store ID Environment Variable<input value={storeIdEnv} readOnly/><small>Create this Vercel variable when the access token can see multiple Printful stores. Enter the numeric Printful Store ID as its value.</small></label>
+        <div className="admin-settings-wide"><p>After the client is created and Vercel is redeployed, open the client workspace and use <strong>Test Connection</strong> before syncing products.</p></div>
         <label className="admin-settings-toggle"><input type="checkbox" checked={form.portalEnabled} onChange={(e)=>updateField("portalEnabled",e.target.checked)}/>Portal Enabled</label>
         <div className="admin-settings-actions"><button className="admin-primary-button" type="submit" disabled={saving}>{saving?"Creating Client...":"Create Client Portal"}</button>{message&&<span>{message}</span>}</div>
       </form>
