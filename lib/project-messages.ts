@@ -1,11 +1,12 @@
 export type ProjectUpdateKind = "client_update" | "feedback_request" | "approval_request";
 export type ClientResponseAction = "reply" | "approved" | "revision_requested";
 
-const UPDATE_PATTERN = /^\[\[update:(client_update|feedback_request|approval_request)\]\]\s*/;
+const UPDATE_PATTERN = /^\[\[update:(client_update|feedback_request|approval_request)(?:;stage:(\d+))?\]\]\s*/;
 const RESPONSE_PATTERN = /^\[\[thread:(\d+);action:(reply|approved|revision_requested)\]\]\s*/;
 
-export function encodeProjectUpdate(body: string, kind: ProjectUpdateKind) {
-  return `[[update:${kind}]] ${body.trim()}`;
+export function encodeProjectUpdate(body: string, kind: ProjectUpdateKind, stageId?: number | null) {
+  const stage = stageId ? `;stage:${stageId}` : "";
+  return `[[update:${kind}${stage}]] ${body.trim()}`;
 }
 
 export function encodeClientResponse(body: string, updateId: number, action: ClientResponseAction) {
@@ -20,6 +21,7 @@ export function parseProjectMessage(rawBody: string) {
       kind: "client_response" as const,
       replyToId: Number(response[1]),
       action: response[2] as ClientResponseAction,
+      stageId: null,
     };
   }
 
@@ -30,6 +32,7 @@ export function parseProjectMessage(rawBody: string) {
       kind: update[1] as ProjectUpdateKind,
       replyToId: null,
       action: null,
+      stageId: update[2] ? Number(update[2]) : null,
     };
   }
 
@@ -38,5 +41,6 @@ export function parseProjectMessage(rawBody: string) {
     kind: "client_update" as const,
     replyToId: null,
     action: null,
+    stageId: null,
   };
 }
