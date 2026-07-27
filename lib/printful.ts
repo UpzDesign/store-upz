@@ -2,35 +2,48 @@ const PRINTFUL_API = "https://api.printful.com";
 
 export type PrintfulClientOptions = {
   companySlug?: string | null;
+  storeId?: string | null;
 };
 
+function normalizeSlug(slug?: string | null) {
+  return slug?.toUpperCase().replace(/[^A-Z0-9]/g, "_") || null;
+}
+
+export function getPrintfulEnvironmentNames(companySlug?: string | null) {
+  const slug = normalizeSlug(companySlug);
+  return {
+    tokenEnv: slug ? `PRINTFUL_ACCESS_TOKEN_${slug}` : "PRINTFUL_ACCESS_TOKEN",
+    storeIdEnv: slug ? `PRINTFUL_STORE_ID_${slug}` : "PRINTFUL_STORE_ID",
+  };
+}
+
 function getToken(options: PrintfulClientOptions = {}) {
-  const slug = options.companySlug?.toUpperCase().replace(/[^A-Z0-9]/g, "_");
-
-  if (slug) {
-    const companyToken = process.env[`PRINTFUL_ACCESS_TOKEN_${slug}`];
-
-    if (!companyToken) {
-      throw new Error(`Missing PRINTFUL_ACCESS_TOKEN_${slug} environment variable`);
-    }
-
-    return companyToken;
-  }
-
-  const token = process.env.PRINTFUL_ACCESS_TOKEN;
+  const { tokenEnv } = getPrintfulEnvironmentNames(options.companySlug);
+  const token = process.env[tokenEnv];
 
   if (!token) {
-    throw new Error("Missing PRINTFUL_ACCESS_TOKEN environment variable");
+    throw new Error(`Missing ${tokenEnv} environment variable`);
   }
 
   return token;
 }
 
+function getStoreId(options: PrintfulClientOptions = {}) {
+  if (options.storeId) return String(options.storeId).trim();
+  const { storeIdEnv } = getPrintfulEnvironmentNames(options.companySlug);
+  return process.env[storeIdEnv]?.trim() || null;
+}
+
 async function printfulFetch(path: string, options: PrintfulClientOptions = {}) {
+  const storeId = getStoreId(options);
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${getToken(options)}`,
+  };
+
+  if (storeId) headers["X-PF-Store-Id"] = storeId;
+
   const res = await fetch(`${PRINTFUL_API}${path}`, {
-    headers: {
-      Authorization: `Bearer ${getToken(options)}`,
-    },
+    headers,
     cache: "no-store",
   });
 
@@ -40,6 +53,26 @@ async function printfulFetch(path: string, options: PrintfulClientOptions = {}) 
   }
 
   return res.json();
+}
+
+export async function testPrintfulConnection(options: PrintfulClientOptions = {}) {
+  const environment = getPrintfulEnvironmentNames(options.companySlug);
+  const configuredStoreId = getStoreId(options);
+  const json = await printfulFetch("/store", options);
+  const store = json?.result || {};
+
+  return {
+    connected: true,
+    tokenEnv: environment.tokenEnv,
+    storeIdEnv: environment.storeIdEnv,
+    configuredStoreId,
+    store: {
+      id: store?.id != null ? String(store.id) : configuredStoreId,
+      name: store?.name || store?.store_name || "Connected Printful Store",
+      type: store?.type || null,
+      website: store?.website || null,
+    },
+  };
 }
 
 function getMockupImages(files: any[] = []) {
