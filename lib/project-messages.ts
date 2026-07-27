@@ -1,0 +1,42 @@
+export type ProjectUpdateKind = "client_update" | "feedback_request" | "approval_request";
+export type ClientResponseAction = "reply" | "approved" | "revision_requested";
+
+const UPDATE_PATTERN = /^\[\[update:(client_update|feedback_request|approval_request)\]\]\s*/;
+const RESPONSE_PATTERN = /^\[\[thread:(\d+);action:(reply|approved|revision_requested)\]\]\s*/;
+
+export function encodeProjectUpdate(body: string, kind: ProjectUpdateKind) {
+  return `[[update:${kind}]] ${body.trim()}`;
+}
+
+export function encodeClientResponse(body: string, updateId: number, action: ClientResponseAction) {
+  return `[[thread:${updateId};action:${action}]] ${body.trim()}`;
+}
+
+export function parseProjectMessage(rawBody: string) {
+  const response = rawBody.match(RESPONSE_PATTERN);
+  if (response) {
+    return {
+      body: rawBody.replace(RESPONSE_PATTERN, "").trim(),
+      kind: "client_response" as const,
+      replyToId: Number(response[1]),
+      action: response[2] as ClientResponseAction,
+    };
+  }
+
+  const update = rawBody.match(UPDATE_PATTERN);
+  if (update) {
+    return {
+      body: rawBody.replace(UPDATE_PATTERN, "").trim(),
+      kind: update[1] as ProjectUpdateKind,
+      replyToId: null,
+      action: null,
+    };
+  }
+
+  return {
+    body: rawBody,
+    kind: "client_update" as const,
+    replyToId: null,
+    action: null,
+  };
+}
