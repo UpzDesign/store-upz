@@ -47,11 +47,11 @@ export default function NewCompanyPage() {
   return <main className="admin-page"><section className="admin-company-detail"><div className="admin-detail-topbar"><Link href="/admin/companies">← Back to Companies</Link></div>
     <header className="admin-detail-hero"><div className="admin-detail-logo" style={{ borderColor: form.primaryColor }}><CompanyLogo company={previewCompany}/></div><div><div className="admin-eyebrow">Client Registration</div><h1>New Client</h1><p>Create the client profile, branding, portal access, and optional integrations from one form.</p></div></header>
     <section className="admin-section"><div className="admin-section-heading"><div><span>Step 1</span><h2>Company information</h2></div></div>
-      <form className="admin-settings-form" onSubmit={handleSubmit}>
+      <form className="admin-settings-form" onSubmit={handleSubmit} autoComplete="off">
         <label>Company Name<input value={form.name} onChange={(e)=>{updateField("name",e.target.value);if(!form.slug)updateField("slug",slugify(e.target.value));}} required/></label>
         <label>Short Name<input value={form.shortName} onChange={(e)=>updateField("shortName",e.target.value)} placeholder="Used in compact areas"/></label>
         <label>Portal Slug / Username<input value={form.slug} onChange={(e)=>updateField("slug",slugify(e.target.value))} required/></label>
-        <label>Portal Password<input value={form.portalPassword} onChange={(e)=>updateField("portalPassword",e.target.value)} placeholder="Auto-generated when blank"/></label>
+        <label>Portal Password<input type="text" name="portal-access-code" autoComplete="off" data-lpignore="true" data-1p-ignore="true" value={form.portalPassword} onChange={(e)=>updateField("portalPassword",e.target.value)} placeholder="Auto-generated when blank"/></label>
 
         <div className="admin-settings-wide admin-section-heading"><div><span>Step 2</span><h2>Brand identity</h2></div></div>
         <label>Logo Type<select value={form.logoType} onChange={(e)=>updateField("logoType",e.target.value)}><option value="image">Image / File Path</option><option value="text">Text Wordmark</option><option value="none">No Logo</option></select></label>
@@ -63,9 +63,9 @@ export default function NewCompanyPage() {
         <label className="admin-settings-wide">Portal Description<textarea value={form.heroText} onChange={(e)=>updateField("heroText",e.target.value)}/></label>
 
         <div className="admin-settings-wide admin-section-heading"><div><span>Step 3</span><h2>Optional Printful integration</h2></div></div>
-        <label className="admin-settings-wide">Printful Access Token<input type="password" autoComplete="new-password" value={form.printfulCredential} onChange={(e)=>updateField("printfulCredential",e.target.value)} placeholder="Paste the Printful token"/><small>The token is tested immediately and stored encrypted. Leave blank to connect later.</small></label>
-        <label className="admin-settings-wide">Printful Store ID<input value={form.printfulStoreId} onChange={(e)=>updateField("printfulStoreId",e.target.value)} placeholder="Optional for a store-specific token"/><small>Enter the numeric Store ID only when the token can access multiple stores.</small></label>
-        <div className="admin-settings-wide"><p>No client-specific Vercel variable or redeployment is required. Printful must still have the store created before connecting it here.</p></div>
+        <label className="admin-settings-wide">Printful Private Token<input type="text" name="printful-private-token" autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} data-lpignore="true" data-1p-ignore="true" value={form.printfulCredential} onChange={(e)=>updateField("printfulCredential",e.target.value)} placeholder="Paste the Private Token value"/><small>Paste the token value itself. You may also paste “Bearer …” or an Authorization header; the admin will clean it automatically.</small></label>
+        <label className="admin-settings-wide">Printful Store ID<input inputMode="numeric" name="printful-store-id" autoComplete="off" value={form.printfulStoreId} onChange={(e)=>updateField("printfulStoreId",e.target.value)} placeholder="Required for an account-level token"/><small>A store-level token does not need this. An account-level token must include the numeric Printful Store ID.</small></label>
+        <div className="admin-settings-wide"><p>The token must be a Printful <strong>Private Token</strong> with <strong>Sync Products read</strong> access. It is tested immediately and then stored encrypted.</p></div>
         <label className="admin-settings-toggle"><input type="checkbox" checked={form.portalEnabled} onChange={(e)=>updateField("portalEnabled",e.target.checked)}/>Portal Enabled</label>
         <div className="admin-settings-actions"><button className="admin-primary-button" type="submit" disabled={saving}>{saving?"Creating Client...":"Create Client Portal"}</button>{message&&<span>{message}</span>}</div>
       </form>
