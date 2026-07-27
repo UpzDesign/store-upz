@@ -10,6 +10,19 @@ function normalizeSlug(slug?: string | null) {
   return slug?.toUpperCase().replace(/[^A-Z0-9]/g, "_") || null;
 }
 
+export function normalizePrintfulToken(value?: string | null) {
+  let token = String(value || "").trim();
+
+  // Accept tokens pasted directly, copied as an Authorization header,
+  // or wrapped in quotes by password managers / environment-variable UIs.
+  token = token.replace(/^authorization\s*:\s*/i, "").trim();
+  token = token.replace(/^bearer\s+/i, "").trim();
+  token = token.replace(/^["'`]+|["'`]+$/g, "").trim();
+  token = token.replace(/\s+/g, "");
+
+  return token;
+}
+
 export function getPrintfulEnvironmentNames(companySlug?: string | null) {
   const slug = normalizeSlug(companySlug);
   return {
@@ -19,9 +32,11 @@ export function getPrintfulEnvironmentNames(companySlug?: string | null) {
 }
 
 function getToken(options: PrintfulClientOptions = {}) {
-  if (options.accessToken?.trim()) return options.accessToken.trim();
+  const directToken = normalizePrintfulToken(options.accessToken);
+  if (directToken) return directToken;
+
   const { tokenEnv } = getPrintfulEnvironmentNames(options.companySlug);
-  const token = process.env[tokenEnv];
+  const token = normalizePrintfulToken(process.env[tokenEnv]);
   if (!token) throw new Error(`Missing ${tokenEnv} environment variable`);
   return token;
 }
@@ -34,12 +49,22 @@ function getStoreId(options: PrintfulClientOptions = {}) {
 
 async function printfulFetch(path: string, options: PrintfulClientOptions = {}) {
   const storeId = getStoreId(options);
-  const headers: Record<string, string> = { Authorization: `Bearer ${getToken(options)}` };
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${getToken(options)}`,
+    Accept: "application/json",
+  };
   if (storeId) headers["X-PF-Store-Id"] = storeId;
 
   const res = await fetch(`${PRINTFUL_API}${path}`, { headers, cache: "no-store" });
   if (!res.ok) {
     const message = await res.text();
+
+    if (res.status === 401) {
+      throw new Error(
+        "Printful rejected the token. Paste the Private Token value itself (not its name), make sure it has Sync Products read access, and include the Store ID when using an account-level token."
+      );
+    }
+
     throw new Error(`Printful API error ${res.status}: ${message}`);
   }
   return res.json();
