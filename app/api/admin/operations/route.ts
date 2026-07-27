@@ -4,7 +4,15 @@ import { isProjectComplete, normalizeProjectStage } from "@/lib/project-status";
 
 export async function GET() {
   const [projects, engagements, assets, services, teamMembers] = await Promise.all([
-    prisma.project.findMany({ include: { company: { select: { name: true, shortName: true, slug: true } }, engagement: { select: { id: true, name: true } }, tasks: { orderBy: { sortOrder: "asc" } }, notes: { orderBy: { createdAt: "desc" }, take: 5 } }, orderBy: { updatedAt: "desc" } }),
+    prisma.project.findMany({
+      include: {
+        company: { select: { name: true, shortName: true, slug: true } },
+        engagement: { select: { id: true, name: true } },
+        tasks: { orderBy: { sortOrder: "asc" } },
+        notes: { orderBy: { createdAt: "asc" } },
+      },
+      orderBy: { updatedAt: "desc" },
+    }),
     prisma.engagement.findMany({ include: { company: { select: { name: true, shortName: true, slug: true } } }, orderBy: { updatedAt: "desc" } }),
     prisma.engagementAsset.findMany({ include: { engagement: { select: { id: true, name: true, company: { select: { shortName: true } } } } }, where: { active: true }, orderBy: { updatedAt: "desc" }, take: 100 }),
     prisma.service.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } }),
@@ -19,5 +27,8 @@ export async function GET() {
     return { ...member, active: assignedProjects.length, tasks: assignedTasks.length, overdue };
   });
 
-  return NextResponse.json({ projects: normalizedProjects, engagements, assets, services, team: workload }, { headers: { "Cache-Control": "no-store, max-age=0" } });
+  return NextResponse.json(
+    { projects: normalizedProjects, engagements, assets, services, team: workload },
+    { headers: { "Cache-Control": "no-store, max-age=0" } }
+  );
 }
