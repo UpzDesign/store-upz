@@ -1,9 +1,7 @@
 export const PROJECT_STAGES = [
   ["new", "New"],
-  ["planning", "Planning"],
   ["in_progress", "In Progress"],
   ["waiting_client", "Waiting Client"],
-  ["review", "Review"],
   ["complete", "Complete"],
   ["cancelled", "Cancelled"],
 ] as const;
@@ -12,12 +10,15 @@ export type ProjectStage = (typeof PROJECT_STAGES)[number][0];
 
 const aliases: Record<string, ProjectStage> = {
   active: "in_progress",
+  planning: "new",
+  review: "in_progress",
+  proofing: "in_progress",
   "in-progress": "in_progress",
   inprogress: "in_progress",
-  proofing: "review",
   waiting: "waiting_client",
   "waiting-client": "waiting_client",
   completed: "complete",
+  delivered: "complete",
   closed: "complete",
   canceled: "cancelled",
 };
