@@ -2,90 +2,35 @@ import { prisma } from "@/lib/prisma";
 import { INTAKE_FORMS, type IntakeDefinition } from "@/lib/intake-forms";
 
 function toDefinition(service:any):IntakeDefinition {
-  return {
-    slug:service.slug,
-    name:service.name,
-    description:service.description,
-    fields:(service.fields||[]).map((field:any)=>({
-      key:field.key,
-      label:field.label,
-      type:field.type,
-      placeholder:field.placeholder||undefined,
-      required:Boolean(field.required),
-      wide:Boolean(field.wide),
-      options:Array.isArray(field.options)?field.options:undefined,
-    })),
-  };
+  return { slug:service.slug, name:service.name, description:service.description, imageUrl:service.imageUrl||INTAKE_FORMS[service.slug]?.imageUrl,
+    fields:(service.fields||[]).map((field:any)=>({ key:field.key,label:field.label,type:field.type,placeholder:field.placeholder||undefined,required:Boolean(field.required),wide:Boolean(field.wide),options:Array.isArray(field.options)?field.options:undefined })) };
 }
 
 export async function ensureServiceLibrary(){
-  const count=await prisma.service.count();
-  if(count>0)return;
+  const count=await prisma.service.count(); if(count>0)return;
   const defaults=Object.values(INTAKE_FORMS);
   for(let serviceIndex=0;serviceIndex<defaults.length;serviceIndex++){
     const service=defaults[serviceIndex];
-    await prisma.service.create({data:{
-      slug:service.slug,
-      name:service.name,
-      description:service.description,
-      sortOrder:serviceIndex,
-      fields:{create:service.fields.map((field,index)=>({
-        key:field.key,label:field.label,type:field.type,placeholder:field.placeholder,
-        required:Boolean(field.required),wide:Boolean(field.wide),options:field.options||undefined,sortOrder:index,
-      }))},
-    }});
+    await prisma.service.create({data:{slug:service.slug,name:service.name,description:service.description,imageUrl:service.imageUrl,sortOrder:serviceIndex,fields:{create:service.fields.map((field,index)=>({key:field.key,label:field.label,type:field.type,placeholder:field.placeholder,required:Boolean(field.required),wide:Boolean(field.wide),options:field.options||undefined,sortOrder:index}))}}});
   }
 }
 
-export async function getServiceLibraryFromDb(){
-  await ensureServiceLibrary();
-  const services=await prisma.service.findMany({where:{active:true},orderBy:[{sortOrder:"asc"},{name:"asc"}],include:{fields:{orderBy:{sortOrder:"asc"}}}});
-  return services.map(toDefinition);
-}
+export async function getServiceLibraryFromDb(){ await ensureServiceLibrary(); const services=await prisma.service.findMany({where:{active:true},orderBy:[{sortOrder:"asc"},{name:"asc"}],include:{fields:{orderBy:{sortOrder:"asc"}}}}); return services.map(toDefinition); }
 
 export async function replaceServiceLibrary(definitions:IntakeDefinition[]){
-  await prisma.$transaction(async(tx)=>{
-    for(let serviceIndex=0;serviceIndex<definitions.length;serviceIndex++){
-      const definition=definitions[serviceIndex];
-      const service=await tx.service.upsert({
-        where:{slug:definition.slug},
-        update:{name:definition.name,description:definition.description,active:true,sortOrder:serviceIndex},
-        create:{slug:definition.slug,name:definition.name,description:definition.description,sortOrder:serviceIndex},
-      });
-      await tx.serviceField.deleteMany({where:{serviceId:service.id}});
-      if(definition.fields.length){
-        await tx.serviceField.createMany({data:definition.fields.map((field,index)=>({
-          serviceId:service.id,key:field.key,label:field.label,type:field.type,placeholder:field.placeholder||null,
-          required:Boolean(field.required),wide:Boolean(field.wide),options:field.options||undefined,sortOrder:index,
-        }))});
-      }
-    }
-  });
-  return getServiceLibraryFromDb();
+  await prisma.$transaction(async(tx)=>{ for(let serviceIndex=0;serviceIndex<definitions.length;serviceIndex++){
+    const definition=definitions[serviceIndex];
+    const service=await tx.service.upsert({where:{slug:definition.slug},update:{name:definition.name,description:definition.description,imageUrl:definition.imageUrl||null,active:true,sortOrder:serviceIndex},create:{slug:definition.slug,name:definition.name,description:definition.description,imageUrl:definition.imageUrl||null,sortOrder:serviceIndex}});
+    await tx.serviceField.deleteMany({where:{serviceId:service.id}});
+    if(definition.fields.length)await tx.serviceField.createMany({data:definition.fields.map((field,index)=>({serviceId:service.id,key:field.key,label:field.label,type:field.type,placeholder:field.placeholder||null,required:Boolean(field.required),wide:Boolean(field.wide),options:field.options||undefined,sortOrder:index}))});
+  }}); return getServiceLibraryFromDb();
 }
 
 export async function getCompanyServices(slug:string,enabledOnly=false){
-  await ensureServiceLibrary();
-  const company=await prisma.company.findUnique({where:{slug}});
-  if(!company)return null;
+  await ensureServiceLibrary(); const company=await prisma.company.findUnique({where:{slug}}); if(!company)return null;
   const assignments=await prisma.companyService.findMany({where:{companyId:company.id},include:{service:{include:{fields:{orderBy:{sortOrder:"asc"}}}}},orderBy:{sortOrder:"asc"}});
-  if(assignments.length===0){
-    const services=await prisma.service.findMany({where:{active:true},orderBy:{sortOrder:"asc"}});
-    await prisma.companyService.createMany({data:services.map((service,index)=>({companyId:company.id,serviceId:service.id,enabled:true,sortOrder:index})),skipDuplicates:true});
-    return getCompanyServices(slug,enabledOnly);
-  }
+  if(assignments.length===0){ const services=await prisma.service.findMany({where:{active:true},orderBy:{sortOrder:"asc"}}); await prisma.companyService.createMany({data:services.map((service,index)=>({companyId:company.id,serviceId:service.id,enabled:true,sortOrder:index})),skipDuplicates:true}); return getCompanyServices(slug,enabledOnly); }
   return assignments.filter((item)=>!enabledOnly||item.enabled).map((item)=>({...toDefinition(item.service),enabled:item.enabled,featured:item.featured,customPrice:item.customPrice,customTimeline:item.customTimeline}));
 }
 
-export async function saveCompanyServices(slug:string,enabledSlugs:string[]){
-  await ensureServiceLibrary();
-  const company=await prisma.company.findUnique({where:{slug}});
-  if(!company)return null;
-  const services=await prisma.service.findMany({where:{active:true}});
-  await prisma.$transaction(services.map((service,index)=>prisma.companyService.upsert({
-    where:{companyId_serviceId:{companyId:company.id,serviceId:service.id}},
-    update:{enabled:enabledSlugs.includes(service.slug),sortOrder:index},
-    create:{companyId:company.id,serviceId:service.id,enabled:enabledSlugs.includes(service.slug),sortOrder:index},
-  })));
-  return getCompanyServices(slug,false);
-}
+export async function saveCompanyServices(slug:string,enabledSlugs:string[]){ await ensureServiceLibrary(); const company=await prisma.company.findUnique({where:{slug}}); if(!company)return null; const services=await prisma.service.findMany({where:{active:true}}); await prisma.$transaction(services.map((service,index)=>prisma.companyService.upsert({where:{companyId_serviceId:{companyId:company.id,serviceId:service.id}},update:{enabled:enabledSlugs.includes(service.slug),sortOrder:index},create:{companyId:company.id,serviceId:service.id,enabled:enabledSlugs.includes(service.slug),sortOrder:index}}))); return getCompanyServices(slug,false); }
