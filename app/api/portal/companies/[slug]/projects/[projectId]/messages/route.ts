@@ -1,79 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { encodeClientResponse, parseProjectMessage, type ClientResponseAction } from "@/lib/project-messages";
 
-export async function POST(
-  request: NextRequest,
-  context: { params: Promise<{ slug: string; projectId: string }> }
-) {
+const ACTIONS = new Set<ClientResponseAction>(["reply", "approved", "revision_requested"]);
+
+export async function POST(request: NextRequest, context: { params: Promise<{ slug: string; projectId: string }> }) {
   try {
     const { slug, projectId } = await context.params;
     const body = await request.json().catch(() => null);
+    const updateId = Number(body?.updateId || 0);
+    const action = String(body?.action || "reply") as ClientResponseAction;
     const message = String(body?.message || "").trim();
 
-    if (!message) {
-      return NextResponse.json({ error: "Message is required" }, { status: 400 });
-    }
+    if (!updateId || !ACTIONS.has(action)) return NextResponse.json({ error: "A valid project update is required" }, { status: 400 });
+    if (action === "reply" && !message) return NextResponse.json({ error: "Reply is required" }, { status: 400 });
+    if (message.length > 2000) return NextResponse.json({ error: "Reply must be 2,000 characters or fewer" }, { status: 400 });
 
-    if (message.length > 4000) {
-      return NextResponse.json(
-        { error: "Message must be 4,000 characters or fewer" },
-        { status: 400 }
-      );
-    }
-
-    const company = await prisma.company.findUnique({
-      where: { slug, portalEnabled: true },
-      select: { id: true, shortName: true, name: true },
-    });
-
-    if (!company) {
-      return NextResponse.json({ error: "Company not found" }, { status: 404 });
-    }
+    const company = await prisma.company.findUnique({ where: { slug, portalEnabled: true }, select: { id: true, shortName: true, name: true } });
+    if (!company) return NextResponse.json({ error: "Company not found" }, { status: 404 });
 
     const project = await prisma.project.findFirst({
-      where: {
-        id: Number(projectId),
-        companyId: company.id,
-        clientVisible: true,
-        status: { notIn: ["cancelled"] },
-      },
+      where: { id: Number(projectId), companyId: company.id, clientVisible: true, status: { notIn: ["cancelled"] } },
       select: { id: true, title: true },
     });
+    if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    if (!project) {
-      return NextResponse.json({ error: "Project not found" }, { status: 404 });
+    const update = await prisma.projectNote.findFirst({ where: { id: updateId, projectId: project.id, visibility: "client" }, select: { id: true, body: true, author: true } });
+    if (!update) return NextResponse.json({ error: "Project update not found" }, { status: 404 });
+
+    const parsedUpdate = parseProjectMessage(update.body);
+    if (parsedUpdate.kind === "client_response" || / Client$/.test(update.author || "")) {
+      return NextResponse.json({ error: "Clients can only respond to UPZ project updates" }, { status: 400 });
     }
+    if (action === "approved" && parsedUpdate.kind !== "approval_request") return NextResponse.json({ error: "This update does not require approval" }, { status: 400 });
+    if (action === "revision_requested" && !["approval_request", "feedback_request"].includes(parsedUpdate.kind)) return NextResponse.json({ error: "This update does not accept revision requests" }, { status: 400 });
 
     const author = `${company.shortName || company.name} Client`;
+    const defaultMessage = action === "approved" ? "Approved" : action === "revision_requested" ? "Revision requested" : message;
+    const storedBody = encodeClientResponse(message || defaultMessage, update.id, action);
 
-    const note = await prisma.projectNote.create({
-      data: {
-        projectId: project.id,
-        body: message,
-        visibility: "client",
-        author,
-      },
-      select: {
-        id: true,
-        body: true,
-        visibility: true,
-        author: true,
-        createdAt: true,
-      },
-    });
+    const note = await prisma.projectNote.create({ data: { projectId: project.id, body: storedBody, visibility: "client", author } });
+    await prisma.projectActivity.create({ data: { projectId: project.id, type: `client_${action}`, message: `Client ${action.replaceAll("_", " ")} on ${project.title}`, actor: author, metadata: JSON.stringify({ updateId: update.id }) } });
 
-    await prisma.projectActivity.create({
-      data: {
-        projectId: project.id,
-        type: "client_message",
-        message: `Client replied on ${project.title}`,
-        actor: author,
-      },
-    });
-
-    return NextResponse.json(note, { status: 201 });
+    const parsed = parseProjectMessage(note.body);
+    return NextResponse.json({ ...note, ...parsed }, { status: 201 });
   } catch (error) {
     console.error("Portal project message error:", error);
-    return NextResponse.json({ error: "Unable to send message" }, { status: 500 });
+    return NextResponse.json({ error: "Unable to send response" }, { status: 500 });
   }
 }
