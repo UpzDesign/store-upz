@@ -25,7 +25,10 @@ export async function POST(request: NextRequest, context: { params: Promise<{ sl
     });
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
-    const update = await prisma.projectNote.findFirst({ where: { id: updateId, projectId: project.id, visibility: "client" }, select: { id: true, body: true, author: true } });
+    const update = await prisma.projectNote.findFirst({
+      where: { id: updateId, projectId: project.id, visibility: "client" },
+      select: { id: true, body: true, author: true },
+    });
     if (!update) return NextResponse.json({ error: "Project update not found" }, { status: 404 });
 
     const parsedUpdate = parseProjectMessage(update.body);
@@ -39,11 +42,22 @@ export async function POST(request: NextRequest, context: { params: Promise<{ sl
     const defaultMessage = action === "approved" ? "Approved" : action === "revision_requested" ? "Revision requested" : message;
     const storedBody = encodeClientResponse(message || defaultMessage, update.id, action);
 
-    const note = await prisma.projectNote.create({ data: { projectId: project.id, body: storedBody, visibility: "client", author } });
-    await prisma.projectActivity.create({ data: { projectId: project.id, type: `client_${action}`, message: `Client ${action.replaceAll("_", " ")} on ${project.title}`, actor: author, metadata: JSON.stringify({ updateId: update.id }) } });
+    const [note] = await prisma.$transaction([
+      prisma.projectNote.create({ data: { projectId: project.id, body: storedBody, visibility: "client", author } }),
+      prisma.projectActivity.create({
+        data: {
+          projectId: project.id,
+          type: `client_${action}`,
+          message: `Client ${action.replaceAll("_", " ")} on ${project.title}`,
+          actor: author,
+          metadata: JSON.stringify({ updateId: update.id }),
+        },
+      }),
+      prisma.project.update({ where: { id: project.id }, data: { updatedAt: new Date() } }),
+    ]);
 
     const parsed = parseProjectMessage(note.body);
-    return NextResponse.json({ ...note, ...parsed }, { status: 201 });
+    return NextResponse.json({ ...note, ...parsed }, { status: 201, headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Portal project message error:", error);
     return NextResponse.json({ error: "Unable to send response" }, { status: 500 });
