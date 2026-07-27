@@ -23,6 +23,9 @@ export async function PUT(request: NextRequest, context: { params: Promise<{ slu
     const credential = String(body?.credential || "").trim();
     const storeId = String(body?.storeId || "").trim() || null;
     if (!credential) return NextResponse.json({ error: "Printful token is required" }, { status: 400 });
+
+    // testPrintfulConnection validates against /store/products, so a product-sync
+    // token does not need the unrelated stores_list/read permission.
     const connection = await testPrintfulConnection({ accessToken: credential, storeId });
     const saved = await savePrintfulIntegration({ companyId: company.id, accessToken: credential, storeId: connection.store.id || storeId, storeName: connection.store.name, storeType: connection.store.type, status: "connected" });
     return NextResponse.json(publicPrintfulIntegration(saved));
