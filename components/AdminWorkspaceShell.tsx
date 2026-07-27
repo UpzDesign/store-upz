@@ -9,9 +9,9 @@ const NAV = [
   ["Requests", "/admin/inbox"],
   ["Projects", "/admin/projects"],
   ["Operations", "/admin/operations"],
+  ["Engagements", "/admin/engagements"],
   ["Companies", "/admin/companies"],
   ["Team", "/admin/team"],
-  ["Assets", "/admin/engagements"],
   ["Services", "/admin/services"],
 ] as const;
 
