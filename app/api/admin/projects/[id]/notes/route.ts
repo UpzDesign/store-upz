@@ -12,26 +12,37 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const text = String(body?.body || "").trim();
     if (!projectId || !text) return NextResponse.json({ error: "Note is required" }, { status: 400 });
 
-    const project = await prisma.project.findUnique({ where: { id: projectId }, select: { id: true } });
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      select: {
+        id: true,
+        tasks: { orderBy: { sortOrder: "asc" }, select: { id: true, status: true } },
+      },
+    });
     if (!project) return NextResponse.json({ error: "Project not found" }, { status: 404 });
 
     const requestedKind = String(body?.kind || "internal");
     const isClientUpdate = CLIENT_KINDS.has(requestedKind as ProjectUpdateKind);
     const kind = isClientUpdate ? requestedKind as ProjectUpdateKind : null;
     const visibility = isClientUpdate ? "client" : "internal";
-    const storedBody = kind ? encodeProjectUpdate(text, kind) : text;
+
+    const requestedStageId = Number(body?.stageId || 0);
+    const validRequestedStage = project.tasks.find((task) => task.id === requestedStageId)?.id || null;
+    const activeStage = project.tasks.find((task) => !["complete", "completed"].includes(task.status))?.id || project.tasks.at(-1)?.id || null;
+    const stageId = isClientUpdate ? validRequestedStage || activeStage : null;
+
+    const storedBody = kind ? encodeProjectUpdate(text, kind, stageId) : text;
     const author = body?.author || "UPZ Admin";
 
     const [note] = await prisma.$transaction([
-      prisma.projectNote.create({
-        data: { projectId, body: storedBody, visibility, author },
-      }),
+      prisma.projectNote.create({ data: { projectId, body: storedBody, visibility, author } }),
       prisma.projectActivity.create({
         data: {
           projectId,
           type: isClientUpdate ? requestedKind : "note_added",
           message: isClientUpdate ? "Client-visible project update posted" : "Internal note added",
           actor: author,
+          metadata: stageId ? JSON.stringify({ stageId }) : undefined,
         },
       }),
       prisma.project.update({ where: { id: projectId }, data: { updatedAt: new Date() } }),
