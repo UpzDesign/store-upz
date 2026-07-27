@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import type { IntakeDefinition } from "@/lib/intake-forms";
+import CompanyLogo from "@/components/CompanyLogo";
 
 type AdminProduct = { id:number; printfulId:string; name:string; thumbnail?:string|null; price?:number|null; collection?:string|null; featured:boolean; active:boolean };
 type AdminRequest = { id:number; type:string; title:string; description?:string|null; priority:string; status:string; createdAt:string; updatedAt:string };
-type AdminCompanyDetail = { id:number; name:string; slug:string; shortName:string; logo?:string|null; primaryColor:string; secondaryColor:string; heroTitle:string; heroText:string; portalPassword?:string; portalEnabled:boolean; printfulTokenEnv?:string|null; products?:AdminProduct[]; collections?:unknown[]; packages?:unknown[]; assets?:unknown[]; requests?:AdminRequest[]; orders?:unknown[] };
+type AdminCompanyDetail = { id:number; name:string; slug:string; shortName:string; logo?:string|null; logoType?:string|null; logoText?:string|null; logoTextColor?:string|null; logoFontStyle?:string|null; primaryColor:string; secondaryColor:string; heroTitle:string; heroText:string; portalPassword?:string; portalEnabled:boolean; printfulTokenEnv?:string|null; products?:AdminProduct[]; collections?:unknown[]; packages?:unknown[]; assets?:unknown[]; requests?:AdminRequest[]; orders?:unknown[] };
 type AssignedService = IntakeDefinition & { enabled:boolean };
+type PrintfulConnection = { connected:boolean; tokenEnv:string; storeIdEnv:string; configuredStoreId?:string|null; store?:{id?:string|null;name?:string|null;type?:string|null;website?:string|null}; error?:string };
 
 function formatPrice(value?: number | null) { return value ? `$${Number(value).toFixed(2)}` : "—"; }
+function envSlug(value:string){ return value.toUpperCase().replace(/[^A-Z0-9]/g,"_"); }
 
 export default function AdminCompanyPage() {
   const router = useRouter();
@@ -29,6 +32,8 @@ export default function AdminCompanyPage() {
   const [enabledServices, setEnabledServices] = useState<string[]>([]);
   const [serviceMessage, setServiceMessage] = useState("");
   const [savingServices,setSavingServices]=useState(false);
+  const [testingPrintful,setTestingPrintful]=useState(false);
+  const [printfulConnection,setPrintfulConnection]=useState<PrintfulConnection|null>(null);
 
   function updateCompanyField<K extends keyof AdminCompanyDetail>(field: K, value: AdminCompanyDetail[K]) { setCompany((current) => current ? { ...current, [field]: value } : current); }
   function loadCompany() {
@@ -61,6 +66,14 @@ export default function AdminCompanyPage() {
     catch (err:any) { setDeleteMessage(err?.message || "Unable to delete company"); } finally { setDeleting(false); }
   }
 
+  async function handleTestPrintful() {
+    if(!company)return;
+    setTestingPrintful(true);setPrintfulConnection(null);
+    try{const response=await fetch(`/api/admin/companies/${company.slug}/printful-connection`,{cache:"no-store"});const data=await response.json();setPrintfulConnection(data);}
+    catch(error:any){setPrintfulConnection({connected:false,tokenEnv:`PRINTFUL_ACCESS_TOKEN_${envSlug(company.slug)}`,storeIdEnv:`PRINTFUL_STORE_ID_${envSlug(company.slug)}`,error:error?.message||"Unable to test Printful"});}
+    finally{setTestingPrintful(false);}
+  }
+
   async function handleSyncProducts() {
     if (!company) return; setSyncing(true); setSyncMessage("");
     try { const response = await fetch(`/api/admin/companies/${company.slug}/sync-products`, { method:"POST" }); const data = await response.json(); if (!response.ok) throw new Error(data?.error || "Unable to sync products"); setSyncMessage(`Synced ${data.synced || 0} products.`); loadCompany(); }
@@ -77,7 +90,8 @@ export default function AdminCompanyPage() {
   if (loading) return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Loading company...</h1></section></main>;
   if (error || !company) return <main className="admin-page"><section className="admin-simple-state"><Link href="/admin">← Back to Admin</Link><h1>Company not found</h1>{error && <p>{error}</p>}</section></main>;
 
-  const tokenEnv = company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${company.slug.toUpperCase()}`;
+  const tokenEnv = company.printfulTokenEnv || `PRINTFUL_ACCESS_TOKEN_${envSlug(company.slug)}`;
+  const storeIdEnv = `PRINTFUL_STORE_ID_${envSlug(company.slug)}`;
   const products = company.products || [];
   const packageCount = company.packages?.length || 0;
   const requests = company.requests || [];
@@ -89,6 +103,7 @@ export default function AdminCompanyPage() {
     { label:"Requests", href:`/admin/company/${company.slug}/requests`, count:openRequests.length },
     { label:"Catalog", href:`/admin/company/${company.slug}/catalog`, count:products.length },
     { label:"Packages", href:`/admin/company/${company.slug}/packages`, count:packageCount },
+    { label:"Integrations", href:"#integrations" },
     { label:"Settings", href:"#settings" },
   ];
 
@@ -96,7 +111,7 @@ export default function AdminCompanyPage() {
     <main className="admin-page">
       <section className="admin-company-detail">
         <div className="admin-detail-topbar"><Link href="/admin">← Back to Admin</Link><Link href={`/portal/${company.slug}`}>Open Portal</Link></div>
-        <header className="admin-detail-hero"><div className="admin-detail-logo" style={{borderColor:company.primaryColor}}><img src={company.logo || "/upz-logo.svg"} alt={`${company.name} logo`} /></div><div><div className="admin-eyebrow">Company Workspace</div><h1>{company.name}</h1><p>{openRequests.length} active requests · {enabledDefinitions.length} enabled services</p></div></header>
+        <header className="admin-detail-hero"><div className="admin-detail-logo" style={{borderColor:company.primaryColor}}><CompanyLogo company={company}/></div><div><div className="admin-eyebrow">Company Workspace</div><h1>{company.name}</h1><p>{openRequests.length} active requests · {enabledDefinitions.length} enabled services</p></div></header>
         <nav className="admin-module-tabs" aria-label="Company admin modules">{moduleLinks.map((item) => <Link key={item.label} href={item.href}><span>{item.label}</span>{typeof item.count === "number" && <strong>{item.count}</strong>}</Link>)}</nav>
 
         <section className="admin-stat-grid">{[["Open Requests",openRequests.length],["Enabled Services",enabledDefinitions.length],["Products",products.length],["Packages",packageCount]].map(([label,value]) => <article key={String(label)} className="admin-stat-card"><span>{label}</span><strong>{value}</strong></article>)}</section>
@@ -107,6 +122,16 @@ export default function AdminCompanyPage() {
           <div className="admin-service-toggle-list">{services.map((service)=>{const enabled=enabledServices.includes(service.slug);return <article key={service.slug} className={`admin-service-toggle-row ${enabled?"is-enabled":""}`}><div className="admin-service-toggle-mark" aria-hidden="true">{service.name.slice(0,2).toUpperCase()}</div><div className="admin-service-toggle-copy"><strong>{service.name}</strong><span>{service.slug.replace(/-/g," ")}</span></div><Link href={`/portal/${company.slug}/request/${service.slug}`}>Preview</Link><label className="admin-service-switch"><input type="checkbox" checked={enabled} onChange={()=>toggleService(service.slug)}/><i/><b>{enabled?"On":"Off"}</b></label></article>})}</div>
         </section>
 
+        <section id="integrations" className="admin-section">
+          <div className="admin-section-heading"><div><span>Integrations</span><h2>Printful connection</h2></div><div className="admin-heading-actions"><a className="admin-secondary-button" href="https://www.printful.com/dashboard" target="_blank" rel="noreferrer">Open Printful ↗</a><button className="admin-primary-button" type="button" onClick={handleTestPrintful} disabled={testingPrintful}>{testingPrintful?"Testing...":"Test Connection"}</button></div></div>
+          <div className="admin-settings-form">
+            <label>Token Environment Variable<input value={tokenEnv} readOnly/><small>The secret token remains stored only in Vercel.</small></label>
+            <label>Store ID Environment Variable<input value={storeIdEnv} readOnly/><small>Required when the token has access to multiple Printful stores.</small></label>
+          </div>
+          {printfulConnection&&<div className={printfulConnection.connected?"admin-inline-success":"admin-error"}>{printfulConnection.connected?<><strong>Connected: {printfulConnection.store?.name||"Printful Store"}</strong><span>{printfulConnection.store?.id?`Store ID ${printfulConnection.store.id}`:"Store token verified"}{printfulConnection.store?.type?` · ${printfulConnection.store.type}`:""}</span></>:<><strong>Connection failed</strong><span>{printfulConnection.error}</span></>}</div>}
+          <p>Add or update both variables in Vercel, then redeploy before testing. A store-specific token can work without the Store ID variable.</p>
+        </section>
+
         <section id="settings" className="admin-section">
           <div className="admin-section-heading"><div><span>Settings</span><h2>Company details</h2></div></div>
           <form className="admin-settings-form" onSubmit={handleSaveCompany}>
@@ -114,7 +139,7 @@ export default function AdminCompanyPage() {
           </form>
         </section>
 
-        <section id="products" className="admin-section"><div className="admin-section-heading"><div><span>Products</span><h2>Product catalog</h2></div><div className="admin-heading-actions"><a className="admin-secondary-button" href="https://www.printful.com/dashboard" target="_blank" rel="noreferrer">Open Printful ↗</a><button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>{syncing ? "Syncing..." : "Sync Products"}</button></div></div>{syncMessage && <p>{syncMessage}</p>}{products.length === 0 ? <p>No products synced yet.</p> : <div className="admin-product-list">{products.slice(0,12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}</section>
+        <section id="products" className="admin-section"><div className="admin-section-heading"><div><span>Products</span><h2>Product catalog</h2></div><div className="admin-heading-actions"><button className="admin-secondary-button" type="button" onClick={handleTestPrintful} disabled={testingPrintful}>Test Printful</button><button className="admin-primary-button" onClick={handleSyncProducts} disabled={syncing}>{syncing ? "Syncing..." : "Sync Products"}</button></div></div>{syncMessage && <p>{syncMessage}</p>}{products.length === 0 ? <p>No products synced yet.</p> : <div className="admin-product-list">{products.slice(0,12).map((product) => <article key={product.id} className="admin-product-row"><img src={product.thumbnail || "/placeholder.png"} alt={product.name} /><div><strong>{product.name}</strong><span>{product.collection || "Merchandise"} · {formatPrice(product.price)}</span></div><small>{product.active ? "Active" : "Hidden"}</small><Link href={`/admin/product/${product.id}`}>Manage</Link></article>)}</div>}</section>
         <section className="admin-section admin-danger-zone"><div className="admin-section-heading"><div><span>Danger Zone</span><h2>Delete client</h2></div><button className="admin-danger-button" onClick={handleDeleteCompany} disabled={deleting}>{deleting ? "Deleting..." : "Delete Client"}</button></div>{deleteMessage && <p className="admin-error">{deleteMessage}</p>}</section>
       </section>
     </main>
