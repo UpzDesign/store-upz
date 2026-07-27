@@ -13,6 +13,10 @@ model Company {
   slug             String    @unique
   shortName        String
   logo             String?
+  logoType         String    @default("image")
+  logoText         String?
+  logoTextColor    String?
+  logoFontStyle    String?   @default("sans")
   primaryColor     String
   secondaryColor   String
   heroTitle        String
