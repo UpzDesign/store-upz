@@ -31,33 +31,13 @@ import "./project-workflow.css";
 import "./workflow-final.css";
 import "./review-round.css";
 import "./project-conversation-polish.css";
-import "./project-review-flow.css";
+import "./review-flow-polish.css";
+import "./stage-conversations.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
 import AdminCommandPalette from "@/components/AdminCommandPalette";
 
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  title: "UPZ Store | Branded Merchandise & CRE Packages",
-  description: "Branded merchandise, promotional products, and curated CRE packages by UPZ Design.",
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <body className={montserrat.className}>
-        <Providers>
-          <SiteChrome>{children}</SiteChrome>
-          <AdminCommandPalette />
-          <Cart />
-        </Providers>
-      </body>
-    </html>
-  );
-}
+const montserrat=Montserrat({subsets:["latin"],weight:["400","500","600","700","800","900"],display:"swap"});
+export const metadata:Metadata={title:"UPZ Store | Branded Merchandise & CRE Packages",description:"Branded merchandise, promotional products, and curated CRE packages by UPZ Design."};
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body className={montserrat.className}><Providers><SiteChrome>{children}</SiteChrome><AdminCommandPalette/><Cart/></Providers></body></html>;}
