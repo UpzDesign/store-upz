@@ -65,6 +65,12 @@ async function printfulFetch(path: string, options: PrintfulClientOptions = {}) 
       );
     }
 
+    if (res.status === 403 && message.includes("sync_products")) {
+      throw new Error(
+        "The Printful token is valid but does not have Sync Products permission. Create a token with sync_products/read (or sync_products) access and try again."
+      );
+    }
+
     throw new Error(`Printful API error ${res.status}: ${message}`);
   }
   return res.json();
@@ -73,8 +79,10 @@ async function printfulFetch(path: string, options: PrintfulClientOptions = {}) 
 export async function testPrintfulConnection(options: PrintfulClientOptions = {}) {
   const environment = getPrintfulEnvironmentNames(options.companySlug);
   const configuredStoreId = getStoreId(options);
-  const json = await printfulFetch("/store", options);
-  const store = json?.result || {};
+
+  // Validate against the same resource the app actually syncs. The /store
+  // endpoint requires stores_list/read, which is unnecessary for product sync.
+  await printfulFetch("/store/products?limit=1", options);
 
   return {
     connected: true,
@@ -82,10 +90,10 @@ export async function testPrintfulConnection(options: PrintfulClientOptions = {}
     storeIdEnv: options.accessToken ? null : environment.storeIdEnv,
     configuredStoreId,
     store: {
-      id: store?.id != null ? String(store.id) : configuredStoreId,
-      name: store?.name || store?.store_name || "Connected Printful Store",
-      type: store?.type || null,
-      website: store?.website || null,
+      id: configuredStoreId,
+      name: "Connected Printful Store",
+      type: null,
+      website: null,
     },
   };
 }
