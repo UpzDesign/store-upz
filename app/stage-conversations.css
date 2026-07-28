@@ -126,7 +126,7 @@
   text-transform: uppercase;
 }
 
-/* Admin conversation: history first, composer directly below the latest message. */
+/* Admin conversation: chronological history, then composer beside the newest message. */
 .ops-message-manager {
   display: flex;
   flex-direction: column;
@@ -138,6 +138,9 @@
 
 .ops-message-manager > div {
   order: 1;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 11px;
   margin-top: 0;
   margin-bottom: 12px;
 }
