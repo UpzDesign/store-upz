@@ -33,6 +33,7 @@ import "./review-round.css";
 import "./project-conversation-polish.css";
 import "./review-flow-polish.css";
 import "./stage-conversations.css";
+import "./deliverables.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
