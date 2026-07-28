@@ -113,6 +113,24 @@ export async function POST(
       );
     }
 
+    if (action === "approved") {
+      const existingApproval = await prisma.projectNote.findFirst({
+        where: {
+          projectId: project.id,
+          visibility: "client",
+          body: { startsWith: `[[thread:${update.id};action:approved]]` },
+        },
+        select: { id: true },
+      });
+
+      if (existingApproval) {
+        return NextResponse.json(
+          { error: "This review has already been approved" },
+          { status: 409 }
+        );
+      }
+    }
+
     const author = `${company.shortName || company.name} Client`;
     const storedBody = encodeClientResponse(
       action === "approved" ? "Approved" : message,
