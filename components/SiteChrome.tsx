@@ -8,7 +8,7 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
   const isWorkspace = pathname.startsWith("/admin") || pathname.startsWith("/portal") || pathname === "/login";
   const portalParts = pathname.split("/").filter(Boolean);
   const portalSlug = portalParts[0] === "portal" ? portalParts[1] : null;
-  const showProjectUpdates = Boolean(portalSlug && !pathname.endsWith("/projects"));
+  const showPortalNavigation = Boolean(portalSlug);
 
   return (
     <>
@@ -30,10 +30,18 @@ export default function SiteChrome({ children }: { children: React.ReactNode }) 
         </header>
       )}
 
-      {showProjectUpdates && (
-        <Link className="portal-project-updates-link" href={`/portal/${portalSlug}/projects`}>
-          Project Updates
-        </Link>
+      {showPortalNavigation && (
+        <nav className="portal-workspace-nav" aria-label="Client workspace navigation">
+          <Link className={pathname === `/portal/${portalSlug}` ? "is-active" : ""} href={`/portal/${portalSlug}`}>
+            Portal Home
+          </Link>
+          <Link className={pathname.includes("/projects") ? "is-active" : ""} href={`/portal/${portalSlug}/projects`}>
+            Project Updates
+          </Link>
+          <Link className={pathname.includes("/deliverables") ? "is-active" : ""} href={`/portal/${portalSlug}/deliverables`}>
+            Deliverables
+          </Link>
+        </nav>
       )}
 
       {children}
