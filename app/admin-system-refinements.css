@@ -1,15 +1,241 @@
-/* UPZ Admin Design System — Dashboard Reference Refinements */
-:root{--admin-eyebrow-size:10px;--admin-eyebrow-color:#8a6a00;--admin-kpi-label-size:8px;--admin-header-padding:34px;--admin-control-weight:700}
-.admin-workspace-sidebar nav,.admin-workspace-sidebar nav ul,.admin-workspace-sidebar nav li{list-style:none!important;list-style-type:none!important;padding-inline-start:0!important}.admin-workspace-sidebar nav li::marker,.admin-workspace-sidebar nav a::marker,.admin-workspace-sidebar nav a::after{content:none!important;display:none!important}.admin-workspace-sidebar nav a{background-image:none!important}.admin-workspace-sidebar nav a::before{content:""!important;display:block!important;position:absolute!important;left:0!important;top:9px!important;bottom:9px!important;width:3px!important;height:auto!important;border:0!important;border-radius:0 3px 3px 0!important;background:transparent!important;box-shadow:none!important}.admin-workspace-sidebar nav a.active::before{background:var(--admin-accent)!important}
-.admin-page-frame>:is(main,section,div)[class*="admin"],.admin-page-frame>:is(main,section,div)[class*="project"],.admin-page-frame>:is(main,section,div)[class*="service"],.admin-page-frame>:is(main,section,div)[class*="deliverable"],.admin-page-frame>:is(main,section,div)[class*="engagement"],.admin-page-frame>:is(main,section,div)[class*="operation"]{width:100%!important;max-width:none!important;margin:0!important;box-sizing:border-box!important}
-.admin-page-frame :is(.admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.request-header,.requests-header,.project-os-hero,.project-header,.projects-header,.deliverables-header,.admin-deliverables-wrap>header,.services-header,.service-header,.ops-head,.team-management-hero),.admin-page-frame>main>header:first-child{display:flex!important;flex-direction:row!important;align-items:flex-end!important;justify-content:space-between!important;gap:24px!important;width:100%!important;min-height:0!important;margin:0!important;padding:var(--admin-header-padding)!important;border:1px solid var(--admin-border)!important;border-radius:var(--admin-radius)!important;background:var(--admin-surface)!important;color:var(--admin-text)!important;box-shadow:var(--admin-shadow)!important;text-align:left!important;box-sizing:border-box!important}
-.admin-page-frame :is(.admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.request-header,.requests-header,.project-os-hero,.project-header,.projects-header,.deliverables-header,.admin-deliverables-wrap>header,.services-header,.service-header,.ops-head,.team-management-hero)>:first-child,.admin-page-frame>main>header:first-child>:first-child{min-width:0!important;flex:1 1 auto!important;text-align:left!important}
-.admin-page-frame :is(.admin-eyebrow,.admin-page-eyebrow,.eyebrow,[class*="eyebrow"],.admin-hero>span,.admin-page-header>span,.admin-system-header>span,.project-os-hero>span,.ops-head>span,.team-management-hero>span,.admin-deliverables-wrap>header span){display:block!important;width:auto!important;margin:0 0 12px!important;padding:0!important;border:0!important;background:transparent!important;color:var(--admin-eyebrow-color)!important;font-size:var(--admin-eyebrow-size)!important;line-height:1.2!important;font-weight:900!important;letter-spacing:.10em!important;text-transform:uppercase!important}
-.admin-page-frame :is(.admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.request-header,.requests-header,.project-os-hero,.project-header,.projects-header,.deliverables-header,.admin-deliverables-wrap>header,.services-header,.service-header,.ops-head,.team-management-hero) h1,.admin-page-frame>main>header:first-child h1{margin:0 0 16px!important;color:var(--admin-text)!important;font-size:clamp(34px,4.6vw,62px)!important;line-height:1!important;font-weight:700!important;letter-spacing:-.055em!important;text-align:left!important;text-transform:uppercase!important}
-.admin-page-frame :is(.admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.request-header,.requests-header,.project-os-hero,.project-header,.projects-header,.deliverables-header,.admin-deliverables-wrap>header,.services-header,.service-header,.ops-head,.team-management-hero) p,.admin-page-frame>main>header:first-child p{max-width:680px!important;margin:0!important;color:var(--admin-muted)!important;font-size:14px!important;line-height:1.7!important;font-weight:400!important;letter-spacing:normal!important;text-align:left!important;text-transform:none!important}
-.admin-page-frame :is(.admin-page-header-actions,.admin-header-actions,.admin-section-actions,[class*="header-actions"]){display:flex!important;align-items:center!important;justify-content:flex-end!important;gap:10px!important;flex-wrap:wrap!important}.admin-page-frame :is(.admin-page-header-actions,.admin-header-actions,[class*="header-actions"])>:is(a,button){display:inline-flex!important;align-items:center!important;justify-content:center!important;min-height:42px!important;padding:10px 14px!important;border:1px solid var(--admin-border-strong)!important;border-radius:6px!important;background:#fff!important;color:var(--admin-text)!important;font-size:10px!important;font-weight:900!important;letter-spacing:.07em!important;line-height:1.2!important;text-decoration:none!important;text-transform:uppercase!important;white-space:nowrap!important}.admin-page-frame :is(.admin-page-header-actions,.admin-header-actions,[class*="header-actions"])>:is(a,button):first-child{border-color:var(--admin-accent)!important;background:var(--admin-accent)!important}
-.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,.request-summary,.requests-summary,.project-summary,.project-os-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary){display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:var(--admin-card-gap)!important;margin:0!important}.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,.request-summary,.requests-summary,.project-summary,.project-os-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary)>:is(article,div),.admin-page-frame .admin-stat-card{min-width:0!important;padding:20px!important;border:0!important;border-radius:var(--admin-card-radius)!important;background:#010101!important;color:#fff!important;box-shadow:none!important}.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,.request-summary,.requests-summary,.project-summary,.project-os-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary)>:is(article,div) :is(span,small,label),.admin-page-frame .admin-stat-card :is(span,small,label){display:block!important;margin:0 0 9px!important;color:rgba(255,255,255,.58)!important;font-size:var(--admin-kpi-label-size)!important;line-height:1.25!important;font-weight:900!important;letter-spacing:.09em!important;text-transform:uppercase!important}.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,.request-summary,.requests-summary,.project-summary,.project-os-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary)>:is(article,div)>:is(strong,b),.admin-page-frame .admin-stat-card>:is(strong,b){display:block!important;margin:0!important;color:var(--admin-accent)!important;font-size:30px!important;line-height:1!important;font-weight:700!important;letter-spacing:-.03em!important;text-transform:none!important}
-.admin-page-frame :is(.admin-card,[class$="-card"],.admin-section,.admin-panel,.panel) :is(.admin-eyebrow,.eyebrow,[class*="eyebrow"]){margin-bottom:8px!important;color:var(--admin-eyebrow-color)!important;font-size:var(--admin-eyebrow-size)!important}.admin-page-frame :is(.admin-card,[class$="-card"],.admin-section,.admin-panel,.panel) :is(h2,h3){color:var(--admin-text)!important;font-weight:700!important}.admin-page-frame :is(.admin-card,[class$="-card"]) h3{margin:7px 0 8px!important;font-size:18px!important;line-height:1.25!important;letter-spacing:normal!important;text-transform:none!important}
-.admin-page-frame :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){color:var(--admin-text)!important;font-family:inherit!important;font-size:14px!important;font-weight:var(--admin-control-weight)!important;letter-spacing:normal!important;text-transform:none!important}.admin-page-frame :is(input,textarea)::placeholder{color:rgba(1,1,1,.38)!important;font-weight:500!important;opacity:1!important}.admin-page-frame :is(label,legend){color:var(--admin-text)!important;font-size:10px!important;font-weight:800!important;letter-spacing:.07em!important;text-transform:uppercase!important}.admin-page-frame :is(.service-form,.services-form,[class*="service"] form) :is(label,legend){font-weight:800!important}.admin-page-frame :is(.service-form,.services-form,[class*="service"] form) :is(input,select,textarea){font-weight:700!important}.admin-page-frame :is(.service-form,.services-form,[class*="service"] form) :is(p,small,.help-text,[class*="description"]){font-weight:400!important}
-@media(max-width:980px){.admin-page-frame :is(.admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.request-header,.requests-header,.project-os-hero,.project-header,.projects-header,.deliverables-header,.admin-deliverables-wrap>header,.services-header,.service-header,.ops-head,.team-management-hero),.admin-page-frame>main>header:first-child{flex-direction:column!important;align-items:flex-start!important;padding:26px!important}.admin-page-frame :is(.admin-page-header-actions,.admin-header-actions,[class*="header-actions"]){justify-content:flex-start!important}.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,.request-summary,.requests-summary,.project-summary,.project-os-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary){grid-template-columns:repeat(2,minmax(0,1fr))!important}}
-@media(max-width:640px){.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,.request-summary,.requests-summary,.project-summary,.project-os-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary){grid-template-columns:1fr!important}.admin-page-frame :is(.admin-page-header-actions,.admin-header-actions,[class*="header-actions"])>*{width:100%!important}}
+/* UPZ ADMIN — CANONICAL COMPONENT CONTRACT
+   Loaded last. Pages should opt into shared admin classes; route CSS is reserved
+   for unique widgets such as timelines, boards, uploads, and conversations. */
+
+:root{
+  --admin-font-body:13px;
+  --admin-font-small:10px;
+  --admin-font-label:7px;
+  --admin-font-eyebrow:9px;
+  --admin-font-card-title:16px;
+  --admin-font-section-title:clamp(20px,2vw,28px);
+  --admin-page-flow-gap:18px;
+  --admin-control-weight:700;
+}
+
+/* Shared page flow */
+.admin-page-frame :is(.admin-page-system,.admin-main,.admin-company-detail,.admin-deliverables-wrap,.admin-engagement-shell,.project-os-shell,.ops-page,.team-management-page){
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:var(--admin-page-flow-gap)!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  box-sizing:border-box!important;
+}
+
+/* Dashboard header is the only generic page-header treatment */
+.admin-page-frame :is(.admin-page-header,.admin-hero,.admin-detail-hero,.admin-system-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.project-os-hero,.ops-head,.team-management-hero,.admin-deliverables-wrap>header){
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:flex-end!important;
+  justify-content:space-between!important;
+  gap:28px!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:34px!important;
+  overflow:visible!important;
+  border:1px solid var(--admin-border)!important;
+  border-radius:var(--admin-radius)!important;
+  background:var(--admin-surface)!important;
+  color:var(--admin-text)!important;
+  box-shadow:var(--admin-shadow)!important;
+  text-align:left!important;
+  box-sizing:border-box!important;
+}
+.admin-page-frame :is(.admin-page-header,.admin-hero,.admin-detail-hero,.admin-system-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.project-os-hero,.ops-head,.team-management-hero,.admin-deliverables-wrap>header)>:first-child{
+  flex:1 1 auto!important;
+  min-width:0!important;
+}
+.admin-page-frame :is(.admin-page-header,.admin-hero,.admin-detail-hero,.admin-system-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.project-os-hero,.ops-head,.team-management-hero,.admin-deliverables-wrap>header) h1{
+  max-width:100%!important;
+  margin:0 0 13px!important;
+  overflow:visible!important;
+  color:var(--admin-text)!important;
+  font-size:clamp(32px,4vw,56px)!important;
+  line-height:1.02!important;
+  font-weight:700!important;
+  letter-spacing:-.05em!important;
+  word-break:normal!important;
+  overflow-wrap:normal!important;
+  text-transform:uppercase!important;
+}
+.admin-page-frame :is(.admin-page-header,.admin-hero,.admin-detail-hero,.admin-system-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.project-os-hero,.ops-head,.team-management-hero,.admin-deliverables-wrap>header) p{
+  max-width:650px!important;
+  margin:0!important;
+  color:var(--admin-muted)!important;
+  font-size:var(--admin-font-body)!important;
+  line-height:1.65!important;
+  font-weight:400!important;
+}
+
+/* Shared eyebrow and hierarchy */
+.admin-page-frame :is(.admin-eyebrow,.admin-page-eyebrow,.eyebrow,[class*="eyebrow"]),
+.admin-page-frame .admin-section-heading>div>span,
+.admin-page-frame .admin-section-heading>span{
+  display:block!important;
+  margin:0 0 8px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#806300!important;
+  font-size:var(--admin-font-eyebrow)!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  letter-spacing:.11em!important;
+  text-transform:uppercase!important;
+}
+.admin-page-frame .admin-section-heading{margin-bottom:16px!important}
+.admin-page-frame .admin-section-heading h2,
+.admin-page-frame :is(.admin-section,.admin-panel,.panel)>h2{
+  margin:4px 0 0!important;
+  font-size:var(--admin-font-section-title)!important;
+  line-height:1.06!important;
+  font-weight:700!important;
+  letter-spacing:-.03em!important;
+  text-transform:uppercase!important;
+}
+
+/* Shared stats/highlights */
+.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.project-summary,.project-os-summary,.request-summary,.requests-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary){
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:var(--admin-card-gap)!important;
+  width:100%!important;
+  margin:0!important;
+}
+.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.project-summary,.project-os-summary,.request-summary,.requests-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary)>*,
+.admin-page-frame .admin-stat-card{
+  min-width:0!important;
+  margin:0!important;
+  padding:18px!important;
+  border:0!important;
+  border-radius:var(--admin-card-radius)!important;
+  background:#010101!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.project-summary,.project-os-summary,.request-summary,.requests-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary)>* :is(span,small,label),
+.admin-page-frame .admin-stat-card :is(span,small,label){
+  display:block!important;
+  margin:0 0 7px!important;
+  color:rgba(255,255,255,.56)!important;
+  font-size:var(--admin-font-label)!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+}
+.admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.project-summary,.project-os-summary,.request-summary,.requests-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary)>* :is(strong,b),
+.admin-page-frame .admin-stat-card :is(strong,b){
+  color:var(--admin-accent)!important;
+  font-size:28px!important;
+  line-height:1!important;
+  font-weight:700!important;
+  letter-spacing:-.03em!important;
+}
+
+/* Shared button variants */
+.admin-page-frame :is(button,.admin-btn,.button,[role="button"],a[class*="button"],a[class*="btn"],input[type="submit"],input[type="button"]){
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:40px!important;
+  margin:0!important;
+  padding:10px 14px!important;
+  border:1px solid var(--admin-border-strong)!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  color:var(--admin-text)!important;
+  box-shadow:none!important;
+  font-family:inherit!important;
+  font-size:9px!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  letter-spacing:.075em!important;
+  text-decoration:none!important;
+  text-transform:uppercase!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+}
+.admin-page-frame :is(.admin-primary-button,.admin-button-primary,.admin-btn--yellow,.button_yellow,.primary,.is-primary,button[type="submit"],a.primary,[class*="primary-button"]){border-color:var(--admin-accent)!important;background:var(--admin-accent)!important;color:var(--admin-text)!important}
+.admin-page-frame :is(.admin-btn--black,.button_black,.admin-button-black){border-color:#010101!important;background:#010101!important;color:#fff!important}
+.admin-page-frame :is(.admin-secondary-button,.admin-btn--outline,.button_outline){border-color:var(--admin-border-strong)!important;background:#fff!important;color:var(--admin-text)!important}
+.admin-page-frame :is(.admin-btn--gray,.button_gray,button:disabled,[aria-disabled="true"]){border-color:#d9d9d5!important;background:#e8e8e4!important;color:#858580!important;opacity:1!important;cursor:not-allowed!important}
+.admin-page-frame :is(.admin-btn--danger,.button_danger,.danger,[class*="danger"],[class*="delete"]){border-color:#b42318!important;background:#b42318!important;color:#fff!important}
+
+/* Shared forms and toolbars */
+.admin-page-frame :is(.admin-toolbar,.admin-toolbar-system,[class$="-toolbar"]){display:flex!important;align-items:center!important;gap:10px!important;flex-wrap:wrap!important;width:100%!important;margin:0!important;padding:12px!important;border:1px solid var(--admin-border)!important;border-radius:12px!important;background:var(--admin-surface)!important;box-sizing:border-box!important}
+.admin-page-frame :is(label,legend){font-size:9px!important;font-weight:800!important}
+.admin-page-frame :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){color:var(--admin-text)!important;font-size:var(--admin-font-body)!important;font-weight:var(--admin-control-weight)!important}
+.admin-page-frame :is(input,textarea)::placeholder{color:rgba(1,1,1,.36)!important;font-weight:500!important}
+
+/* Shared tab states */
+.admin-page-frame :is(.admin-tabs,.tabs,[class$="-tabs"],[class*="tabs"]){background:#e8e8e4!important;border-color:var(--admin-border)!important}
+.admin-page-frame :is(.admin-tabs,.tabs,[class$="-tabs"],[class*="tabs"]) :is(button,a){border-color:transparent!important;background:transparent!important;color:rgba(1,1,1,.62)!important}
+.admin-page-frame :is(.admin-tabs,.tabs,[class$="-tabs"],[class*="tabs"]) :is(button.active,a.active,[aria-selected="true"],[data-state="active"]){border-color:#010101!important;background:#010101!important;color:#fff!important}
+.admin-page-frame .service-editor-nav button.active strong{color:#fff!important}
+
+/* Dashboard activity alert */
+.admin-page-frame .admin-action-required{
+  position:relative!important;
+  display:flex!important;
+  flex-direction:row-reverse!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:20px!important;
+  margin:0!important;
+  padding:22px 24px 22px 72px!important;
+  border:1px solid var(--admin-border)!important;
+  border-radius:var(--admin-radius)!important;
+  background:#fff!important;
+  color:var(--admin-text)!important;
+  box-shadow:var(--admin-shadow)!important;
+}
+.admin-page-frame .admin-action-required::before{
+  content:"✉"!important;
+  position:absolute!important;
+  left:24px!important;
+  top:50%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:30px!important;
+  height:30px!important;
+  transform:translateY(-50%)!important;
+  border:2px solid #010101!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#010101!important;
+  font-size:15px!important;
+  line-height:1!important;
+}
+.admin-page-frame .admin-action-required::after{content:none!important;display:none!important}
+
+/* Dense service editor inherits system scale */
+.admin-page-frame .admin-service-editor-page{font-size:12px!important}
+.admin-page-frame .admin-service-editor-page p,
+.admin-page-frame .admin-service-editor-page :is(input,select,textarea){font-size:12px!important}
+.admin-page-frame .admin-service-editor-page h3{font-size:15px!important}
+
+/* Sidebar active state: bar only */
+.admin-workspace-sidebar nav,.admin-workspace-sidebar nav ul,.admin-workspace-sidebar nav li{list-style:none!important;list-style-image:none!important;padding-inline-start:0!important}
+.admin-workspace-sidebar nav li::marker,.admin-workspace-sidebar nav a::marker,.admin-workspace-sidebar nav a::after,.admin-workspace-sidebar nav li::before{content:none!important;display:none!important}
+.admin-workspace-sidebar nav a{background-image:none!important;box-shadow:none!important}
+.admin-workspace-sidebar nav a::before{content:""!important;display:block!important;position:absolute!important;left:0!important;top:9px!important;bottom:9px!important;width:3px!important;height:auto!important;border:0!important;border-radius:0 3px 3px 0!important;background:transparent!important;box-shadow:none!important}
+.admin-workspace-sidebar nav a.active::before{background:var(--admin-accent)!important}
+
+@media(max-width:980px){
+  .admin-page-frame :is(.admin-page-header,.admin-hero,.admin-detail-hero,.admin-system-header,.admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,.project-os-hero,.ops-head,.team-management-hero,.admin-deliverables-wrap>header){flex-direction:column!important;align-items:flex-start!important;padding:26px!important}
+  .admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.project-summary,.project-os-summary,.request-summary,.requests-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary){grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
+@media(max-width:640px){
+  .admin-page-frame :is(.admin-stat-grid,.admin-highlight-grid,.project-summary,.project-os-summary,.request-summary,.requests-summary,.deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,.service-summary,.services-summary){grid-template-columns:1fr!important}
+  .admin-page-frame .admin-action-required{flex-direction:column!important;align-items:flex-start!important;padding:64px 20px 20px!important}
+  .admin-page-frame .admin-action-required::before{top:20px!important;left:20px!important;transform:none!important}
+}
