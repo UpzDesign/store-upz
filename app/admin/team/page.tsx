@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 
 type Project={id:number;title:string;status:string;priority:string;assignedTo?:string|null;dueDate?:string|null;company:{name:string;shortName:string}};
@@ -24,7 +25,8 @@ export default function TeamPage(){
  const members=useMemo(()=>!data?[]:data.members.filter(member=>{const match=`${member.name} ${member.email||""} ${member.role}`.toLowerCase().includes(query.toLowerCase());return match&&(status==="all"||status==="active"&&member.active||status==="inactive"&&!member.active)}),[data,query,status]);
  if(!data)return <main className="team-management-page"><section className="admin-simple-state"><h1>Loading team workspace...</h1></section></main>;
  const active=data.members.filter(m=>m.active).length;const openTasks=data.members.reduce((sum,m)=>sum+m.workload.openTasks,0);const unassignedTasks=data.tasks.filter(t=>!t.assignedTo&&t.status!=="complete");const unassignedProjects=data.projects.filter(p=>!p.assignedTo&&!['complete','completed','archived'].includes(p.status));
- return <main className="team-management-page"><header className="team-management-hero"><div><span>UPZ OPERATIONS</span><h1>Team Management</h1><p>Add contributors, manage access status, review workload, and assign or unassign projects and tasks.</p></div><div className="team-summary"><article><small>Active team</small><strong>{active}</strong></article><article><small>Open assignments</small><strong>{openTasks}</strong></article><article><small>Unassigned tasks</small><strong>{unassignedTasks.length}</strong></article></div></header>
+ return <main className="team-management-page"><header className="team-management-hero admin-system-header"><div><span>UPZ OPERATIONS</span><h1>Team Management</h1><p>Add contributors, manage access status, review workload, and assign or unassign projects and tasks.</p></div><Link href="/admin/operations">Open Operations →</Link></header>
+ <section className="team-summary"><article><small>Active team</small><strong>{active}</strong></article><article><small>Open assignments</small><strong>{openTasks}</strong></article><article><small>Unassigned tasks</small><strong>{unassignedTasks.length}</strong></article></section>
  {message&&<div className="team-alert">{message}</div>}
  <section className="team-create-panel"><div><h2>Add team member</h2><p>The email becomes their contributor login identity.</p></div><form onSubmit={add}><input required placeholder="Full name" value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/><input type="email" required placeholder="Email address" value={form.email} onChange={e=>setForm({...form,email:e.target.value})}/><input required placeholder="Role" value={form.role} onChange={e=>setForm({...form,role:e.target.value})}/><input type="number" min="1" required placeholder="Capacity" value={form.capacity} onChange={e=>setForm({...form,capacity:e.target.value})}/><button disabled={saving}>Add Member</button></form></section>
  <div className="team-toolbar"><input placeholder="Search people..." value={query} onChange={e=>setQuery(e.target.value)}/><nav>{["active","inactive","all"].map(value=><button type="button" key={value} className={status===value?"active":""} onClick={()=>setStatus(value)}>{pretty(value)}</button>)}</nav></div>
