@@ -1,0 +1,443 @@
+/* UPZ ADMIN — FINAL SYSTEM CONTRACT
+   Dashboard is the canonical reference. This file loads last and owns all
+   generic admin presentation. Route CSS may only describe unique widgets. */
+
+:root{
+  --admin-font-body:13px;
+  --admin-font-small:11px;
+  --admin-font-label:8px;
+  --admin-font-eyebrow:9px;
+  --admin-font-card-title:16px;
+  --admin-font-section-title:clamp(22px,2.25vw,30px);
+  --admin-control-weight:700;
+  --admin-space-page:18px;
+}
+
+/* Safe page flow and clipping prevention */
+.admin-workspace-content,
+.admin-page-frame,
+.admin-page-frame > main,
+.admin-page-frame .admin-main,
+.admin-page-frame .project-os-shell,
+.admin-page-frame .admin-deliverables-wrap,
+.admin-page-frame .admin-engagement-shell{
+  min-width:0!important;
+  overflow:visible!important;
+}
+.admin-page-frame .admin-main,
+.admin-page-frame .project-os-shell,
+.admin-page-frame .admin-deliverables-wrap,
+.admin-page-frame .admin-engagement-shell,
+.admin-page-frame .ops-page,
+.admin-page-frame .team-management-page{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:var(--admin-space-page)!important;
+}
+
+/* Sidebar: no bullets, dots, icons or legacy markers; active bar only */
+.admin-workspace-sidebar nav,
+.admin-workspace-sidebar nav ul,
+.admin-workspace-sidebar nav li{
+  list-style:none!important;
+  list-style-image:none!important;
+}
+.admin-workspace-sidebar nav li::marker,
+.admin-workspace-sidebar nav a::marker,
+.admin-workspace-sidebar nav a::after,
+.admin-workspace-sidebar nav li::before{
+  content:none!important;
+  display:none!important;
+}
+.admin-workspace-sidebar nav a{
+  background-image:none!important;
+  box-shadow:none!important;
+}
+.admin-workspace-sidebar nav a::before{
+  content:""!important;
+  display:block!important;
+  position:absolute!important;
+  left:0!important;
+  top:9px!important;
+  bottom:9px!important;
+  width:3px!important;
+  height:auto!important;
+  border:0!important;
+  border-radius:0 3px 3px 0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+}
+.admin-workspace-sidebar nav a.active::before{background:var(--admin-accent)!important}
+
+/* Canonical Dashboard header card */
+.admin-page-frame :is(
+  .admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,
+  .admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,
+  .request-header,.requests-header,.project-os-hero,.project-header,
+  .projects-header,.deliverables-header,.admin-deliverables-wrap>header,
+  .services-header,.service-header,.ops-head,.team-management-hero
+),
+.admin-page-frame > main > header:first-child{
+  display:flex!important;
+  flex-direction:row!important;
+  align-items:flex-end!important;
+  justify-content:space-between!important;
+  gap:28px!important;
+  width:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:32px!important;
+  overflow:visible!important;
+  border:1px solid var(--admin-border)!important;
+  border-radius:var(--admin-radius)!important;
+  background:var(--admin-surface)!important;
+  color:var(--admin-text)!important;
+  box-shadow:var(--admin-shadow)!important;
+  text-align:left!important;
+  box-sizing:border-box!important;
+}
+.admin-page-frame :is(
+  .admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,
+  .admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,
+  .request-header,.requests-header,.project-os-hero,.project-header,
+  .projects-header,.deliverables-header,.admin-deliverables-wrap>header,
+  .services-header,.service-header,.ops-head,.team-management-hero
+)>:first-child{
+  flex:1 1 auto!important;
+  min-width:0!important;
+  text-align:left!important;
+}
+.admin-page-frame :is(
+  .admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,
+  .admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,
+  .request-header,.requests-header,.project-os-hero,.project-header,
+  .projects-header,.deliverables-header,.admin-deliverables-wrap>header,
+  .services-header,.service-header,.ops-head,.team-management-hero
+) h1{
+  max-width:100%!important;
+  margin:0 0 13px!important;
+  overflow:visible!important;
+  color:var(--admin-text)!important;
+  font-size:clamp(32px,4vw,56px)!important;
+  line-height:.98!important;
+  font-weight:700!important;
+  letter-spacing:-.052em!important;
+  overflow-wrap:anywhere!important;
+  text-align:left!important;
+  text-transform:uppercase!important;
+}
+.admin-page-frame :is(
+  .admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,
+  .admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,
+  .request-header,.requests-header,.project-os-hero,.project-header,
+  .projects-header,.deliverables-header,.admin-deliverables-wrap>header,
+  .services-header,.service-header,.ops-head,.team-management-hero
+) p{
+  max-width:650px!important;
+  margin:0!important;
+  color:var(--admin-muted)!important;
+  font-size:var(--admin-font-body)!important;
+  line-height:1.65!important;
+  font-weight:400!important;
+  letter-spacing:normal!important;
+  text-transform:none!important;
+}
+
+/* Eyebrows */
+.admin-page-frame :is(.admin-eyebrow,.admin-page-eyebrow,.eyebrow,[class*="eyebrow"]),
+.admin-page-frame .admin-section-heading>div>span,
+.admin-page-frame .admin-section-heading>span{
+  display:block!important;
+  width:auto!important;
+  margin:0 0 9px!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  color:#836500!important;
+  font-size:var(--admin-font-eyebrow)!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  letter-spacing:.11em!important;
+  text-transform:uppercase!important;
+}
+
+/* Smaller section/card hierarchy */
+.admin-page-frame{font-size:var(--admin-font-body)!important}
+.admin-page-frame p{font-size:var(--admin-font-body)!important}
+.admin-page-frame .admin-section-heading{margin-bottom:18px!important}
+.admin-page-frame .admin-section-heading h2,
+.admin-page-frame :is(.admin-section,.admin-panel,.panel)>h2{
+  margin:5px 0 0!important;
+  font-size:var(--admin-font-section-title)!important;
+  line-height:1.05!important;
+  font-weight:700!important;
+  letter-spacing:-.035em!important;
+  text-transform:uppercase!important;
+}
+.admin-page-frame :is(.admin-card,[class$="-card"]) h3{
+  font-size:var(--admin-font-card-title)!important;
+  line-height:1.25!important;
+}
+.admin-page-frame :is(.admin-card,[class$="-card"]) p{
+  font-size:var(--admin-font-body)!important;
+  line-height:1.6!important;
+  font-weight:400!important;
+}
+
+/* KPI/highlight system: always black with yellow value */
+.admin-page-frame :is(
+  .admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,
+  .request-summary,.requests-summary,.project-summary,.project-os-summary,
+  .deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,
+  .service-summary,.services-summary
+){
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:var(--admin-card-gap)!important;
+  width:100%!important;
+  margin:0!important;
+}
+.admin-page-frame :is(
+  .admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,
+  .request-summary,.requests-summary,.project-summary,.project-os-summary,
+  .deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,
+  .service-summary,.services-summary
+)>*,
+.admin-page-frame .admin-stat-card{
+  min-width:0!important;
+  margin:0!important;
+  padding:18px!important;
+  border:0!important;
+  border-radius:var(--admin-card-radius)!important;
+  background:#010101!important;
+  color:#fff!important;
+  box-shadow:none!important;
+}
+.admin-page-frame :is(
+  .admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,
+  .request-summary,.requests-summary,.project-summary,.project-os-summary,
+  .deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,
+  .service-summary,.services-summary
+)>* :is(span,small,label),
+.admin-page-frame .admin-stat-card :is(span,small,label){
+  display:block!important;
+  margin:0 0 7px!important;
+  color:rgba(255,255,255,.56)!important;
+  font-size:var(--admin-font-label)!important;
+  line-height:1.25!important;
+  font-weight:900!important;
+  letter-spacing:.09em!important;
+  text-transform:uppercase!important;
+}
+.admin-page-frame :is(
+  .admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,
+  .request-summary,.requests-summary,.project-summary,.project-os-summary,
+  .deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,
+  .service-summary,.services-summary
+)>* :is(strong,b),
+.admin-page-frame .admin-stat-card :is(strong,b){
+  color:var(--admin-accent)!important;
+  font-size:28px!important;
+  line-height:1!important;
+  font-weight:700!important;
+  letter-spacing:-.03em!important;
+}
+.project-os-hero + .project-os-summary,
+.project-header + .project-summary,
+.projects-header + .project-summary{
+  margin-top:0!important;
+}
+
+/* Button component system */
+.admin-page-frame :is(
+  button,.admin-btn,.button,[role="button"],a[class*="button"],a[class*="btn"],
+  input[type="submit"],input[type="button"]
+){
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  min-height:40px!important;
+  margin:0!important;
+  padding:10px 14px!important;
+  border:1px solid var(--admin-border-strong)!important;
+  border-radius:6px!important;
+  background:#fff!important;
+  color:var(--admin-text)!important;
+  box-shadow:none!important;
+  font-family:inherit!important;
+  font-size:9px!important;
+  line-height:1.2!important;
+  font-weight:900!important;
+  letter-spacing:.075em!important;
+  text-decoration:none!important;
+  text-transform:uppercase!important;
+  white-space:nowrap!important;
+  cursor:pointer!important;
+}
+/* Primary/default action */
+.admin-page-frame :is(
+  .admin-primary-button,.admin-button-primary,.admin-btn--yellow,.button_yellow,
+  .primary,.is-primary,button[type="submit"],a.primary,[class*="primary-button"]
+){
+  border-color:var(--admin-accent)!important;
+  background:var(--admin-accent)!important;
+  color:var(--admin-text)!important;
+}
+/* Secondary black */
+.admin-page-frame :is(.admin-btn--black,.button_black,.admin-button-black){
+  border-color:#010101!important;
+  background:#010101!important;
+  color:#fff!important;
+}
+/* Outline */
+.admin-page-frame :is(.admin-secondary-button,.admin-btn--outline,.button_outline){
+  border-color:var(--admin-border-strong)!important;
+  background:#fff!important;
+  color:var(--admin-text)!important;
+}
+/* Disabled/gray */
+.admin-page-frame :is(.admin-btn--gray,.button_gray,button:disabled,[aria-disabled="true"]){
+  border-color:#d9d9d5!important;
+  background:#e8e8e4!important;
+  color:#858580!important;
+  opacity:1!important;
+  cursor:not-allowed!important;
+}
+/* Danger */
+.admin-page-frame :is(.admin-btn--danger,.button_danger,.danger,[class*="danger"],[class*="delete"]){
+  border-color:#b42318!important;
+  background:#b42318!important;
+  color:#fff!important;
+}
+.admin-page-frame :is(.admin-page-header-actions,.admin-header-actions,[class*="header-actions"])>:is(a,button):first-child{
+  border-color:var(--admin-accent)!important;
+  background:var(--admin-accent)!important;
+  color:var(--admin-text)!important;
+}
+
+/* Forms */
+.admin-page-frame :is(label,legend){
+  font-size:9px!important;
+  font-weight:800!important;
+}
+.admin-page-frame :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea){
+  color:var(--admin-text)!important;
+  font-size:var(--admin-font-body)!important;
+  font-weight:var(--admin-control-weight)!important;
+}
+.admin-page-frame :is(input,textarea)::placeholder{
+  color:rgba(1,1,1,.36)!important;
+  font-weight:500!important;
+}
+
+/* Tabs: no white-on-white state */
+.admin-page-frame :is(.tabs,[class$="-tabs"],[class*="tabs"]){
+  background:#e8e8e4!important;
+  border-color:var(--admin-border)!important;
+}
+.admin-page-frame :is(.tabs,[class$="-tabs"],[class*="tabs"]) :is(button,a){
+  border-color:transparent!important;
+  background:transparent!important;
+  color:rgba(1,1,1,.62)!important;
+}
+.admin-page-frame :is(.tabs,[class$="-tabs"],[class*="tabs"]) :is(button.active,a.active,[aria-selected="true"],[data-state="active"]){
+  border-color:#010101!important;
+  background:#010101!important;
+  color:#fff!important;
+}
+
+/* Dashboard activity alert: compact, reversed layout, envelope instead of red ! */
+.admin-page-frame .admin-action-required{
+  position:relative!important;
+  display:flex!important;
+  flex-direction:row-reverse!important;
+  align-items:center!important;
+  justify-content:space-between!important;
+  gap:20px!important;
+  margin:0!important;
+  padding:22px 24px 22px 72px!important;
+  border:1px solid var(--admin-border)!important;
+  border-radius:var(--admin-radius)!important;
+  background:#fff!important;
+  color:var(--admin-text)!important;
+  box-shadow:var(--admin-shadow)!important;
+}
+.admin-page-frame .admin-action-required::before{
+  content:"✉"!important;
+  position:absolute!important;
+  left:24px!important;
+  top:50%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:30px!important;
+  height:30px!important;
+  transform:translateY(-50%)!important;
+  border:2px solid #010101!important;
+  border-radius:50%!important;
+  background:#fff!important;
+  color:#010101!important;
+  font-size:15px!important;
+  line-height:1!important;
+  font-weight:900!important;
+}
+.admin-page-frame .admin-action-required::after{content:none!important;display:none!important}
+.admin-page-frame .admin-action-required>div{flex:1 1 auto!important;min-width:0!important}
+.admin-page-frame .admin-action-required h2{margin:4px 0 5px!important;font-size:22px!important}
+.admin-page-frame .admin-action-required p{margin:0!important}
+
+/* Services use the same system at a slightly denser content scale */
+.admin-page-frame :is(.services-page,.service-page,.service-library,.admin-services-page){
+  font-size:12px!important;
+}
+.admin-page-frame :is(.services-page,.service-page,.service-library,.admin-services-page) p,
+.admin-page-frame :is(.services-page,.service-page,.service-library,.admin-services-page) :is(input,select,textarea){
+  font-size:12px!important;
+}
+.admin-page-frame :is(.services-page,.service-page,.service-library,.admin-services-page) h3{
+  font-size:15px!important;
+}
+
+@media(max-width:980px){
+  .admin-page-frame :is(
+    .admin-hero,.admin-detail-hero,.admin-system-header,.admin-page-header,
+    .admin-workspace-header,.admin-engagement-hero,.admin-inbox-header,
+    .request-header,.requests-header,.project-os-hero,.project-header,
+    .projects-header,.deliverables-header,.admin-deliverables-wrap>header,
+    .services-header,.service-header,.ops-head,.team-management-hero
+  ),.admin-page-frame>main>header:first-child{
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    padding:26px!important;
+  }
+  .admin-page-frame :is(
+    .admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,
+    .request-summary,.requests-summary,.project-summary,.project-os-summary,
+    .deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,
+    .service-summary,.services-summary
+  ){
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}
+
+@media(max-width:640px){
+  .admin-page-frame :is(
+    .admin-stat-grid,.admin-highlight-grid,.admin-dashboard-stats,
+    .request-summary,.requests-summary,.project-summary,.project-os-summary,
+    .deliverables-summary,.admin-engagement-stats,.ops-kpis,.team-summary,
+    .service-summary,.services-summary
+  ){
+    grid-template-columns:1fr!important;
+  }
+  .admin-page-frame .admin-action-required{
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    padding:64px 20px 20px!important;
+  }
+  .admin-page-frame .admin-action-required::before{
+    top:20px!important;
+    left:20px!important;
+    transform:none!important;
+  }
+}
