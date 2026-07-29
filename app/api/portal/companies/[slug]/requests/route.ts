@@ -5,13 +5,52 @@ function labelFromKey(key: string) {
   return key.replace(/([a-z0-9])([A-Z])/g, "$1 $2").replace(/[-_]+/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function parseStoredRequest(value?: string | null) {
+  const source = value || "";
+  const marker = "__UPZ_CONTEXT__";
+  const index = source.lastIndexOf(marker);
+  const detailSource = index >= 0 ? source.slice(0, index).trim() : source.trim();
+  let context: Record<string, unknown> = {};
+  if (index >= 0) {
+    try { context = JSON.parse(source.slice(index + marker.length).trim()); } catch {}
+  }
+  const lines = detailSource.split(/\n+/).map((line) => line.trim()).filter(Boolean);
+  const declineLine = lines.find((line) => line.toLowerCase().startsWith("decline reason:"));
+  return {
+    engagementName: String(context.engagementName || ""),
+    propertyAddress: String(context.propertyAddress || ""),
+    declineReason: declineLine ? declineLine.replace(/^decline reason:\s*/i, "") : null,
+  };
+}
+
 export async function GET(_request: NextRequest, context: { params: Promise<{ slug: string }> }) {
   try {
     const { slug } = await context.params;
-    const company = await prisma.company.findUnique({ where: { slug } });
+    const company = await prisma.company.findUnique({ where: { slug }, select: { id: true, portalEnabled: true } });
     if (!company || !company.portalEnabled) return NextResponse.json({ error: "Portal not found" }, { status: 404 });
-    const requests = await prisma.marketingRequest.findMany({ where: { companyId: company.id }, orderBy: { createdAt: "desc" }, take: 12 });
-    return NextResponse.json(requests, { headers: { "Cache-Control": "no-store, max-age=0" } });
+    const requests = await prisma.marketingRequest.findMany({
+      where: { companyId: company.id },
+      include: { project: { select: { id: true, status: true, engagementId: true } } },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+    });
+    const result = requests.map((item) => {
+      const parsed = parseStoredRequest(item.description);
+      return {
+        id: item.id,
+        title: item.title,
+        service: item.type,
+        status: item.project ? "approved" : item.status,
+        priority: item.priority,
+        submittedAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        engagementName: parsed.engagementName,
+        propertyAddress: parsed.propertyAddress,
+        declineReason: parsed.declineReason,
+        project: item.project,
+      };
+    });
+    return NextResponse.json(result, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
   } catch (error) {
     console.error("Portal requests API error:", error);
     return NextResponse.json({ error: "Unable to load requests" }, { status: 500 });
@@ -32,7 +71,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ sl
     const propertyAddress = String(body?.propertyAddress || body?.address || "").trim();
     if (!engagementName) return NextResponse.json({ error: "Project or campaign name is required" }, { status: 400 });
 
-    const ignoredKeys = new Set(["projectTitle", "title", "workOrderTitle", "projectName", "engagementName", "engagementId", "propertyName", "priority", "service", "type", "packageId", "packageTitle"]);
+    const ignoredKeys = new Set(["projectTitle", "title", "workOrderTitle", "projectName", "engagementName", "engagementId", "propertyName", "priority", "service", "type", "packageId", "packageTitle", "contactName", "contactEmail"]);
     const answers = body?.answers && typeof body.answers === "object" ? body.answers : body;
     const details = Object.entries(answers || {})
       .filter(([key, value]) => !ignoredKeys.has(key) && value !== "" && value !== null && value !== undefined && value !== false)
@@ -51,7 +90,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ sl
     const priority = String(body?.priority || answers?.priority || "normal");
 
     const marketingRequest = await prisma.marketingRequest.create({
-      data: { companyId: company.id, type: service, title: workOrderTitle, description: description || null, priority, status: "new" },
+      data: { companyId: company.id, type: service, title: workOrderTitle, description: description || null, priority, status: "pending" },
     });
 
     return NextResponse.json({ request: marketingRequest, pendingApproval: true }, { status: 201, headers: { "Cache-Control": "no-store, max-age=0" } });
