@@ -1,16 +1,77 @@
 /* Workspace stabilization pass: shared surfaces, spacing, contrast, and mobile navigation */
-:root{--workspace-bg:#f3f4f6;--workspace-surface:#fff;--workspace-text:#111827;--workspace-muted:#667085;--workspace-border:#dfe3e8;--workspace-radius:14px}
-.admin-workspace-shell{width:100%;min-width:0;grid-template-columns:250px minmax(0,1fr)!important;column-gap:0!important;gap:0!important;align-items:stretch;background:var(--workspace-bg)}
+:root{--workspace-bg:#f3f4f6;--workspace-surface:#fff;--workspace-text:#111827;--workspace-muted:#667085;--workspace-border:#dfe3e8;--workspace-radius:14px;--admin-content-width:1280px;--admin-side-space:48px}
+.admin-workspace-shell{width:100%;min-width:0;grid-template-columns:250px minmax(0,1fr)!important;column-gap:0!important;gap:0!important;align-items:stretch;background:var(--workspace-bg)!important}
 .admin-workspace-sidebar{box-sizing:border-box;margin:0!important}
-.admin-workspace-content{min-width:0;width:100%;margin:0!important;padding:0!important;background:var(--workspace-bg);color:var(--workspace-text);border:0!important}
-.admin-workspace-content>.admin-page,.admin-workspace-content>.ops-page,.admin-workspace-content>main{width:100%!important;max-width:none!important;min-height:100vh;box-sizing:border-box;margin:0!important;background:var(--workspace-bg)!important;color:var(--workspace-text);padding:28px clamp(20px,3vw,42px) 64px!important}
-.admin-workspace-content .project-os-shell,.admin-workspace-content .ops-shell,.admin-workspace-content .admin-shell{width:100%;max-width:1480px;margin:0 auto}
+.admin-workspace-content{min-width:0;width:100%;margin:0!important;padding:0!important;background:var(--workspace-bg)!important;color:var(--workspace-text);border:0!important;overflow-x:hidden}
+
+/* One dashboard-based frame for every admin page. */
+.admin-workspace-content>main:not(.admin-dashboard-page){width:min(var(--admin-content-width),calc(100% - var(--admin-side-space)))!important;max-width:var(--admin-content-width)!important;min-height:100vh;box-sizing:border-box;margin:0 auto!important;padding:28px 0 70px!important;background:transparent!important;color:var(--workspace-text)!important}
+.admin-workspace-content>.admin-dashboard-page{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;background:var(--workspace-bg)!important}
+.admin-workspace-content>.admin-dashboard-page>.admin-main{width:min(var(--admin-content-width),calc(100% - var(--admin-side-space)))!important;max-width:var(--admin-content-width)!important;margin:0 auto!important;padding:28px 0 70px!important}
+.admin-workspace-content>main:not(.admin-dashboard-page)>section:first-child:not(.admin-simple-state),
+.admin-workspace-content>main:not(.admin-dashboard-page)>.admin-deliverables-wrap,
+.admin-workspace-content>main:not(.admin-dashboard-page)>.project-os-shell,
+.admin-workspace-content>main:not(.admin-dashboard-page)>.ops-shell,
+.admin-workspace-content>main:not(.admin-dashboard-page)>.admin-shell{width:100%!important;max-width:none!important;margin:0!important;padding-left:0!important;padding-right:0!important}
+
 .admin-workspace-content h1,.admin-workspace-content h2,.admin-workspace-content h3,.admin-workspace-content h4,.admin-workspace-content strong,.admin-workspace-content label,.admin-workspace-content dt{color:var(--workspace-text)}
 .admin-workspace-content p,.admin-workspace-content dd,.admin-workspace-content small{color:var(--workspace-muted)}
 .admin-workspace-content input,.admin-workspace-content select,.admin-workspace-content textarea{box-sizing:border-box;max-width:100%;min-height:42px;border:1px solid #cfd4dc;border-radius:10px;background:#fff;color:#111827;padding:10px 12px;font:inherit}
 .admin-workspace-content textarea{min-height:110px;resize:vertical}
 .admin-workspace-content button,.admin-workspace-content a{color:inherit}
 .admin-workspace-content .ops-panel,.admin-workspace-content .project-os-panel,.admin-workspace-content .admin-card,.admin-workspace-content .team-member-card{background:#fff;color:#111827;border:1px solid var(--workspace-border);border-radius:var(--workspace-radius);box-shadow:0 10px 30px rgba(15,23,42,.045)}
+
+/* One header-card pattern: copy left, quick link right. */
+.admin-workspace-content .admin-hero,
+.admin-workspace-content .ops-head,
+.admin-workspace-content .team-management-hero,
+.admin-workspace-content .admin-system-header,
+.admin-workspace-content .admin-deliverables-wrap>header,
+.admin-workspace-content>main:not(.admin-dashboard-page)>header:first-child{
+ display:flex!important;align-items:flex-end!important;justify-content:space-between!important;gap:28px!important;text-align:left!important;margin:0 0 24px!important;padding:28px 30px!important;border:1px solid var(--workspace-border)!important;border-radius:16px!important;background:#fff!important;color:var(--workspace-text)!important;box-shadow:0 10px 30px rgba(15,23,42,.045)!important
+}
+.admin-workspace-content .admin-hero>div,
+.admin-workspace-content .ops-head>div,
+.admin-workspace-content .team-management-hero>div,
+.admin-workspace-content .admin-system-header>div,
+.admin-workspace-content .admin-deliverables-wrap>header>div,
+.admin-workspace-content>main:not(.admin-dashboard-page)>header:first-child>div{min-width:0;text-align:left!important}
+.admin-workspace-content .admin-hero span,
+.admin-workspace-content .ops-head span,
+.admin-workspace-content .team-management-hero span,
+.admin-workspace-content .admin-system-header span,
+.admin-workspace-content .admin-deliverables-wrap>header span,
+.admin-workspace-content>main:not(.admin-dashboard-page)>header:first-child span{display:block!important;margin:0 0 8px!important;color:#8b6a00!important;font-size:10px!important;font-weight:900!important;letter-spacing:.1em!important;text-transform:uppercase!important;text-align:left!important}
+.admin-workspace-content .admin-hero h1,
+.admin-workspace-content .ops-head h1,
+.admin-workspace-content .team-management-hero h1,
+.admin-workspace-content .admin-system-header h1,
+.admin-workspace-content .admin-deliverables-wrap>header h1,
+.admin-workspace-content>main:not(.admin-dashboard-page)>header:first-child h1{margin:0 0 10px!important;color:#111827!important;font-size:clamp(36px,5vw,58px)!important;line-height:.98!important;letter-spacing:-.045em!important;text-transform:none!important;text-align:left!important}
+.admin-workspace-content .admin-hero p,
+.admin-workspace-content .ops-head p,
+.admin-workspace-content .team-management-hero p,
+.admin-workspace-content .admin-system-header p,
+.admin-workspace-content .admin-deliverables-wrap>header p,
+.admin-workspace-content>main:not(.admin-dashboard-page)>header:first-child p{max-width:720px!important;margin:0!important;color:var(--workspace-muted)!important;font-size:13px!important;line-height:1.65!important;text-align:left!important}
+.admin-workspace-content .admin-hero>a,
+.admin-workspace-content .ops-head>a,
+.admin-workspace-content .team-management-hero>a,
+.admin-workspace-content .admin-system-header>a,
+.admin-workspace-content .admin-deliverables-wrap>header>a,
+.admin-workspace-content>main:not(.admin-dashboard-page)>header:first-child>a{display:inline-flex!important;align-items:center!important;justify-content:center!important;flex:0 0 auto!important;min-height:44px!important;padding:0 16px!important;border:1px solid #111827!important;border-radius:10px!important;background:#111827!important;color:#fff!important;text-decoration:none!important;font-size:10px!important;font-weight:900!important;letter-spacing:.055em!important;text-transform:uppercase!important;white-space:nowrap!important}
+
+/* Normalize page-specific roots and remove visual gutters. */
+.admin-deliverables-page,.ops-page,.team-management-page,.project-os-page{background:transparent!important;color:var(--workspace-text)!important}
+.admin-deliverables-wrap,.ops-page,.team-management-page,.project-os-shell{width:100%!important;max-width:none!important;margin-left:0!important;margin-right:0!important}
+.admin-deliverables-page{padding:28px 0 70px!important}
+.admin-deliverables-wrap>header{align-items:flex-end!important}
+.ops-page{padding:28px 0 70px!important}
+.team-management-page{padding:28px 0 70px!important}
+.project-os-page{padding:28px 0 70px!important}
+.team-summary{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px!important;margin:0 0 18px!important}
+.team-summary article{background:#fff!important;border:1px solid var(--workspace-border)!important;border-radius:14px!important;padding:16px!important}
+
 .team-form{display:grid!important;grid-template-columns:minmax(170px,1.2fr) minmax(190px,1.3fr) minmax(160px,1fr) 110px auto!important;align-items:end;gap:12px!important;padding:18px!important;margin:0 0 22px!important;background:#fff;border:1px solid var(--workspace-border);border-radius:var(--workspace-radius)}
 .team-form input,.team-form select{width:100%!important;min-width:0!important;height:44px!important;margin:0!important}
 .team-form button{height:44px;white-space:nowrap}
@@ -19,11 +80,11 @@
 .team-edit-form{display:grid;gap:10px}.team-edit-form input{width:100%!important;height:42px!important}
 .team-card-actions{display:flex!important;flex-wrap:wrap;gap:8px!important;margin-top:4px!important}.team-card-actions button{min-height:38px;padding:8px 12px}
 .team-workload,.team-assignment-panel{display:grid;gap:10px}.team-workload article,.team-assignment-panel article{padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#f8fafc}
-.project-os-page{background:var(--workspace-bg)!important}.project-os-shell{display:grid;gap:18px}.project-os-panel{padding:24px!important}
+.project-os-shell{display:grid;gap:18px}.project-os-panel{padding:24px!important}
 .project-os-tabs{overflow-x:auto;scrollbar-width:thin;display:flex!important;gap:6px!important;padding:6px!important;background:#e8ebef;border-radius:12px}.project-os-tabs button{flex:0 0 auto;min-height:40px}
 .stage-message-stack{display:grid;gap:12px;margin-top:14px}.stage-message-group{padding:16px;border:1px solid #dfe3e8;border-left:4px solid var(--project-brand,#111827);border-radius:0 12px 12px 0;background:#fbfcfd}.stage-message-group>header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid #e5e7eb}.stage-message-group>header span{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:#667085}.stage-message-group>header strong{font-size:13px}.stage-message-empty{font-size:12px;color:#98a2b3}.stage-file-indicator{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:6px 9px;border-radius:999px;background:#eef4ff;color:#254f9b!important;font-size:10px;font-weight:800;text-decoration:none}.stage-file-indicator:before{content:"↗"}.project-message-composer{display:grid;gap:12px;margin-top:16px;padding:16px;border:1px solid #dfe3e8;border-radius:12px;background:#fff}.project-message-composer>div{display:flex;flex-wrap:wrap;gap:10px}.project-message-composer select{flex:1 1 190px}.project-message-composer button{flex:0 0 auto}
 .workspace-thread{margin-top:10px;padding:16px;border:1px solid #e1e5ea;border-left:4px solid var(--company-primary,#edbf2d);border-radius:0 12px 12px 0;background:#fff;color:#111827}.workspace-thread p{white-space:pre-wrap;color:#344054!important;font-size:14px!important;line-height:1.65!important}.workspace-thread small{display:block;margin-top:5px;color:#7b8492!important}.workspace-thread-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.workspace-thread-head strong{font-size:11px;text-transform:uppercase;letter-spacing:.06em}.workspace-thread-head span{padding:5px 8px;border-radius:999px;background:#eaf7ef;color:#17693d;font-size:9px;font-weight:900;text-transform:uppercase}.workspace-client-reply{margin:12px 0 0 18px;padding:12px 14px;border-radius:10px;background:#f2f4f7}.workspace-client-reply p{margin:5px 0!important}.workspace-thread-actions{display:flex;gap:8px;margin-top:12px}.workspace-reply-form{display:grid;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid #e5e7eb}.workspace-reply-form>div{display:flex;justify-content:flex-end;gap:8px}
 .client-workspace-page,.client-projects-page{background:#f3f4f6!important;color:#111827}.client-workspace-content{display:grid;gap:18px}.engagement-card,.client-project-card,.client-request-status{background:#fff!important;color:#111827!important;border:1px solid #dfe3e8!important}.client-project-card p,.engagement-card p{color:#667085}.workspace-task-list>article{position:relative}.workspace-stage-thread{margin:10px 0 18px 42px}.workspace-stage-thread>header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.workspace-stage-thread>header span{font-size:9px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;color:#667085}.workspace-files-link.has-files{display:inline-flex;padding:8px 11px;border-radius:999px;background:#eef4ff;color:#254f9b;font-weight:800}
 .client-mobile-nav-button{display:none}
-@media(max-width:980px){.admin-workspace-shell{grid-template-columns:1fr!important}.admin-workspace-sidebar{position:sticky!important;top:0!important;width:100%!important;height:auto!important;z-index:1000;display:flex!important;align-items:center;gap:10px;padding:10px 14px!important;overflow-x:auto;background:#111827}.admin-workspace-sidebar .admin-workspace-brand{flex:0 0 auto}.admin-workspace-sidebar nav{display:flex!important;flex:0 0 auto;gap:6px}.admin-workspace-sidebar nav a{white-space:nowrap;padding:9px 11px!important}.admin-workspace-foot{display:none!important}.admin-workspace-content>.admin-page,.admin-workspace-content>.ops-page,.admin-workspace-content>main{padding:20px 16px 56px!important}.team-form{grid-template-columns:1fr 1fr!important}.team-form button{grid-column:1/-1}.project-os-hero{gap:18px}}
-@media(max-width:700px){.client-workspace-hero .upz-wrap{position:relative}.client-workspace-nav{display:flex!important;overflow-x:auto;gap:8px;padding:10px 0 4px;scroll-snap-type:x mandatory}.client-workspace-nav a{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap;padding:10px 13px!important;border:1px solid rgba(255,255,255,.18);border-radius:999px}.client-workspace-nav a.active{background:var(--company-primary,#edbf2d);color:var(--company-secondary,#111)!important}.client-workspace-nav:after{content:"Swipe for more →";flex:0 0 auto;align-self:center;padding:0 8px;color:rgba(255,255,255,.65);font-size:9px;font-weight:800;text-transform:uppercase}.team-form{grid-template-columns:1fr!important}.team-form button{grid-column:auto}.project-os-panel{padding:18px!important}.project-os-summary{grid-template-columns:1fr 1fr!important}.project-os-tabs{position:sticky;top:58px;z-index:20}.stage-message-group{padding:13px}.workspace-stage-thread{margin-left:18px}.workspace-client-reply{margin-left:0}.client-project-card{padding:18px!important}}
+@media(max-width:980px){:root{--admin-side-space:32px}.admin-workspace-shell{grid-template-columns:1fr!important}.admin-workspace-sidebar{position:sticky!important;top:0!important;width:100%!important;height:auto!important;z-index:1000;display:flex!important;align-items:center;gap:10px;padding:10px 14px!important;overflow-x:auto;background:#111827}.admin-workspace-sidebar .admin-workspace-brand{flex:0 0 auto}.admin-workspace-sidebar nav{display:flex!important;flex:0 0 auto;gap:6px}.admin-workspace-sidebar nav a{white-space:nowrap;padding:9px 11px!important}.admin-workspace-foot{display:none!important}.admin-workspace-content>main:not(.admin-dashboard-page),.admin-workspace-content>.admin-dashboard-page>.admin-main{padding-top:20px!important;padding-bottom:56px!important}.admin-workspace-content .admin-hero,.admin-workspace-content .ops-head,.admin-workspace-content .team-management-hero,.admin-workspace-content .admin-system-header,.admin-workspace-content .admin-deliverables-wrap>header,.admin-workspace-content>main:not(.admin-dashboard-page)>header:first-child{align-items:flex-start!important;flex-direction:column!important;padding:22px!important}.team-form{grid-template-columns:1fr 1fr!important}.team-form button{grid-column:1/-1}.project-os-hero{gap:18px}}
+@media(max-width:700px){:root{--admin-side-space:24px}.client-workspace-hero .upz-wrap{position:relative}.client-workspace-nav{display:flex!important;overflow-x:auto;gap:8px;padding:10px 0 4px;scroll-snap-type:x mandatory}.client-workspace-nav a{flex:0 0 auto;scroll-snap-align:start;white-space:nowrap;padding:10px 13px!important;border:1px solid rgba(255,255,255,.18);border-radius:999px}.client-workspace-nav a.active{background:var(--company-primary,#edbf2d);color:var(--company-secondary,#111)!important}.client-workspace-nav:after{content:"Swipe for more →";flex:0 0 auto;align-self:center;padding:0 8px;color:rgba(255,255,255,.65);font-size:9px;font-weight:800;text-transform:uppercase}.team-form{grid-template-columns:1fr!important}.team-form button{grid-column:auto}.team-summary{grid-template-columns:1fr!important}.project-os-panel{padding:18px!important}.project-os-summary{grid-template-columns:1fr 1fr!important}.project-os-tabs{position:sticky;top:58px;z-index:20}.stage-message-group{padding:13px}.workspace-stage-thread{margin-left:18px}.workspace-client-reply{margin-left:0}.client-project-card{padding:18px!important}}
