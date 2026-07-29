@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-const include = { company: true, request: true, package: true, tasks: { orderBy: [{ sortOrder: "asc" as const }, { createdAt: "asc" as const }] }, notes: { orderBy: { createdAt: "desc" as const } }, activities: { orderBy: { createdAt: "desc" as const }, take: 50 } };
+const include = { company: true, engagement: true, request: true, package: true, tasks: { orderBy: [{ sortOrder: "asc" as const }, { createdAt: "asc" as const }] }, notes: { orderBy: { createdAt: "desc" as const } }, activities: { orderBy: { createdAt: "desc" as const }, take: 100 } };
 
 export async function GET(_r: NextRequest, c: { params: Promise<{ id: string }> }) {
   const { id } = await c.params;
   const project = await prisma.project.findUnique({ where: { id: Number(id) }, include });
-  return project ? NextResponse.json(project) : NextResponse.json({ error: "Project not found" }, { status: 404 });
+  return project ? NextResponse.json(project, { headers: { "Cache-Control": "private, no-store, max-age=0" } }) : NextResponse.json({ error: "Project not found" }, { status: 404 });
 }
 
 export async function PATCH(request: NextRequest, c: { params: Promise<{ id: string }> }) {
@@ -22,7 +22,7 @@ export async function PATCH(request: NextRequest, c: { params: Promise<{ id: str
     if ("clientVisible" in body) data.clientVisible = Boolean(body.clientVisible);
     const changedStatus = data.status && data.status !== existing.status;
     const project = await prisma.project.update({ where: { id: Number(id) }, data: { ...data, ...(changedStatus ? { activities: { create: { type: "status_changed", message: `Status changed from ${existing.status} to ${data.status}`, actor: "UPZ Admin" } } } : {}) }, include });
-    return NextResponse.json(project);
+    return NextResponse.json(project, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
   } catch (error) { console.error(error); return NextResponse.json({ error: "Unable to update project" }, { status: 500 }); }
 }
 
