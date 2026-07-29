@@ -39,6 +39,7 @@ import "./workflow-unification.css";
 import "./workspace-unification.css";
 import "./project-os.css";
 import "./task-engine.css";
+import "./my-tasks.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
