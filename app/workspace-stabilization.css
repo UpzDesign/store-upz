@@ -1,16 +1,16 @@
 /* Workspace stabilization pass: shared surfaces, spacing, contrast, and mobile navigation */
 :root{--workspace-bg:#f3f4f6;--workspace-surface:#fff;--workspace-text:#111827;--workspace-muted:#667085;--workspace-border:#dfe3e8;--workspace-radius:14px}
-.admin-workspace-content{min-width:0;background:var(--workspace-bg);color:var(--workspace-text)}
-.admin-workspace-content>.admin-page,.admin-workspace-content>.ops-page,.admin-workspace-content>main{min-height:100vh;box-sizing:border-box;background:var(--workspace-bg)!important;color:var(--workspace-text);padding:28px clamp(20px,3vw,42px) 64px!important}
-.admin-workspace-content .project-os-shell,.admin-workspace-content .ops-shell,.admin-workspace-content .admin-shell{width:min(1480px,100%);margin:0 auto}
+.admin-workspace-shell{width:100%;min-width:0;grid-template-columns:250px minmax(0,1fr)!important;column-gap:0!important;gap:0!important;align-items:stretch;background:var(--workspace-bg)}
+.admin-workspace-sidebar{box-sizing:border-box;margin:0!important}
+.admin-workspace-content{min-width:0;width:100%;margin:0!important;padding:0!important;background:var(--workspace-bg);color:var(--workspace-text);border:0!important}
+.admin-workspace-content>.admin-page,.admin-workspace-content>.ops-page,.admin-workspace-content>main{width:100%!important;max-width:none!important;min-height:100vh;box-sizing:border-box;margin:0!important;background:var(--workspace-bg)!important;color:var(--workspace-text);padding:28px clamp(20px,3vw,42px) 64px!important}
+.admin-workspace-content .project-os-shell,.admin-workspace-content .ops-shell,.admin-workspace-content .admin-shell{width:100%;max-width:1480px;margin:0 auto}
 .admin-workspace-content h1,.admin-workspace-content h2,.admin-workspace-content h3,.admin-workspace-content h4,.admin-workspace-content strong,.admin-workspace-content label,.admin-workspace-content dt{color:var(--workspace-text)}
 .admin-workspace-content p,.admin-workspace-content dd,.admin-workspace-content small{color:var(--workspace-muted)}
 .admin-workspace-content input,.admin-workspace-content select,.admin-workspace-content textarea{box-sizing:border-box;max-width:100%;min-height:42px;border:1px solid #cfd4dc;border-radius:10px;background:#fff;color:#111827;padding:10px 12px;font:inherit}
 .admin-workspace-content textarea{min-height:110px;resize:vertical}
 .admin-workspace-content button,.admin-workspace-content a{color:inherit}
 .admin-workspace-content .ops-panel,.admin-workspace-content .project-os-panel,.admin-workspace-content .admin-card,.admin-workspace-content .team-member-card{background:#fff;color:#111827;border:1px solid var(--workspace-border);border-radius:var(--workspace-radius);box-shadow:0 10px 30px rgba(15,23,42,.045)}
-.admin-workspace-shell{grid-template-columns:250px minmax(0,1fr)!important;background:var(--workspace-bg)}
-.admin-workspace-content{margin:0!important;padding:0!important}
 .team-form{display:grid!important;grid-template-columns:minmax(170px,1.2fr) minmax(190px,1.3fr) minmax(160px,1fr) 110px auto!important;align-items:end;gap:12px!important;padding:18px!important;margin:0 0 22px!important;background:#fff;border:1px solid var(--workspace-border);border-radius:var(--workspace-radius)}
 .team-form input,.team-form select{width:100%!important;min-width:0!important;height:44px!important;margin:0!important}
 .team-form button{height:44px;white-space:nowrap}
