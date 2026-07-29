@@ -42,6 +42,7 @@ import "./task-engine.css";
 import "./my-tasks.css";
 import "./staff-auth.css";
 import "./team-management.css";
+import "./workspace-stabilization.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
