@@ -78,6 +78,20 @@
 
 .stage-conversation .project-thread-reply {
   margin-left: 12px;
+  padding: 13px 15px;
+  border: 1px solid color-mix(in srgb, var(--company-primary) 42%, #d8dde3);
+  border-left: 4px solid var(--company-primary);
+  border-radius: 0 10px 10px 0;
+  background: linear-gradient(135deg,color-mix(in srgb,var(--company-primary) 16%,#fff),color-mix(in srgb,var(--company-primary) 6%,#fff));
+  color: var(--company-secondary);
+}
+
+.stage-conversation .project-thread-reply :is(p,strong,small,span) {
+  color: var(--company-secondary)!important;
+}
+
+.stage-conversation .project-thread-reply strong {
+  font-weight: 900;
 }
 
 /* Once a review has a final decision, do not continue showing approval controls. */
