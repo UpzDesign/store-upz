@@ -7,7 +7,7 @@ import {AdminEmptyState,AdminHeader,AdminPage,AdminSection,AdminSectionHeader,Ad
 type InboxItem={id:number;inboxKind?:"request"|"client_activity";type:string;title:string;description?:string|null;priority:string;status:string;createdAt:string;company:{name:string;shortName:string;slug:string;logo?:string|null;primaryColor:string};project?:{id:number;status:string}|null};
 const weight:Record<string,number>={urgent:0,high:1,normal:2,low:3};
 function cleanDescription(value?:string|null){const raw=(value||"").split("__UPZ_CONTEXT__")[0].trim();return raw.replace(/\s*Attachments:\s*(?:files?|none|n\/a)?\s*/gi,"\n").replace(/\n{3,}/g,"\n\n").trim()||"Open the item to review details.";}
-function activityLabel(type:string){if(type==="client_approved")return"Client approved";if(type==="client_revision_requested")return"Revision requested";if(type==="client_reply")return"Client replied";return"Client activity";}
+function activityLabel(type:string){if(type==="client_revision_requested")return"Revision requested";if(type==="client_reply")return"Client replied";return"Client activity";}
 
 export default function AdminInboxPage(){
   const[items,setItems]=useState<InboxItem[]>([]);
@@ -16,7 +16,7 @@ export default function AdminInboxPage(){
   useEffect(()=>{fetch("/api/admin/inbox",{cache:"no-store"}).then(res=>{if(!res.ok)throw new Error("Unable to load inbox");return res.json()}).then(data=>setItems(Array.isArray(data)?data:[])).catch(err=>setError(err?.message||"Unable to load inbox")).finally(()=>setLoading(false))},[]);
   const groups=useMemo(()=>({requests:items.filter(item=>item.inboxKind!=="client_activity"),activity:items.filter(item=>item.inboxKind==="client_activity")}),[items]);
   return <AdminPage className="admin-inbox-page">
-    <AdminHeader eyebrow="Action Center" title="Admin Inbox" description="Review new requests, client replies, approvals, and revision requests." actions={<span className="admin-inbox-envelope" aria-label="Inbox"/>}/>
+    <AdminHeader eyebrow="Action Center" title="Admin Inbox" description="Review new requests, client replies, and revision requests."/>
     <AdminStats>
       <StatCard label="Pending Requests" value={groups.requests.length}/>
       <StatCard label="Client Activity" value={groups.activity.length}/>
