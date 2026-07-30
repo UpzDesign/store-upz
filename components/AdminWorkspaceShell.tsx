@@ -7,10 +7,9 @@ import { usePathname } from "next/navigation";
 const NAV = [
   ["Dashboard", "/admin"],
   ["Requests", "/admin/inbox"],
-  ["Projects", "/admin/projects"],
-  ["Deliverables", "/admin/deliverables"],
   ["Operations", "/admin/operations"],
-  ["Engagements", "/admin/engagements"],
+  ["Projects", "/admin/engagements"],
+  ["Deliverables", "/admin/deliverables"],
   ["Companies", "/admin/companies"],
   ["Team", "/admin/team"],
   ["Services", "/admin/services"],
