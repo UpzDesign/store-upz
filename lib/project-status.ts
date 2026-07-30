@@ -3,6 +3,7 @@ export const PROJECT_STAGES = [
   ["in_progress", "In Progress"],
   ["waiting_client", "Waiting Client"],
   ["complete", "Complete"],
+  ["archived", "Archived"],
   ["cancelled", "Cancelled"],
 ] as const;
 
@@ -20,6 +21,8 @@ const aliases: Record<string, ProjectStage> = {
   completed: "complete",
   delivered: "complete",
   closed: "complete",
+  archive: "archived",
+  hidden: "archived",
   canceled: "cancelled",
 };
 
@@ -35,5 +38,13 @@ export function projectStageLabel(value?: string | null) {
 }
 
 export function isProjectComplete(value?: string | null) {
-  return ["complete", "cancelled"].includes(normalizeProjectStage(value));
+  return normalizeProjectStage(value) === "complete";
+}
+
+export function isProjectArchived(value?: string | null) {
+  return ["archived", "cancelled"].includes(normalizeProjectStage(value));
+}
+
+export function isProjectActive(value?: string | null) {
+  return !isProjectComplete(value) && !isProjectArchived(value);
 }
