@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { AdminButton, AdminCard, AdminGrid, AdminHeader, AdminNotice, AdminPage, AdminSection, AdminSectionHeader, AdminStats, StatCard } from "@/components/admin/AdminUI";
+import { AdminButton, AdminCard, AdminGrid, AdminHeader, AdminPage, AdminSection, AdminSectionHeader, AdminStats, StatCard } from "@/components/admin/AdminUI";
 
 const ADMIN_PASSWORD = "upzadmin";
 type AdminCompany = { id:number; portalEnabled:boolean };
@@ -39,7 +39,7 @@ export default function AdminDashboardPage() {
   return <AdminPage className="admin-dashboard-page">
     <AdminHeader eyebrow="UPZ Admin" title="Creative Operations" description="Manage active work, schedules, team assignments, client requests, and the settings that power each portal." actions={<AdminButton href="/admin/operations">Open Operations</AdminButton>}/>
     <AdminStats>{stats.map((stat)=><StatCard key={stat.label} label={stat.label} value={loading?"—":stat.value}/>)}</AdminStats>
-    {totalNew>0&&<AdminNotice><div><span className="admin-ui-eyebrow">New Activity</span><h2>{totalNew} new request{totalNew===1?"":"s"}</h2><p>Review each submission and either approve it as a project or decline it.</p></div><AdminButton href="/admin/inbox">Review Requests</AdminButton></AdminNotice>}
+    {totalNew>0&&<AdminSection className="admin-dashboard-activity"><AdminSectionHeader eyebrow="New Activity" title={`${totalNew} new request${totalNew===1?"":"s"}`} actions={<AdminButton href="/admin/inbox">Review Requests</AdminButton>}/><p>Review each submission and either approve it as a project or decline it.</p></AdminSection>}
     <AdminSection>
       <AdminSectionHeader eyebrow="Request Queue" title="Pending client requests" actions={<AdminButton variant="outline" href="/admin/inbox">View All</AdminButton>}/>
       {inbox.length?<div className="admin-inbox-list">{inbox.slice(0,5).map((item)=><article key={item.id} className={`admin-inbox-row is-new priority-${item.priority}`}><div className="admin-inbox-company"><div><strong>{item.company.shortName}</strong><span>{item.company.name}</span></div></div><div className="admin-inbox-copy"><div className="admin-inbox-tags"><b>New Request</b><em>{item.priority} priority</em><span>{item.type}</span></div><h3>{item.title}</h3><small>{new Date(item.createdAt).toLocaleString()}</small></div><div className="admin-inbox-actions"><AdminButton href={`/admin/request/${item.id}`}>Review</AdminButton></div></article>)}</div>:<p>No requests are waiting for review.</p>}
