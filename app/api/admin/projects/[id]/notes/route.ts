@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { encodeProjectUpdate, type ProjectUpdateKind } from "@/lib/project-messages";
+import { encodeProjectUpdate, encodeStageComment, type ProjectUpdateKind } from "@/lib/project-messages";
 
 const CLIENT_KINDS = new Set<ProjectUpdateKind>(["client_update", "feedback_request", "approval_request"]);
 
@@ -29,9 +29,13 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
     const requestedStageId = Number(body?.stageId || 0);
     const validRequestedStage = project.tasks.find((task) => task.id === requestedStageId)?.id || null;
     const activeStage = project.tasks.find((task) => !["complete", "completed"].includes(task.status))?.id || project.tasks.at(-1)?.id || null;
-    const stageId = isClientUpdate ? validRequestedStage || activeStage : null;
+    const stageId = isClientUpdate ? validRequestedStage || activeStage : validRequestedStage;
 
-    const storedBody = kind ? encodeProjectUpdate(text, kind, stageId) : text;
+    const storedBody = isClientUpdate && kind
+      ? encodeProjectUpdate(text, kind, stageId)
+      : stageId
+        ? encodeStageComment(text, stageId)
+        : text;
     const author = body?.author || "UPZ Admin";
 
     const [note] = await prisma.$transaction([
@@ -39,8 +43,8 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
       prisma.projectActivity.create({
         data: {
           projectId,
-          type: isClientUpdate ? requestedKind : "note_added",
-          message: isClientUpdate ? "Client-visible project update posted" : "Internal note added",
+          type: isClientUpdate ? requestedKind : stageId ? "stage_comment_added" : "note_added",
+          message: isClientUpdate ? "Client-visible project update posted" : stageId ? "Internal work stage comment added" : "Internal note added",
           actor: author,
           metadata: stageId ? JSON.stringify({ stageId }) : undefined,
         },
