@@ -1,0 +1,69 @@
+/* Final client portal stage layout corrections */
+.client-workspace-page .workspace-task-list,
+.client-workspace-page .workspace-stage-group,
+.client-workspace-page .workspace-stage-row,
+.client-workspace-page .workspace-stage-copy {
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  box-sizing: border-box;
+}
+
+.client-workspace-page .workspace-stage-row {
+  grid-template-columns: 38px minmax(0, 1fr) !important;
+  align-items: start;
+}
+
+.client-workspace-page .workspace-stage-copy {
+  display: block !important;
+  flex: 1 1 auto !important;
+}
+
+.client-workspace-page .workspace-stage-copy > strong,
+.client-workspace-page .workspace-stage-copy > p,
+.client-workspace-page .workspace-stage-meta {
+  display: block;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  box-sizing: border-box;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.client-workspace-page .workspace-stage-copy > strong {
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.client-workspace-page .workspace-stage-copy > p {
+  margin: 7px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.client-workspace-page .workspace-stage-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.client-workspace-page .workspace-stage-thread {
+  width: calc(100% - 52px);
+  max-width: none;
+  box-sizing: border-box;
+}
+
+@media (max-width: 760px) {
+  .client-workspace-page .workspace-stage-row {
+    grid-template-columns: 34px minmax(0, 1fr) !important;
+    gap: 11px;
+  }
+
+  .client-workspace-page .workspace-stage-thread {
+    width: calc(100% - 22px);
+  }
+}
