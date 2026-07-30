@@ -23,7 +23,6 @@ function approvalStages(value: unknown, fallback: WorkflowStep[]): WorkflowStep[
       title: String(stage?.title || "").trim(),
       description: String(stage?.description || "").trim(),
       durationDays: Number.isFinite(Number(stage?.durationDays)) ? Math.max(0, Number(stage.durationDays)) : index,
-      clientVisible: stage?.clientVisible === undefined ? true : Boolean(stage.clientVisible),
     }))
     .filter((stage) => stage.title);
   return stages.length ? stages : fallback;
@@ -74,7 +73,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           startDate,
           dueDate,
           clientVisible: body?.clientVisible === undefined ? true : Boolean(body.clientVisible),
-          tasks: { create: workflow.map((step, index) => { const taskDueDate = new Date(startDate); taskDueDate.setDate(taskDueDate.getDate() + (step.durationDays || index)); return { title: step.title, description: step.description, status: index === 0 ? "in_progress" : "todo", priority: source.priority || "normal", dueDate: taskDueDate, sortOrder: index, clientVisible: step.clientVisible === undefined ? true : Boolean(step.clientVisible) }; }) },
+          tasks: { create: workflow.map((step, index) => { const taskDueDate = new Date(startDate); taskDueDate.setDate(taskDueDate.getDate() + (step.durationDays || index)); return { title: step.title, description: step.description, status: index === 0 ? "in_progress" : "todo", priority: source.priority || "normal", dueDate: taskDueDate, sortOrder: index }; }) },
           activities: { create: [
             { type: "project_created", message: `Request approved and converted into a project with ${workflow.length} approved stages.`, actor: "UPZ Admin" },
             { type: "assignment_changed", message: body?.assignedTo ? `Assigned to ${String(body.assignedTo).trim()}.` : "Project created without an assignee.", actor: "UPZ Admin" },
