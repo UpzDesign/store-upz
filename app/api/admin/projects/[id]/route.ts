@@ -29,23 +29,51 @@ export async function GET(_r: NextRequest, c: { params: Promise<{ id: string }> 
 export async function PATCH(request: NextRequest, c: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await c.params;
+    const projectId = Number(id);
     const body = await request.json();
-    const existing = await prisma.project.findUnique({ where: { id: Number(id) } });
+    const existing = await prisma.project.findUnique({ where: { id: projectId } });
     if (!existing) return NextResponse.json({ error: "Project not found" }, { status: 404 });
+
     const data: any = {};
-    for (const key of ["title", "description", "status", "priority", "assignedTo"]) if (key in body) data[key] = body[key] ? String(body[key]).trim() : null;
+    for (const key of ["title", "description", "status", "priority", "assignedTo"]) {
+      if (key in body) data[key] = body[key] ? String(body[key]).trim() : null;
+    }
     for (const key of ["startDate", "dueDate"]) if (key in body) data[key] = body[key] ? new Date(body[key]) : null;
     for (const key of ["budget", "internalCost"]) if (key in body) data[key] = Number.isFinite(Number(body[key])) ? Number(body[key]) : null;
     if ("clientVisible" in body) data.clientVisible = Boolean(body.clientVisible);
+
     const changedStatus = data.status && data.status !== existing.status;
-    const project = await prisma.project.update({
-      where: { id: Number(id) },
-      data: {
-        ...data,
-        ...(changedStatus ? { activities: { create: { type: "status_changed", message: `Status changed from ${existing.status} to ${data.status}`, actor: "UPZ Admin" } } } : {}),
-      },
-      include,
+    const assignmentChanged = "assignedTo" in data && data.assignedTo !== existing.assignedTo;
+
+    const project = await prisma.$transaction(async (tx) => {
+      if (assignmentChanged) {
+        await tx.projectTask.updateMany({
+          where: {
+            projectId,
+            OR: [
+              { assignedTo: null },
+              ...(existing.assignedTo ? [{ assignedTo: existing.assignedTo }] : []),
+            ],
+          },
+          data: { assignedTo: data.assignedTo },
+        });
+      }
+
+      return tx.project.update({
+        where: { id: projectId },
+        data: {
+          ...data,
+          activities: {
+            create: [
+              ...(changedStatus ? [{ type: "status_changed", message: `Status changed from ${existing.status} to ${data.status}`, actor: "UPZ Admin" }] : []),
+              ...(assignmentChanged ? [{ type: "assignment_changed", message: data.assignedTo ? `Assigned to ${data.assignedTo}.` : "Project assignment removed.", actor: "UPZ Admin" }] : []),
+            ],
+          },
+        },
+        include,
+      });
     });
+
     return NextResponse.json(project, { headers: { "Cache-Control": "private, no-store, max-age=0" } });
   } catch (error) {
     console.error(error);
