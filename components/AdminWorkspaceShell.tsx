@@ -55,9 +55,6 @@ export default function AdminWorkspaceShell({ children }: { children: React.Reac
             return <Link key={label} href={href} className={active ? "active" : ""}>{label}</Link>;
           })}
         </nav>
-        <button className="admin-mobile-search" type="button" onClick={openSearch} aria-label="Search admin workspace">
-          <span aria-hidden="true">⌕</span><strong>Search</strong>
-        </button>
         <div className="admin-workspace-foot">
           <button type="button" onClick={openSearch}>Global Search <kbd>⌘K</kbd></button>
           <Link href="/">Open Store</Link>
