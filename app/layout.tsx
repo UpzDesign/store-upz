@@ -44,6 +44,7 @@ import "./admin-shell.css";
 import "./client-stage-width-fix.css";
 import "./portfolio-detail.css";
 import "./admin-design-fixes.css";
+import "./work-management.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
