@@ -15,11 +15,7 @@
   border: 1px solid color-mix(in srgb, var(--company-primary) 24%, #dfe3e8);
   border-left: 4px solid var(--company-primary);
   border-radius: 0 14px 14px 0;
-  background: linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--company-primary) 7%, #fff),
-    #fff 58%
-  );
+  background: linear-gradient(135deg,color-mix(in srgb, var(--company-primary) 7%, #fff),#fff 58%);
   box-shadow: 0 10px 26px rgba(1,1,1,.055);
 }
 
@@ -92,6 +88,208 @@
 
 .stage-conversation .project-thread-reply strong {
   font-weight: 900;
+}
+
+/* Client stage timeline */
+.workspace-task-list {
+  width: 100%;
+  min-width: 0;
+}
+
+.workspace-task-list > h3 {
+  margin: 0 0 16px;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.workspace-stage-group {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  padding-left: 0;
+}
+
+.workspace-stage-group + .workspace-stage-group {
+  margin-top: 8px;
+}
+
+.workspace-stage-group:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 18px;
+  top: 42px;
+  bottom: -14px;
+  width: 2px;
+  background: #e4e6e8;
+}
+
+.workspace-stage-row {
+  display: grid;
+  grid-template-columns: 38px minmax(0,1fr);
+  gap: 14px;
+  align-items: start;
+  width: 100%;
+  min-width: 0;
+  padding: 14px 0;
+  border-bottom: 1px solid #eceef0;
+}
+
+.workspace-stage-row > span {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: #eef0f2;
+  color: #24272b;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.workspace-stage-copy {
+  width: 100%;
+  min-width: 0;
+  padding-top: 1px;
+}
+
+.workspace-stage-copy > strong {
+  display: block;
+  width: 100%;
+  color: #111;
+  font-size: 15px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.workspace-stage-copy > p {
+  width: 100%;
+  max-width: 760px;
+  margin: 6px 0 0;
+  color: #59616b;
+  font-size: 13px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+.workspace-stage-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 9px;
+}
+
+.workspace-stage-meta small,
+.workspace-stage-meta em,
+.workspace-stage-meta a {
+  display: inline-flex;
+  align-items: center;
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .055em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.workspace-stage-meta small {
+  color: #667085;
+}
+
+.workspace-stage-meta em {
+  padding: 6px 8px;
+  border-radius: 999px;
+  background: #eef0f2;
+  color: #353a40;
+}
+
+.workspace-stage-group.complete .workspace-stage-row > span,
+.workspace-stage-group.status-complete .workspace-stage-row > span,
+.workspace-stage-group.status-completed .workspace-stage-row > span {
+  background: var(--company-primary);
+  color: var(--company-secondary);
+}
+
+.workspace-stage-group.status-waiting-client .workspace-stage-row {
+  margin: 4px 0;
+  padding: 15px 14px;
+  border: 1px solid color-mix(in srgb,var(--company-primary) 46%,#d8dde3);
+  border-radius: 12px;
+  background: color-mix(in srgb,var(--company-primary) 12%,#fff);
+}
+
+.workspace-stage-group.status-waiting-client .workspace-stage-row > span {
+  background: var(--company-secondary);
+  color: #fff;
+}
+
+.workspace-stage-group.status-waiting-client .workspace-stage-copy > strong {
+  color: var(--company-secondary);
+}
+
+.workspace-stage-group.status-waiting-client .workspace-stage-meta em {
+  background: var(--company-secondary);
+  color: #fff;
+}
+
+.workspace-stage-thread {
+  width: calc(100% - 52px);
+  min-width: 0;
+  margin: 4px 0 18px 52px;
+  padding: 14px;
+  border: 1px solid color-mix(in srgb,var(--company-primary) 24%,#dfe3e8);
+  border-left: 4px solid var(--company-primary);
+  border-radius: 0 12px 12px 0;
+  background: color-mix(in srgb,var(--company-primary) 5%,#fff);
+}
+
+.workspace-stage-thread > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid rgba(1,1,1,.08);
+}
+
+.workspace-stage-thread > header span {
+  color: var(--company-secondary);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.workspace-stage-thread > header strong {
+  min-width: 0;
+  color: #111;
+  font-size: 12px;
+  line-height: 1.35;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.workspace-stage-thread .workspace-thread {
+  width: 100%;
+  min-width: 0;
+}
+
+.workspace-stage-thread .workspace-thread > p,
+.workspace-stage-thread .workspace-client-reply p {
+  width: 100%;
+  max-width: none;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 /* Once a review has a final decision, do not continue showing approval controls. */
@@ -191,18 +389,30 @@
     width: 14px;
   }
 
-  .stage-conversation-label {
+  .stage-conversation-label,
+  .workspace-stage-thread > header {
     align-items: flex-start;
     flex-direction: column;
     gap: 4px;
   }
 
-  .stage-conversation-label strong {
+  .stage-conversation-label strong,
+  .workspace-stage-thread > header strong {
     text-align: left;
   }
 
   .stage-conversation .project-thread-reply {
     margin-left: 0;
+  }
+
+  .workspace-stage-thread {
+    width: calc(100% - 22px);
+    margin-left: 22px;
+    padding: 12px;
+  }
+
+  .workspace-stage-group.status-waiting-client .workspace-stage-row {
+    padding: 13px 11px;
   }
 
   .project-update-thread:has(.decision-approved) .project-thread-actions::before,
