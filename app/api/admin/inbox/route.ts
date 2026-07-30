@@ -11,7 +11,7 @@ export async function GET() {
         take: 100,
       }),
       prisma.projectActivity.findMany({
-        where: { type: { in: ["client_reply", "client_approved", "client_revision_requested"] } },
+        where: { type: { in: ["client_reply", "client_revision_requested"] } },
         include: { project: { select: { id: true, title: true, status: true, company: { select: { name: true, shortName: true, slug: true, logo: true, primaryColor: true } } } } },
         orderBy: { createdAt: "desc" },
         take: 50,
