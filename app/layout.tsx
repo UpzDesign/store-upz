@@ -44,6 +44,7 @@ import "./team-management.css";
 import "./workspace-stabilization.css";
 import "./admin-design-system.css";
 import "./admin-components.css";
+import "./admin-migrated-pages.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
