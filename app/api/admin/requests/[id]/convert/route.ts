@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getWorkflowTemplate } from "@/lib/workflow-templates";
+import { getWorkflowTemplate, type WorkflowStep } from "@/lib/workflow-templates";
 
 function slugify(value: string) {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80) || `project-${Date.now()}`;
@@ -14,6 +14,19 @@ function parseRequestDescription(value?: string | null) {
   const description = source.slice(0, index).trim() || null;
   try { return { description, context: JSON.parse(source.slice(index + marker.length).trim()) }; }
   catch { return { description: source || null, context: null as any }; }
+}
+
+function approvalStages(value: unknown, fallback: WorkflowStep[]): WorkflowStep[] {
+  if (!Array.isArray(value)) return fallback;
+  const stages = value
+    .map((stage: any, index) => ({
+      title: String(stage?.title || "").trim(),
+      description: String(stage?.description || "").trim(),
+      durationDays: Number.isFinite(Number(stage?.durationDays)) ? Math.max(0, Number(stage.durationDays)) : index,
+      clientVisible: stage?.clientVisible === undefined ? true : Boolean(stage.clientVisible),
+    }))
+    .filter((stage) => stage.title);
+  return stages.length ? stages : fallback;
 }
 
 export async function POST(request: NextRequest, context: { params: Promise<{ id: string }> }) {
@@ -30,7 +43,7 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
 
     const parsed = parseRequestDescription(source.description);
     const requestContext = parsed.context || {};
-    const workflow = getWorkflowTemplate(source.type || source.title);
+    const workflow = approvalStages(body?.stages, getWorkflowTemplate(source.type || source.title));
     const startDate = body?.startDate ? new Date(`${body.startDate}T12:00:00`) : new Date();
     const dueDate = body?.dueDate ? new Date(`${body.dueDate}T12:00:00`) : new Date(startDate.getTime() + Math.max(...workflow.map((step) => step.durationDays || 0), 7) * 86400000);
 
@@ -61,9 +74,9 @@ export async function POST(request: NextRequest, context: { params: Promise<{ id
           startDate,
           dueDate,
           clientVisible: body?.clientVisible === undefined ? true : Boolean(body.clientVisible),
-          tasks: { create: workflow.map((step, index) => { const taskDueDate = new Date(startDate); taskDueDate.setDate(taskDueDate.getDate() + (step.durationDays || index)); return { title: step.title, description: step.description, status: index === 0 ? "in_progress" : "todo", priority: source.priority || "normal", dueDate: taskDueDate, sortOrder: index }; }) },
+          tasks: { create: workflow.map((step, index) => { const taskDueDate = new Date(startDate); taskDueDate.setDate(taskDueDate.getDate() + (step.durationDays || index)); return { title: step.title, description: step.description, status: index === 0 ? "in_progress" : "todo", priority: source.priority || "normal", dueDate: taskDueDate, sortOrder: index, clientVisible: step.clientVisible === undefined ? true : Boolean(step.clientVisible) }; }) },
           activities: { create: [
-            { type: "project_created", message: "Request approved and converted into a project.", actor: "UPZ Admin" },
+            { type: "project_created", message: `Request approved and converted into a project with ${workflow.length} approved stages.`, actor: "UPZ Admin" },
             { type: "assignment_changed", message: body?.assignedTo ? `Assigned to ${String(body.assignedTo).trim()}.` : "Project created without an assignee.", actor: "UPZ Admin" },
             { type: "schedule_created", message: `Project scheduled from ${startDate.toLocaleDateString("en-US")} to ${dueDate.toLocaleDateString("en-US")}.`, actor: "UPZ Admin" },
           ] },
