@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 const WORKFLOW_NAV = [
   ["Dashboard", "/admin"],
@@ -50,12 +50,14 @@ function openSearch() {
 
 export default function AdminWorkspaceShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const panelRef = useRef<HTMLDivElement | null>(null);
   const [ready, setReady] = useState(false);
   const [authenticated, setAuthenticated] = useState(false);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [readIds, setReadIds] = useState<string[]>([]);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
 
   useEffect(() => {
     const sync = () => setAuthenticated(window.localStorage.getItem("upz_admin") === "true");
@@ -114,6 +116,17 @@ export default function AdminWorkspaceShell({ children }: { children: React.Reac
     window.dispatchEvent(new Event("upz-notifications-read"));
   }
 
+  async function signOut() {
+    if (signingOut) return;
+    setSigningOut(true);
+    try { await fetch("/api/staff/logout", { method: "POST" }); } catch {}
+    localStorage.removeItem("upz_admin");
+    localStorage.removeItem("upz_team_member");
+    window.dispatchEvent(new Event("upz-admin-auth"));
+    router.replace("/admin/login");
+    router.refresh();
+  }
+
   if (pathname === "/admin/login") return <>{children}</>;
 
   const showShell = ready && (authenticated || pathname !== "/admin");
@@ -140,6 +153,7 @@ export default function AdminWorkspaceShell({ children }: { children: React.Reac
         <div className="admin-workspace-foot">
           <button type="button" onClick={openSearch}>Global Search <kbd>⌘K</kbd></button>
           <Link href="/">Open Store</Link>
+          <button type="button" className="admin-signout-button" onClick={signOut} disabled={signingOut}>{signingOut ? "Signing Out..." : "Sign Out"}</button>
         </div>
       </aside>
 
