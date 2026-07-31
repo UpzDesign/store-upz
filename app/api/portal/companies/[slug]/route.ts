@@ -29,11 +29,12 @@ export async function GET(_request: NextRequest, context: { params: Promise<{ sl
     const logo = company.logoType === "text"
       ? textLogoDataUri(company.logoText || company.shortName, company.logoTextColor || company.secondaryColor, company.logoFontStyle || "sans")
       : company.logoType === "none" ? "" : company.logo || "/upz-logo.svg";
+    const brandTextColor=company.logoTextColor||company.secondaryColor||"#ffffff";
 
     return NextResponse.json({
       id: String(company.id), slug: company.slug, name: company.name, shortName: company.shortName,
       logo, logoType: company.logoType, logoText: company.logoText, logoTextColor: company.logoTextColor, logoFontStyle: company.logoFontStyle,
-      primaryColor: company.primaryColor, secondaryColor: company.secondaryColor, backgroundColor: "#ffffff", textColor: "#010101",
+      primaryColor: company.primaryColor, secondaryColor: company.secondaryColor, brandTextColor, backgroundColor: "#ffffff", textColor: "#010101",
       heroTitle: company.heroTitle, heroText: company.heroText, modules: defaultModules, featuredActions: getDefaultActions(company),
     });
   } catch (error) {
