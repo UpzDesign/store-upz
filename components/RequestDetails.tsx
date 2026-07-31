@@ -1,12 +1,9 @@
-import Link from "next/link";
-
 type Detail={label:string;value:string};
 
 const LABELS=["Property Address","Coverage","Condition","Access Instructions","Attachments","Notes","Property Type","Square Footage","Floors Spaces","Floors / Spaces","Furnished","Staging Required"];
 
 function cleanSource(value?:string|null){
- const raw=String(value||"").split("__UPZ_CONTEXT__")[0].split("__UPZ_DECISION__")[0].trim();
- return raw;
+ return String(value||"").split("__UPZ_CONTEXT__")[0].split("__UPZ_DECISION__")[0].trim();
 }
 
 export function parseRequestDetails(value?:string|null){
