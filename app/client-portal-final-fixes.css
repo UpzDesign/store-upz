@@ -1,0 +1,209 @@
+/* Final client workspace contrast, density, and project-card refinements */
+.client-workspace-page .engagement-body,
+.client-workspace-page .client-project-body,
+.client-workspace-page .workspace-updates,
+.client-workspace-page .general-project-updates,
+.client-workspace-page .workspace-stage-thread,
+.client-workspace-page .workspace-thread,
+.client-workspace-page .workspace-client-reply {
+  color:#171717;
+}
+
+.client-workspace-page .engagement-body,
+.client-workspace-page .client-project-body {
+  background:#fff !important;
+}
+
+.client-workspace-page .workspace-updates,
+.client-workspace-page .general-project-updates,
+.client-workspace-page .workspace-stage-thread {
+  background:#f7f7f5 !important;
+  border-color:rgba(0,0,0,.09) !important;
+}
+
+.client-workspace-page .workspace-thread {
+  background:#fff !important;
+  border-color:rgba(0,0,0,.09) !important;
+}
+
+.client-workspace-page .workspace-thread :is(strong,p,small,span),
+.client-workspace-page .workspace-stage-thread :is(strong,p,small,span),
+.client-workspace-page .general-project-updates :is(h3,strong,p,small,span) {
+  color:#171717;
+}
+
+.client-workspace-page .workspace-client-reply {
+  background:color-mix(in srgb,var(--company-primary) 6%,#fff) !important;
+  border-left-color:var(--company-primary) !important;
+}
+
+/* Request information stays readable without taking over the workspace. */
+.client-request-details {
+  margin:10px 0 12px !important;
+}
+
+.client-request-details .request-detail-block {
+  gap:8px;
+}
+
+.client-request-details .request-detail-summary {
+  font-size:11px;
+  line-height:1.5;
+}
+
+.client-request-details .request-detail-grid {
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+}
+
+.client-request-details .request-detail-grid>div {
+  min-height:0;
+  padding:8px 9px;
+  border-radius:6px;
+  background:#fafaf8 !important;
+}
+
+.client-request-details .request-detail-grid dt {
+  margin-bottom:3px;
+  font-size:7px;
+}
+
+.client-request-details .request-detail-grid dd {
+  font-size:10px;
+  line-height:1.35;
+}
+
+/* Remove the redundant Assigned work / Projects heading while preserving the action. */
+.client-workspace-page .engagement-body-head {
+  justify-content:flex-end !important;
+  min-height:0;
+  margin-bottom:10px;
+}
+
+.client-workspace-page .engagement-body-head>div {
+  display:none !important;
+}
+
+.client-workspace-page .engagement-body-head>a,
+.client-workspace-page .client-workspace-nav a.active,
+.client-workspace-page .client-workspace-nav a:hover,
+.portal-page .portal-heading-actions .primary,
+.portal-page .portal-actions a:first-child,
+.portal-page .portal-empty-action,
+.portal-page .portal-current-status {
+  color:var(--company-on-primary,#fff) !important;
+}
+
+/* Stage indicators use the configured on-brand text color. */
+.client-workspace-page .workspace-stage-row>span {
+  color:var(--company-on-primary,#fff) !important;
+  background:var(--company-primary) !important;
+  border-color:var(--company-primary) !important;
+}
+
+.client-workspace-page .workspace-stage-group.complete .workspace-stage-row>span,
+.client-workspace-page .workspace-stage-group.status-complete .workspace-stage-row>span,
+.client-workspace-page .workspace-stage-group.status-completed .workspace-stage-row>span {
+  color:var(--company-on-primary,#fff) !important;
+}
+
+/* Make the project overview header easier to scan. */
+.client-workspace-page .engagement-summary {
+  align-items:center;
+}
+
+.client-workspace-page .engagement-summary>div:first-child {
+  min-width:0;
+}
+
+.client-workspace-page .engagement-summary h2 {
+  margin-bottom:4px;
+}
+
+.client-workspace-page .portal-current-status {
+  margin-top:7px;
+}
+
+/* Portal-home active projects: compact operational cards rather than generic tiles. */
+.portal-request-dashboard .portal-request-grid {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+}
+
+.portal-request-dashboard .portal-request-grid>a {
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  min-width:0;
+  min-height:168px;
+  padding:18px;
+  overflow:hidden;
+  border:1px solid rgba(0,0,0,.1);
+  border-left:4px solid var(--company-primary);
+  border-radius:10px;
+  background:linear-gradient(145deg,#fff 0%,#fff 72%,color-mix(in srgb,var(--company-primary) 10%,#fff) 100%);
+  box-shadow:0 10px 26px rgba(0,0,0,.045);
+  color:#171717;
+  text-decoration:none;
+}
+
+.portal-request-dashboard .portal-request-grid>a:hover {
+  transform:translateY(-2px);
+  box-shadow:0 15px 34px rgba(0,0,0,.08);
+}
+
+.portal-request-dashboard .portal-request-grid>a>span:first-child {
+  color:#6d6d68;
+  font-size:8px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+
+.portal-request-dashboard .portal-request-grid h3 {
+  margin:8px 0 10px;
+  color:#171717;
+  font-size:18px;
+  line-height:1.15;
+  overflow-wrap:anywhere;
+}
+
+.portal-request-dashboard .portal-request-grid .portal-current-status {
+  align-self:flex-start;
+  margin:0 0 14px;
+  background:var(--company-primary) !important;
+  color:var(--company-on-primary,#fff) !important;
+}
+
+.portal-request-dashboard .portal-request-grid>a>div {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  width:100%;
+  margin-top:auto;
+  padding-top:12px;
+  border-top:1px solid rgba(0,0,0,.08);
+}
+
+.portal-request-dashboard .portal-request-grid>a>div strong,
+.portal-request-dashboard .portal-request-grid>a>div em {
+  color:#5f5f5a;
+  font-size:9px;
+  font-style:normal;
+  font-weight:800;
+  text-transform:uppercase;
+}
+
+@media(max-width:980px){
+  .portal-request-dashboard .portal-request-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .client-request-details .request-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+@media(max-width:680px){
+  .portal-request-dashboard .portal-request-grid{grid-template-columns:1fr}
+  .client-request-details .request-detail-grid{grid-template-columns:1fr}
+  .client-workspace-page .engagement-body-head{justify-content:stretch}
+  .client-workspace-page .engagement-body-head>a{width:100%;text-align:center}
+}
