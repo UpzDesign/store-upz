@@ -30,7 +30,21 @@ export async function PATCH(request:NextRequest,context:{params:Promise<{id:stri
  if(body.status!==undefined&&existing.status!==task.status)message=task.status==="complete"?`Work stage completed: ${task.title}.`:`Work stage “${task.title}” moved to ${task.status.replaceAll("_"," ")}.`;
  else if(session.role==="admin"&&body.assignedTo!==undefined&&existing.assignedTo!==task.assignedTo)message=task.assignedTo?`Work stage “${task.title}” assigned to ${task.assignedTo}.`:`Work stage assignment removed: ${task.title}.`;
  else if(session.role==="admin"&&body.sortOrder!==undefined)message=`Work stage order updated: ${task.title}.`;
- await prisma.projectActivity.create({data:{projectId:task.projectId,type:"task_updated",message,actor:session.name}});return NextResponse.json(task);
+ await prisma.projectActivity.create({data:{projectId:task.projectId,type:"task_updated",message,actor:session.name}});
+
+ if(task.status==="complete"&&existing.status!=="complete"){
+  const next=await prisma.projectTask.findFirst({where:{projectId:task.projectId,sortOrder:{gt:task.sortOrder}},orderBy:{sortOrder:"asc"}});
+  if(next&&["todo","blocked","pending"].includes(next.status.toLowerCase())){
+   const activated=await prisma.projectTask.update({where:{id:next.id},data:{status:"ready"}});
+   await prisma.projectActivity.create({data:{projectId:task.projectId,type:"stage_ready",message:`Next stage is ready: ${activated.title}.`,actor:"Workflow Automation"}});
+  }
+  const remaining=await prisma.projectTask.count({where:{projectId:task.projectId,status:{notIn:["complete","completed"]}}});
+  if(remaining===0){
+   await prisma.project.update({where:{id:task.projectId},data:{status:"complete"}});
+   await prisma.projectActivity.create({data:{projectId:task.projectId,type:"project_completed",message:"All work stages are complete. The work order was marked complete.",actor:"Workflow Automation"}});
+  }
+ }
+ return NextResponse.json(task);
 }
 
 export async function DELETE(_request:NextRequest,context:{params:Promise<{id:string}>}){
