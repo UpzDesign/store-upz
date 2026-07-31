@@ -6,7 +6,7 @@ type Task={id:number;title:string;status:string;assignedTo?:string|null;dueDate?
 type Project={id:number;title:string;status:string;priority:string;assignedTo?:string|null;startDate?:string|null;dueDate?:string|null;company:{shortName:string;primaryColor?:string|null};engagement?:{name:string}|null;tasks:Task[]};
 type Member={id:number;name:string;role:string;capacity:number;active:number;overdue:number;tasks:number};
 
-type Props={projects:Project[];team:Member[];onOpen:(project:Project)=>void};
+type Props={projects:Project[];team:Member[];onOpen:(project:any)=>void};
 
 const DAY=86400000;
 const startOfDay=(value:Date)=>new Date(value.getFullYear(),value.getMonth(),value.getDate());
