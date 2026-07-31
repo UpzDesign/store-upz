@@ -52,6 +52,7 @@ import "./activity-center.css";
 import "./admin-notifications.css";
 import "./client-projects-final.css";
 import "./admin-system-final.css";
+import "./admin-shell-notifications.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
