@@ -49,6 +49,7 @@ import "./work-management-final.css";
 import "./work-management-timeline.css";
 import "./work-management-phase-one.css";
 import "./activity-center.css";
+import "./admin-notifications.css";
 import "./client-projects-final.css";
 import "./admin-system-final.css";
 import Providers from "./providers";
