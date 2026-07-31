@@ -14,6 +14,7 @@ const NAV = [
   ["Companies", "/admin/companies"],
   ["Team", "/admin/team"],
   ["Services", "/admin/services"],
+  ["Template Library", "/admin/templates"],
 ] as const;
 
 function openSearch() {
