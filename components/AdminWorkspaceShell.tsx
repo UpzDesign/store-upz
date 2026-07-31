@@ -8,7 +8,7 @@ const NAV = [
   ["Dashboard", "/admin"],
   ["Requests", "/admin/inbox"],
   ["Work Management", "/admin/operations"],
-  ["Portfolios", "/admin/engagements"],
+  ["Projects", "/admin/projects"],
   ["Deliverables", "/admin/deliverables"],
   ["Activity Center", "/admin/activity-center"],
   ["Companies", "/admin/companies"],
@@ -52,7 +52,7 @@ export default function AdminWorkspaceShell({ children }: { children: React.Reac
         </Link>
         <nav aria-label="Admin navigation">
           {NAV.map(([label, href]) => {
-            const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+            const active = href === "/admin" ? pathname === "/admin" : pathname.startsWith(href) || (href === "/admin/projects" && pathname.startsWith("/admin/engagements"));
             return <Link key={label} href={href} className={active ? "active" : ""}>{label}</Link>;
           })}
         </nav>
