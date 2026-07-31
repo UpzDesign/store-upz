@@ -1,5 +1,1 @@
-import { redirect } from "next/navigation";
-
-export default function ProjectsPage() {
-  redirect("/admin/operations");
-}
+export { default } from "../engagements/page";
