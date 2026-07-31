@@ -7,14 +7,14 @@ import { usePathname } from "next/navigation";
 const NAV = [
   ["Dashboard", "/admin"],
   ["Requests", "/admin/inbox"],
-  ["Activity Center", "/admin/activity-center"],
   ["Work Management", "/admin/operations"],
-  ["Projects", "/admin/engagements"],
+  ["Portfolios", "/admin/engagements"],
   ["Deliverables", "/admin/deliverables"],
+  ["Activity Center", "/admin/activity-center"],
   ["Companies", "/admin/companies"],
   ["Team", "/admin/team"],
   ["Services", "/admin/services"],
-  ["Template Library", "/admin/templates"],
+  ["Templates", "/admin/templates"],
 ] as const;
 
 function openSearch() {
