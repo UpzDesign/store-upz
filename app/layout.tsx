@@ -49,6 +49,7 @@ import "./work-management-final.css";
 import "./work-management-timeline.css";
 import "./work-management-phase-one.css";
 import "./activity-center.css";
+import "./template-library.css";
 import "./client-projects-final.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
