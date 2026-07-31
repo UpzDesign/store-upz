@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
 
   const tasks = await prisma.projectTask.findMany({
     where: {
-      project: { status: { notIn: ["complete", "completed", "delivered", "closed", "archived", "cancelled", "canceled"] } },
+      project: { status: { notIn: ["archived", "cancelled", "canceled"] } },
       OR: [
         { assignedTo: selected.name },
         { assignedTo: null, project: { assignedTo: selected.name } },
