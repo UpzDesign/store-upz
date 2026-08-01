@@ -60,6 +60,7 @@ import "./production-flow-fixes.css";
 import "./task-management-review.css";
 import "./team-access-profiles.css";
 import "./role-workspace-final.css";
+import "./assigned-work-system.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
