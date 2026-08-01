@@ -1,0 +1,66 @@
+/* Final Phase 1 UI alignment — shared-system overrides only */
+
+/* Work Management drawer: operational controls first, project editing belongs in Overview. */
+.ops-drawer.ops-manager{display:grid;grid-template-columns:minmax(0,1fr);align-content:start;gap:18px;padding-top:76px;overflow-x:hidden}
+.ops-drawer.ops-manager>.ops-manager-form{display:none!important}
+.ops-drawer.ops-manager>small,.ops-drawer.ops-manager>h2{margin:0}
+.ops-drawer.ops-manager>.ops-task-manager{order:1;width:100%;min-width:0;margin:0;padding:20px;border:1px solid var(--aui-border);border-radius:var(--aui-radius);background:#fff;color:#090909;box-sizing:border-box}
+.ops-drawer.ops-manager>.ops-message-manager{order:2;width:100%;min-width:0;margin:0;padding:20px;border:1px solid var(--aui-border);border-radius:var(--aui-radius);background:#fff;color:#090909;box-sizing:border-box}
+.ops-drawer.ops-manager>.ops-manager-footer{order:3;display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;margin:0;padding:18px 0 4px;border-top:1px solid var(--aui-border)}
+.ops-drawer.ops-manager>.ops-manager-footer>a{position:absolute;top:24px;left:24px;display:inline-flex;align-items:center;min-height:40px;padding:10px 14px;border-radius:var(--aui-control-radius);background:var(--aui-accent);color:#090909;font-size:9px;font-weight:800;letter-spacing:.075em;text-transform:uppercase;text-decoration:none}
+.ops-drawer .ops-task-manager>h3,.ops-drawer .ops-message-manager>h3{margin:0 0 14px;font-size:20px;line-height:1.1;text-transform:none}
+.ops-drawer .ops-task-manager>article{grid-template-columns:32px minmax(0,1fr);gap:12px;margin:0 0 10px;padding:14px;border:1px solid var(--aui-border);border-radius:8px;background:#fafaf8}
+.ops-drawer .ops-task-manager>article:last-of-type{margin-bottom:14px}
+.ops-drawer .ops-task-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(140px,.55fr);gap:10px;margin-top:10px}
+.ops-drawer .ops-stage-comment-form,.ops-drawer .ops-add-task-form{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-top:10px}
+.ops-drawer .ops-add-task-form{grid-template-columns:minmax(0,1fr) minmax(190px,.65fr) auto}
+.ops-drawer .ops-message-thread{display:grid;gap:10px;width:100%;max-width:none}
+.ops-drawer .ops-message-thread article{width:100%;max-width:none;margin:0;padding:14px;border-radius:8px;box-sizing:border-box}
+.ops-drawer .ops-message-thread .internal-note{border:1px solid #e4d07a;background:#fff9d7;color:#090909}
+.ops-drawer .ops-message-thread .client-note{border:1px solid color-mix(in srgb,var(--client-color) 55%,#fff);background:color-mix(in srgb,var(--client-color) 10%,#fff);color:#090909}
+.ops-drawer .ops-message-thread .client-note strong{color:var(--client-color)}
+.ops-drawer .ops-message-composer{display:grid;gap:10px;margin-top:14px}
+.ops-drawer .ops-message-composer>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+.ops-drawer .ops-closure-actions{display:flex;gap:10px;margin-left:auto}
+
+/* Team assignment actions should read as real controls. */
+.team-assignment-workspace .team-assignment-row{align-items:center;gap:14px}
+.team-assignment-workspace .team-assignment-row .admin-ui-btn{min-width:92px}
+.team-assignment-workspace .team-assignment-row .admin-ui-btn--outline{border-color:var(--aui-danger)!important;background:#fff!important;color:var(--aui-danger)!important}
+.team-assignment-workspace .team-assignment-row .admin-ui-btn--outline:hover{background:var(--aui-danger)!important;color:#fff!important}
+
+/* Assigned Work uses the admin system, with breathable cards and plain-language work controls. */
+.assigned-work-page{gap:var(--aui-gap)!important}
+.assigned-work-page .assigned-work-list{display:grid;gap:14px}
+.assigned-work-page .assigned-work-card{margin:0!important;border:1px solid var(--aui-border)!important;border-radius:var(--aui-radius)!important;background:#fff!important;color:#090909!important;overflow:hidden;box-shadow:var(--aui-shadow)}
+.assigned-work-page .assigned-work-summary{padding:18px!important;background:#fff!important;color:#090909!important}
+.assigned-work-page .assigned-work-detail{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px!important;padding:18px!important;border-top:1px solid var(--aui-border);background:#f7f7f3!important}
+.assigned-work-page .assigned-work-detail>section{min-width:0;margin:0!important;padding:18px!important;border:1px solid var(--aui-border)!important;border-radius:8px!important;background:#fff!important;color:#090909!important}
+.assigned-work-page .assigned-work-detail :is(h2,h3,p,strong,span,small,label){color:inherit}
+.assigned-work-page .assigned-work-detail form{display:grid;gap:9px}
+.assigned-work-page .assigned-work-detail button:not(.admin-ui-btn){border:1px solid var(--aui-border);background:#fff;color:#090909}
+
+/* Client forms should be easy to scan, not uniformly bold. */
+.portal-page form :is(input,select,textarea),.portal-request-page form :is(input,select,textarea){font-weight:400!important}
+.portal-page form label,.portal-request-page form label{font-weight:600!important}
+.portal-page form :is(p,small),.portal-request-page form :is(p,small){font-weight:400!important}
+
+/* Client project cards always respect the configured on-brand text color. */
+.portal-request-grid>a{background:var(--company-primary)!important;color:var(--company-on-primary)!important;border-color:color-mix(in srgb,var(--company-primary) 72%,#000)!important}
+.portal-request-grid>a :is(span,h3,p,strong,em,b,small){color:var(--company-on-primary)!important}
+.portal-request-grid>a>div{border-color:color-mix(in srgb,var(--company-on-primary) 28%,transparent)!important}
+.portal-request-grid>a:after{color:var(--company-on-primary)!important}
+.portal-current-status{background:color-mix(in srgb,var(--company-on-primary) 14%,transparent)!important;color:var(--company-on-primary)!important}
+
+/* Project/client review toggles: no black-on-black states. */
+.portal-page :is(.project-workspace-tabs,.project-review-tabs,.portal-project-tabs) button,
+.portal-page :is(.project-workspace-tabs,.project-review-tabs,.portal-project-tabs) a{background:#fff!important;color:#090909!important}
+.portal-page :is(.project-workspace-tabs,.project-review-tabs,.portal-project-tabs) .active,
+.portal-page :is(.project-workspace-tabs,.project-review-tabs,.portal-project-tabs) [aria-selected=true]{background:var(--company-primary)!important;color:var(--company-on-primary)!important}
+
+@media(max-width:780px){
+ .ops-drawer .ops-task-controls,.ops-drawer .ops-stage-comment-form,.ops-drawer .ops-add-task-form,.ops-drawer .ops-message-composer>div{grid-template-columns:1fr}
+ .ops-drawer.ops-manager>.ops-manager-footer{align-items:stretch;flex-direction:column}
+ .ops-drawer .ops-closure-actions{width:100%;margin-left:0}.ops-drawer .ops-closure-actions>*{flex:1}
+ .assigned-work-page .assigned-work-detail{grid-template-columns:1fr}
+}
