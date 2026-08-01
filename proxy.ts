@@ -34,8 +34,16 @@ export async function proxy(request: NextRequest) {
     const allowedPage = path === "/admin/my-tasks";
     const allowedApi = path.startsWith("/api/admin/my-tasks") || path.startsWith("/api/admin/tasks/");
     if (!allowedPage && !allowedApi) {
-      if (isAdminApi) return NextResponse.json({ error: "Admin access required" }, { status: 403 });
+      if (isAdminApi) return NextResponse.json({ error: "Assigned-work access only" }, { status: 403 });
       return NextResponse.redirect(new URL("/admin/my-tasks", request.url));
+    }
+  }
+  if (user.role === "manager") {
+    const allowedPage = path === "/admin" || path === "/admin/operations" || path === "/admin/my-tasks" || path.startsWith("/admin/project/") || path.startsWith("/admin/projects");
+    const allowedApi = path.startsWith("/api/admin/operations") || path.startsWith("/api/admin/my-tasks") || path.startsWith("/api/admin/projects/") || path.startsWith("/api/admin/tasks/") || path.startsWith("/api/admin/work-orders/");
+    if (!allowedPage && !allowedApi) {
+      if (isAdminApi) return NextResponse.json({ error: "Project manager access only" }, { status: 403 });
+      return NextResponse.redirect(new URL("/admin/operations", request.url));
     }
   }
   return NextResponse.next();
