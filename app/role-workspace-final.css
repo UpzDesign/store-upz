@@ -1,0 +1,23 @@
+.contributor-workspace-shell .admin-workspace-content{background:var(--admin-page-bg,#f4f4f1)}
+.contributor-workspace-shell .admin-page-frame{width:100%;max-width:none;padding:24px clamp(18px,3vw,42px) 48px}
+.contributor-workspace-shell .my-tasks-page{min-height:auto;background:transparent;padding:0}
+.contributor-workspace-shell .my-tasks-shell{width:100%;max-width:none;margin:0;display:grid;gap:18px}
+.contributor-workspace-shell .my-tasks-hero{margin:0;background:#111;color:#fff;border-radius:18px;padding:28px;box-shadow:none}
+.contributor-workspace-shell .my-tasks-hero h1,.contributor-workspace-shell .my-tasks-hero p,.contributor-workspace-shell .my-tasks-hero span{color:inherit}
+.contributor-workspace-shell .my-tasks-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin:0}
+.contributor-workspace-shell .my-tasks-kpis article{min-width:0;background:#fff;color:#111;border:1px solid #deded8;border-radius:14px;padding:16px 18px}
+.contributor-workspace-shell .my-tasks-kpis article span,.contributor-workspace-shell .my-tasks-kpis article strong{color:#111}
+.contributor-workspace-shell .my-tasks-toolbar{margin:0;background:#fff;border:1px solid #deded8;border-radius:14px;padding:12px;gap:12px}
+.contributor-workspace-shell .my-task-list{display:grid;gap:16px;margin:0}
+.contributor-workspace-shell .my-task-list>article{margin:0!important;background:#fff!important;color:#111!important;border:1px solid #deded8;border-left:5px solid var(--task-brand,#edbf2d);border-radius:16px;overflow:hidden;box-shadow:none}
+.contributor-workspace-shell .my-task-summary{width:100%;background:#fff!important;color:#111!important;padding:18px;gap:16px}
+.contributor-workspace-shell .my-task-summary h2,.contributor-workspace-shell .my-task-summary p,.contributor-workspace-shell .my-task-summary small,.contributor-workspace-shell .my-task-meta strong,.contributor-workspace-shell .my-task-meta span{color:#111!important}
+.contributor-workspace-shell .my-task-detail{background:#f7f7f3!important;color:#111!important;border-top:1px solid #deded8;padding:18px;display:grid;gap:14px}
+.contributor-workspace-shell .my-task-detail>section{background:#fff!important;color:#111!important;border:1px solid #deded8;border-radius:14px;padding:16px;min-width:0}
+.contributor-workspace-shell .my-task-detail h3,.contributor-workspace-shell .my-task-detail p,.contributor-workspace-shell .my-task-detail small,.contributor-workspace-shell .my-task-detail span{color:#111}
+.contributor-workspace-shell .my-task-detail input,.contributor-workspace-shell .my-task-detail textarea,.contributor-workspace-shell .my-task-detail select{background:#fff;color:#111;border:1px solid #cfcfc8}
+.project-review-toggle,.project-workspace-toggle,.project-main-toggle,.project-view-toggle,.project-tabs,.project-tab-list,.portal-project-toggle{background:#fff!important;color:#111!important}
+.project-review-toggle button,.project-workspace-toggle button,.project-main-toggle button,.project-view-toggle button,.project-tabs button,.project-tab-list button,.portal-project-toggle button{color:#111!important}
+.project-review-toggle button.active,.project-workspace-toggle button.active,.project-main-toggle button.active,.project-view-toggle button.active,.project-tabs button.active,.project-tab-list button.active,.portal-project-toggle button.active{background:#111!important;color:#fff!important}
+@media(max-width:900px){.contributor-workspace-shell .my-tasks-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.contributor-workspace-shell .admin-page-frame{padding:18px}}
+@media(max-width:560px){.contributor-workspace-shell .my-tasks-kpis{grid-template-columns:1fr}.contributor-workspace-shell .my-tasks-hero{padding:22px}.contributor-workspace-shell .my-task-summary{align-items:flex-start;flex-direction:column}}
