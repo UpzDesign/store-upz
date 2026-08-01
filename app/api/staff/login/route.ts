@@ -3,11 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { createStaffToken, STAFF_COOKIE, type StaffRole } from "@/lib/staff-auth";
 
 function accessFromRole(role:string):{role:StaffRole;specialty:string}{
-  const value=role.toLowerCase();
+  const value=String(role||"").toLowerCase();
   if(value.includes("project manager")||value.includes("account manager")||value.includes("production manager"))return{role:"manager",specialty:"Project Manager"};
-  if(value.includes("photo"))return{role:"contributor",specialty:"Photography"};
-  if(value.includes("install")||value.includes("sign"))return{role:"contributor",specialty:"Sign Installation"};
-  return{role:"contributor",specialty:role||"Production"};
+  if(value.includes("external")||value.includes("vendor"))return{role:"contributor",specialty:"External Vendor"};
+  return{role:"contributor",specialty:"Internal Team"};
 }
 
 export async function POST(request: NextRequest) {
