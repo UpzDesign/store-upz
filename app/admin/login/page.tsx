@@ -29,11 +29,16 @@ function StaffLoginForm() {
         return;
       }
 
+      localStorage.setItem("upz_staff_role",data.session.role);
+      localStorage.setItem("upz_staff_name",data.session.name||"");
+      localStorage.setItem("upz_staff_specialty",data.session.specialty||"");
+      if(data.session.role==="admin")localStorage.setItem("upz_admin","true");else localStorage.removeItem("upz_admin");
+      window.dispatchEvent(new Event("upz-admin-auth"));
       const next = search.get("next");
       router.replace(
         next && next.startsWith("/admin")
           ? next
-          : data.session.role === "admin"
+          : data.session.role === "admin" || data.session.role === "manager"
             ? "/admin/operations"
             : "/admin/my-tasks"
       );
@@ -51,16 +56,10 @@ function StaffLoginForm() {
         <img src="/upz-logo.svg" alt="UPZ Design" />
         <span>UPZ TEAM ACCESS</span>
         <h1>Staff workspace</h1>
-        <p>Sign in to access assigned projects, production tasks, and internal operations.</p>
+        <p>Sign in to access the projects, stages, files, and operations permitted for your role.</p>
         <form onSubmit={submit}>
-          <label>
-            Email
-            <input type="email" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} required />
-          </label>
-          <label>
-            Password
-            <input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required />
-          </label>
+          <label>Email<input type="email" autoComplete="username" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+          <label>Password<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} required /></label>
           {error && <div className="staff-login-error">{error}</div>}
           <button disabled={loading}>{loading ? "Signing in..." : "Sign In"}</button>
         </form>
@@ -71,9 +70,5 @@ function StaffLoginForm() {
 }
 
 export default function StaffLoginPage() {
-  return (
-    <Suspense fallback={<main className="staff-login-page"><section className="staff-login-card"><p>Loading staff access...</p></section></main>}>
-      <StaffLoginForm />
-    </Suspense>
-  );
+  return <Suspense fallback={<main className="staff-login-page"><section className="staff-login-card"><p>Loading staff access...</p></section></main>}><StaffLoginForm /></Suspense>;
 }
