@@ -1,6 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createStaffToken, STAFF_COOKIE } from "@/lib/staff-auth";
+import { createStaffToken, STAFF_COOKIE, type StaffRole } from "@/lib/staff-auth";
+
+function accessFromRole(role:string):{role:StaffRole;specialty:string}{
+  const value=role.toLowerCase();
+  if(value.includes("project manager")||value.includes("account manager")||value.includes("production manager"))return{role:"manager",specialty:"Project Manager"};
+  if(value.includes("photo"))return{role:"contributor",specialty:"Photography"};
+  if(value.includes("install")||value.includes("sign"))return{role:"contributor",specialty:"Sign Installation"};
+  return{role:"contributor",specialty:role||"Production"};
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -11,15 +19,16 @@ export async function POST(request: NextRequest) {
 
     const adminEmail = String(process.env.ADMIN_EMAIL || "admin@upzdesign.com").trim().toLowerCase();
     const adminPassword = String(process.env.ADMIN_PASSWORD || "");
-    let session: { role: "admin" | "contributor"; name: string; email?: string } | null = null;
+    let session: { role: StaffRole; name: string; email?: string; specialty?: string } | null = null;
 
     if (email === adminEmail && adminPassword && password === adminPassword) {
-      session = { role: "admin", name: "UPZ Admin", email };
+      session = { role: "admin", name: "UPZ Admin", email, specialty:"Administrator" };
     } else {
       const staffPassword = String(process.env.STAFF_PASSWORD || "");
       const member = await prisma.teamMember.findFirst({ where: { email, active: true } });
       if (member && staffPassword && password === staffPassword) {
-        session = { role: "contributor", name: member.name, email: member.email || email };
+        const access=accessFromRole(member.role);
+        session = { role:access.role, specialty:access.specialty, name: member.name, email: member.email || email };
       }
     }
 
