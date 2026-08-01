@@ -2,7 +2,8 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 export const STAFF_COOKIE = "upz_staff_session";
-export type StaffSession = { role: "admin" | "contributor"; name: string; email?: string; exp: number };
+export type StaffRole = "admin" | "manager" | "contributor";
+export type StaffSession = { role: StaffRole; name: string; email?: string; specialty?: string; exp: number };
 
 const secret = () => process.env.AUTH_SECRET || process.env.ADMIN_PASSWORD || "upz-local-development-secret-change-me";
 const encode = (value: string) => Buffer.from(value).toString("base64url");
@@ -36,7 +37,7 @@ export async function getStaffSession() {
   return verifyStaffToken(store.get(STAFF_COOKIE)?.value);
 }
 
-export async function requireStaffSession(roles: StaffSession["role"][] = ["admin", "contributor"]) {
+export async function requireStaffSession(roles: StaffSession["role"][] = ["admin", "manager", "contributor"]) {
   const session = await getStaffSession();
   if (!session || !roles.includes(session.role)) return null;
   return session;
