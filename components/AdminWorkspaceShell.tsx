@@ -5,8 +5,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const ADMIN_WORKFLOW_NAV = [["Dashboard","/admin"],["Requests","/admin/inbox"],["Work Management","/admin/operations"],["Projects","/admin/projects"],["Deliverables","/admin/deliverables"],["Activity Center","/admin/activity-center"]] as const;
-const MANAGER_NAV = [["Work Management","/admin/operations"],["Managed Projects","/admin/projects"],["My Assigned Stages","/admin/my-tasks"]] as const;
-const CONTRIBUTOR_NAV = [["My Assigned Stages","/admin/my-tasks"]] as const;
+const MANAGER_NAV = [["Work Management","/admin/operations"],["Managed Projects","/admin/projects"],["My Work","/admin/my-tasks"]] as const;
+const CONTRIBUTOR_NAV = [["My Work","/admin/my-tasks"]] as const;
 const SETTINGS_NAV = [["Companies","/admin/companies"],["Team","/admin/team"],["Services","/admin/services"],["Workflow Templates","/admin/templates"]] as const;
 const READ_KEY="upz_admin_read_notifications";
 type NotificationItem={id:string;kind:string;category:string;title:string;message:string;priority?:string;href:string;actionable:boolean;createdAt:string;company:{shortName:string;primaryColor?:string|null}};
