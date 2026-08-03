@@ -7,7 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 const ADMIN_WORKFLOW_NAV = [["Dashboard","/admin"],["Requests","/admin/inbox"],["Work Management","/admin/operations"],["Projects","/admin/projects"],["Deliverables","/admin/deliverables"],["Activity Center","/admin/activity-center"]] as const;
 const MANAGER_NAV = [["Work Management","/admin/operations"],["Managed Projects","/admin/projects"],["My Work","/admin/my-tasks"]] as const;
 const CONTRIBUTOR_NAV = [["My Work","/admin/my-tasks"]] as const;
-const SETTINGS_NAV = [["Companies","/admin/companies"],["Team","/admin/team"],["Services","/admin/services"],["Workflow Templates","/admin/templates"]] as const;
+const SETTINGS_NAV = [["Companies","/admin/companies"],["Team","/admin/team"],["Services","/admin/services"],["Workflow Templates","/admin/templates"],["Business Rules","/admin/business-rules"]] as const;
 const READ_KEY="upz_admin_read_notifications";
 type NotificationItem={id:string;kind:string;category:string;title:string;message:string;priority?:string;href:string;actionable:boolean;createdAt:string;company:{shortName:string;primaryColor?:string|null}};
 const important=(item:NotificationItem)=>item.actionable||item.category==="Requests"||item.category==="Attention"||item.kind==="client_response"||["assignment_changed","stage_ready","project_completed","asset_handoff"].includes(item.kind)||item.priority==="urgent"||item.priority==="high";
