@@ -61,6 +61,7 @@ model Service {
   active            Boolean          @default(true)
   sortOrder         Int              @default(0)
   estimatedDuration String?
+  pricingRules      Json?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   fields            ServiceField[]
