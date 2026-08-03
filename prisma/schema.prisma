@@ -301,7 +301,26 @@ model ProjectTask {
   checklist TaskChecklistItem[]
   comments TaskComment[]
   attachments TaskAttachment[]
+  expenses StageExpense[]
   @@index([projectId, status])
+}
+
+model StageExpense {
+  id Int @id @default(autoincrement())
+  taskId Int
+  description String
+  category String @default("Other")
+  vendor String?
+  estimatedCost Float @default(0)
+  actualCost Float @default(0)
+  expenseDate DateTime?
+  receiptUrl String?
+  note String?
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  task ProjectTask @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  @@index([taskId, expenseDate])
 }
 
 model TaskChecklistItem {
