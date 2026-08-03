@@ -13,10 +13,7 @@ async function session(request: NextRequest) {
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
   const signed = new Uint8Array(await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload)));
   if (bytesToBase64Url(signed) !== supplied) return null;
-  try {
-    const value = decode(payload);
-    return value.exp > Math.floor(Date.now() / 1000) ? value : null;
-  } catch { return null; }
+  try { const value = decode(payload); return value.exp > Math.floor(Date.now() / 1000) ? value : null; } catch { return null; }
 }
 
 export async function proxy(request: NextRequest) {
@@ -39,8 +36,8 @@ export async function proxy(request: NextRequest) {
     }
   }
   if (user.role === "manager") {
-    const allowedPage = path === "/admin" || path === "/admin/operations" || path === "/admin/my-tasks" || path.startsWith("/admin/project/") || path.startsWith("/admin/projects");
-    const allowedApi = path.startsWith("/api/admin/operations") || path.startsWith("/api/admin/my-tasks") || path.startsWith("/api/admin/projects/") || path.startsWith("/api/admin/tasks/") || path.startsWith("/api/admin/work-orders/");
+    const allowedPage = path === "/admin" || path === "/admin/operations" || path === "/admin/my-tasks" || path.startsWith("/admin/project/") || path.startsWith("/admin/projects") || path.startsWith("/admin/properties");
+    const allowedApi = path.startsWith("/api/admin/operations") || path.startsWith("/api/admin/my-tasks") || path.startsWith("/api/admin/projects/") || path.startsWith("/api/admin/engagements") || path.startsWith("/api/admin/tasks/") || path.startsWith("/api/admin/work-orders/");
     if (!allowedPage && !allowedApi) {
       if (isAdminApi) return NextResponse.json({ error: "Project manager access only" }, { status: 403 });
       return NextResponse.redirect(new URL("/admin/operations", request.url));
