@@ -63,6 +63,7 @@ import "./role-workspace-final.css";
 import "./assigned-work-system.css";
 import "./final-phase-one-ui.css";
 import "./business-rules.css";
+import "./property-intelligence.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
