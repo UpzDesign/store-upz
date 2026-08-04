@@ -5,6 +5,7 @@ import "./portal-responsive.css";
 import "./portal-requests.css";
 import "./request-composer.css";
 import "./portal-request-cart.css";
+import "./client-request-system.css";
 import "./admin.css";
 import "./admin-forms.css";
 import "./admin-requests.css";
