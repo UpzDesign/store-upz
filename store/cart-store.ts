@@ -52,6 +52,25 @@ const normalizeItem = (item: CartItem): CartItem => ({
   companyName: item.companyName ? String(item.companyName) : undefined,
 });
 
+const sameItem = (left: CartItem, right: CartItem) =>
+  left.id === right.id &&
+  left.itemType === right.itemType &&
+  left.productId === right.productId &&
+  left.name === right.name &&
+  left.variant === right.variant &&
+  left.image === right.image &&
+  Number(left.price || 0) === Number(right.price || 0) &&
+  left.quantity === right.quantity &&
+  left.packageId === right.packageId &&
+  left.packageName === right.packageName &&
+  left.companySlug === right.companySlug &&
+  left.companyName === right.companyName &&
+  left.projectName === right.projectName &&
+  left.address === right.address &&
+  left.serviceSlug === right.serviceSlug &&
+  left.requestSummary === right.requestSummary &&
+  left.requestHref === right.requestHref;
+
 const mergeItems = (currentItems: CartItem[], newItems: CartItem[]) => newItems.reduce<CartItem[]>((items, item) => {
   const safeItem = normalizeItem(item);
   const existing = items.find(i => i.id === safeItem.id && (i.companySlug || "") === (safeItem.companySlug || ""));
@@ -68,11 +87,11 @@ export const useCartStore = create<CartState>((set) => ({
   addItems: items => set(state => { const updated = mergeItems(state.items, items); saveCart(updated); return { items: updated, isOpen: true }; }),
   replaceItem: item => set(state => {
     const safeItem = normalizeItem(item);
-    const exists = state.items.some(current => current.id === safeItem.id && (current.companySlug || "") === (safeItem.companySlug || ""));
-    const updated = exists
-      ? state.items.map(current => current.id === safeItem.id && (current.companySlug || "") === (safeItem.companySlug || "") ? safeItem : current)
-      : [...state.items, safeItem];
-    return updateAndSave(updated);
+    const index = state.items.findIndex(existing => existing.id === safeItem.id && (existing.companySlug || "") === (safeItem.companySlug || ""));
+    if (index >= 0 && sameItem(state.items[index], safeItem)) return state;
+    const updated = index >= 0 ? state.items.map((existing, itemIndex) => itemIndex === index ? safeItem : existing) : [...state.items, safeItem];
+    saveCart(updated);
+    return { items: updated };
   }),
   updateQuantity: (id, quantity) => set(state => updateAndSave(state.items.map(item => item.id === id ? { ...item, quantity: Math.max(0, Number(quantity || 0)) } : item).filter(item => item.quantity > 0))),
   increaseQuantity: id => set(state => updateAndSave(state.items.map(item => item.id === id && item.itemType !== "service_request" ? { ...item, quantity: item.quantity + 1 } : item))),
