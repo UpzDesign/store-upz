@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import "./globals.css";
 import "./portal-responsive.css";
 import "./portal-requests.css";
+import "./request-composer.css";
 import "./admin.css";
 import "./admin-forms.css";
 import "./admin-requests.css";
