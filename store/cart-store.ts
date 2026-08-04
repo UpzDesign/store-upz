@@ -25,6 +25,7 @@ type CartState = {
   isOpen: boolean;
   addItem: (item: CartItem) => void;
   addItems: (items: CartItem[]) => void;
+  replaceItem: (item: CartItem) => void;
   updateQuantity: (id: string, quantity: number) => void;
   increaseQuantity: (id: string) => void;
   decreaseQuantity: (id: string) => void;
@@ -65,6 +66,14 @@ export const useCartStore = create<CartState>((set) => ({
   openCart: () => set({ isOpen: true }), closeCart: () => set({ isOpen: false }),
   addItem: item => set(state => { const updated = mergeItems(state.items, [item]); saveCart(updated); return { items: updated }; }),
   addItems: items => set(state => { const updated = mergeItems(state.items, items); saveCart(updated); return { items: updated, isOpen: true }; }),
+  replaceItem: item => set(state => {
+    const safeItem = normalizeItem(item);
+    const exists = state.items.some(current => current.id === safeItem.id && (current.companySlug || "") === (safeItem.companySlug || ""));
+    const updated = exists
+      ? state.items.map(current => current.id === safeItem.id && (current.companySlug || "") === (safeItem.companySlug || "") ? safeItem : current)
+      : [...state.items, safeItem];
+    return updateAndSave(updated);
+  }),
   updateQuantity: (id, quantity) => set(state => updateAndSave(state.items.map(item => item.id === id ? { ...item, quantity: Math.max(0, Number(quantity || 0)) } : item).filter(item => item.quantity > 0))),
   increaseQuantity: id => set(state => updateAndSave(state.items.map(item => item.id === id && item.itemType !== "service_request" ? { ...item, quantity: item.quantity + 1 } : item))),
   decreaseQuantity: id => set(state => updateAndSave(state.items.map(item => item.id === id && item.itemType !== "service_request" ? { ...item, quantity: item.quantity - 1 } : item).filter(item => item.quantity > 0))),
