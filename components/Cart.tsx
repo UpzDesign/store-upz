@@ -49,7 +49,8 @@ export default function Cart() {
     if(!services.length){setError("Add at least one service before submitting.");return}
     setSubmittingRequests(true);setError("");
     try{
-      const requestGroup={projectName:draft.projectName,propertyType:draft.propertyType,address:draft.address,space:draft.space,services:services.map(service=>service.slug)};
+      const groupId=typeof crypto!=="undefined"&&"randomUUID" in crypto?crypto.randomUUID():`request-${Date.now()}`;
+      const requestGroup={id:groupId,projectName:draft.projectName,propertyType:draft.propertyType,address:draft.address,space:draft.space,services:services.map(service=>({slug:service.slug,name:service.name}))};
       for(const service of services){
         const location=draft.space||draft.propertyType;
         const workOrderTitle=`${draft.projectName} · ${location} · ${service.name}`;
