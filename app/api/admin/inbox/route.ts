@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 const COMPLETE = new Set(["complete", "completed", "delivered", "cancelled", "archived"]);
 const taskComplete = (status?: string | null) => COMPLETE.has(String(status || "").toLowerCase());
 const projectClosed = (status?: string | null) => COMPLETE.has(String(status || "").toLowerCase());
+function requestContext(value?:string|null){const source=value||"",marker="__UPZ_CONTEXT__",index=source.lastIndexOf(marker);if(index<0)return{} as any;try{return JSON.parse(source.slice(index+marker.length).trim())}catch{return{} as any}}
 
 export async function GET() {
   try {
@@ -39,7 +40,12 @@ export async function GET() {
       }),
     ]);
 
-    const requestItems = requests.map((item) => ({ ...item, inboxKind: "request" as const, kind: "request", actionLabel: "Review Request", href: `/admin/request/${item.id}` }));
+    const grouped=new Map<string,typeof requests>();
+    const standalone:typeof requests=[];
+    for(const item of requests){const context=requestContext(item.description),groupId=String(context?.requestGroup?.id||"").trim();if(!groupId){standalone.push(item);continue}const list=grouped.get(groupId)||[];list.push(item);grouped.set(groupId,list)}
+    const groupedItems=Array.from(grouped.entries()).map(([groupId,list])=>{const first=list[0],context=requestContext(first.description),group=context?.requestGroup||{},services=Array.isArray(group.services)?group.services.map((service:any)=>String(service?.name||service?.slug||"")).filter(Boolean):list.map(item=>item.type);return{id:first.id,sourceIds:list.map(item=>item.id),requestGroupId:groupId,inboxKind:"request" as const,kind:"request_group",type:"multi_service_request",title:`${String(group.projectName||context.portfolioName||"Project request")} · ${list.length} service${list.length===1?"":"s"}`,description:`${String(group.address||context.propertyAddress||"")}${services.length?`\n${services.join(" · ")}`:""}`.trim(),priority:list.some(item=>item.priority==="urgent")?"urgent":list.some(item=>item.priority==="high")?"high":first.priority,status:"pending",createdAt:first.createdAt,company:first.company,project:null,actionLabel:"Review Services",href:`/admin/request/${first.id}`}});
+    const standaloneItems=standalone.map((item) => ({ ...item, inboxKind: "request" as const, kind: "request", actionLabel: "Review Request", href: `/admin/request/${item.id}` }));
+    const requestItems=[...groupedItems,...standaloneItems];
     const activityItems = activities.filter(item => !projectClosed(item.project.status)).map((item) => ({
       id: 1000000000 + item.id,
       sourceId: item.id,
