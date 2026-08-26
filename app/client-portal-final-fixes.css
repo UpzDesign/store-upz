@@ -196,6 +196,35 @@
   text-transform:uppercase;
 }
 
+/* Brand card logos: preserve natural proportions while allowing wide wordmarks to use the full card width. */
+.portal-brand-card {
+  min-width:0;
+}
+
+.portal-brand-card .company-logo-text,
+.portal-brand-card > span,
+.portal-brand-card img {
+  display:block;
+  margin-left:0;
+  margin-right:auto;
+}
+
+.portal-brand-card img {
+  width:auto !important;
+  max-width:100% !important;
+  height:auto !important;
+  max-height:86px;
+  object-fit:contain;
+  object-position:left center;
+  flex-shrink:0;
+}
+
+.portal-brand-card .company-logo-text {
+  max-width:100%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
 @media(max-width:980px){
   .portal-request-dashboard .portal-request-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
   .client-request-details .request-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -206,4 +235,5 @@
   .client-request-details .request-detail-grid{grid-template-columns:1fr}
   .client-workspace-page .engagement-body-head{justify-content:stretch}
   .client-workspace-page .engagement-body-head>a{width:100%;text-align:center}
+  .portal-brand-card img{max-height:72px}
 }
