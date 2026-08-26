@@ -69,6 +69,7 @@ import "./business-rules.css";
 import "./property-intelligence.css";
 import "./financials.css";
 import "./operations-dashboard.css";
+import "./company-brand-admin.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
