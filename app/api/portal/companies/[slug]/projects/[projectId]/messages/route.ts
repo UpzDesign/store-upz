@@ -65,7 +65,7 @@ export async function POST(
         clientVisible: true,
         status: { notIn: ["cancelled"] },
       },
-      select: { id: true, title: true },
+      select: { id: true, title: true, status: true, requestId: true, tasks: { orderBy: { sortOrder: "asc" }, select: { id: true, status: true }, take: 1 } },
     });
 
     if (!project) {
@@ -138,7 +138,12 @@ export async function POST(
       action
     );
 
-    const [note] = await prisma.$transaction([
+    const isWorkAuthorization =
+      action === "approved" &&
+      project.status === "waiting_client" &&
+      /work authorization requested/i.test(parsedUpdate.body);
+
+    const transaction = [
       prisma.projectNote.create({
         data: {
           projectId: project.id,
@@ -150,17 +155,38 @@ export async function POST(
       prisma.projectActivity.create({
         data: {
           projectId: project.id,
-          type: `client_${action}`,
-          message: `Client ${action.replaceAll("_", " ")} on ${project.title}`,
+          type: isWorkAuthorization ? "work_authorized" : `client_${action}`,
+          message: isWorkAuthorization
+            ? `Client authorized production on ${project.title}`
+            : `Client ${action.replaceAll("_", " ")} on ${project.title}`,
           actor: author,
           metadata: JSON.stringify({ updateId: update.id }),
         },
       }),
       prisma.project.update({
         where: { id: project.id },
-        data: { updatedAt: new Date() },
+        data: isWorkAuthorization ? { status: "in_progress", updatedAt: new Date() } : { updatedAt: new Date() },
       }),
-    ]);
+    ];
+
+    if (isWorkAuthorization && project.tasks[0]) {
+      transaction.push(
+        prisma.projectTask.update({
+          where: { id: project.tasks[0].id },
+          data: { status: "in_progress" },
+        }) as any
+      );
+    }
+    if (isWorkAuthorization && project.requestId) {
+      transaction.push(
+        prisma.marketingRequest.update({
+          where: { id: project.requestId },
+          data: { status: "approved" },
+        }) as any
+      );
+    }
+
+    const [note] = await prisma.$transaction(transaction as any);
 
     const parsed = parseProjectMessage(note.body);
 
