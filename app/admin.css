@@ -58,3 +58,30 @@
 .request-review-page .request-stage-actions :is(button,a){min-height:30px!important;padding:5px 9px!important;font-size:10px!important;border-radius:6px!important}
 @media(max-width:850px){.request-review-page .request-stage-row.approval-stage-card{grid-template-columns:54px minmax(0,1fr)!important}.request-review-page .request-stage-actions{grid-column:2;flex-direction:row!important;flex-wrap:wrap}}
 @media(max-width:550px){.request-review-page .request-stage-fields{grid-template-columns:1fr!important}.request-review-page .request-stage-fields>*{grid-column:1/-1!important}.request-review-page .request-stage-row.approval-stage-card{gap:9px!important;padding:10px!important}}
+
+/* Survey admin: readable body text, compact fee approval, consistent spacing */
+.request-review-page .request-workflow-step>summary+*{margin-top:15px!important}
+.request-review-page .request-workflow-step>summary+.request-setup-grid{margin-top:16px!important}
+.request-review-page .request-workflow-step>summary~.admin-section{margin-top:16px!important}
+.request-review-page .request-workflow-step :is(p,small){color:#505b65}
+.request-review-page .request-workflow-step p{font-size:12px;line-height:1.6}
+.request-review-page .request-workflow-step :is(.admin-form-surface,.admin-survey-proposal){color:#29323a}
+.request-review-page .admin-survey-proposal{display:grid;gap:12px;padding:16px;border:1px solid #e3e6e8;border-radius:10px;background:#fbfcfd}
+.request-review-page .admin-survey-proposal p{margin:0!important;color:#4f5962!important}
+.request-review-page .admin-survey-proposal .admin-form-grid{margin:0!important}
+.request-review-page .admin-survey-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0 4px}
+.request-review-page .admin-survey-actions :is(button,a){margin:0!important;min-height:36px}
+.request-review-page .admin-survey-actions small{font-size:11px;color:#64707a}
+.request-review-page .admin-survey-fee-summary{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0;padding:15px 17px;border:1px solid #d6e4dc;border-radius:10px;background:#f1f8f3}
+.request-review-page .admin-survey-fee-summary>span{font-size:9px;letter-spacing:.1em;font-weight:850;color:#52745d}
+.request-review-page .admin-survey-fee-summary>strong{font-size:19px;color:#243a2b}
+.request-review-page .admin-survey-fee-summary>em{padding:6px 9px;border-radius:20px;background:#dceee1;color:#306f45;font-size:10px;font-weight:800;font-style:normal}
+.request-review-page .admin-survey-fee-summary>small{flex-basis:100%;font-size:11px;color:#56695b}
+.request-review-page .admin-survey-feedback{margin:12px 0!important;padding:10px 13px;border:1px solid #c8e2d0;border-radius:8px;background:#edf8f0;color:#28633b!important;font-size:12px!important;font-weight:650}
+.request-review-page .admin-survey-deliverable{display:grid;gap:12px;margin-top:20px!important;padding:18px!important;border:1px solid #dce3e7!important;border-radius:10px;background:#fafbfc!important;color:#273039!important}
+.request-review-page .admin-survey-deliverable :is(p,small){margin:0!important;color:#52606a!important;line-height:1.6!important}
+.request-review-page .admin-survey-deliverable .admin-form-section-heading{margin:0 0 4px!important}
+.request-review-page .admin-survey-deliverable .admin-survey-actions{margin:5px 0!important}
+.request-review-page .admin-survey-deliverable a{color:#345f78}
+.request-review-page .request-workflow-step :is(.admin-form-grid,.admin-form-surface)+button{margin-top:14px!important}
+.request-review-page .request-workflow-step :is(input,select,textarea){color:#28313a}
