@@ -41,7 +41,7 @@ export async function GET(_request:NextRequest,context:{params:Promise<{id:strin
     const expansionSummary=suggestions.length?["PROTOTYPE MARKETING EXPANSION",...suggestions.map(suggestion=>`${suggestion.service}: ${suggestion.reason} Generated content: ${suggestion.generatedContent.join(", ")}.`)].join("\n\n"):"";
     const displayDescription=[groupSummary,base,expansionSummary,`__UPZ_CONTEXT__${JSON.stringify(itemContext)}`].filter(Boolean).join("\n\n");
 
-    return NextResponse.json({...item,description:displayDescription,company,project,requestGroup,internalSurvey:itemContext.internalSurvey||{},marketingSuggestions:suggestions},{headers:{"Cache-Control":"no-store, max-age=0"}});
+    return NextResponse.json({...item,description:displayDescription,company,project,requestGroup,internalSurvey:itemContext.internalSurvey||{},surveyQuote:itemContext.surveyQuote||null,marketingSuggestions:suggestions},{headers:{"Cache-Control":"no-store, max-age=0"}});
   }catch(error){console.error("Admin request detail error:",error);return NextResponse.json({error:"Unable to load request"},{status:500});}
 }
 
