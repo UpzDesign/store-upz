@@ -103,3 +103,15 @@
 .client-workspace-page .client-survey-detail-grid>div{display:grid;gap:4px}
 .client-workspace-page .client-survey-detail-grid span{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#77818a}
 .client-workspace-page .client-survey-detail-grid strong{font-size:12px;font-weight:650;color:#29343a;overflow-wrap:anywhere}
+
+/* Keep print quantities aligned with the rest of the compact request form. */
+.client-request-page .request-refined .request-service-fields .request-detail-field textarea{height:66px!important;min-height:66px!important}
+.client-workspace-page .client-request-status-grid>article{padding:20px!important;border:1px solid #e2e6e8!important;border-radius:12px!important;background:#fff!important;color:#2c3339!important;box-shadow:0 3px 16px rgba(30,40,45,.035)!important}
+.client-workspace-page .client-request-status-grid>article>div{min-width:0}
+.client-workspace-page .client-request-status-grid>article h3{margin:8px 0!important;font-size:17px!important;line-height:1.4!important;letter-spacing:-.025em;color:#242c32!important}
+.client-workspace-page .client-request-status-grid>article p{font-size:12px;line-height:1.55;color:#56616a}
+.client-workspace-page .client-request-status-grid>article>div>strong{font-size:11px!important;color:#657078!important}
+.client-workspace-page .client-request-status-grid>article>div>span{font-size:9px!important;letter-spacing:.08em!important;text-transform:uppercase;font-weight:850!important}
+.client-workspace-page .client-request-status-grid>article small{font-size:11px;color:#727e87}
+.client-workspace-page .client-request-status-grid>article .client-survey-status-card p,
+.client-workspace-page .client-request-status-grid>article .client-survey-report-card p{color:#52605b!important}
