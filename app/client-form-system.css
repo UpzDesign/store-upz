@@ -115,3 +115,8 @@
 .client-workspace-page .client-request-status-grid>article small{font-size:11px;color:#727e87}
 .client-workspace-page .client-request-status-grid>article .client-survey-status-card p,
 .client-workspace-page .client-request-status-grid>article .client-survey-report-card p{color:#52605b!important}
+
+/* Shared file links and notes should never collide with their fields. */
+.client-request-page .shared-details-grid{gap:17px!important;margin-top:20px!important}
+.client-request-page .shared-details-grid>label{display:flex!important;flex-direction:column!important;gap:9px!important;min-width:0}
+.client-request-page .shared-details-grid textarea{display:block;width:100%;min-height:76px;margin:0!important}
