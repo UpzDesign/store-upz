@@ -32,7 +32,7 @@ export default function RequestReviewPage(){
  const [savingSurvey,setSavingSurvey]=useState(false);
  const [surveyFee,setSurveyFee]=useState("");
  const [surveyOperations,setSurveyOperations]=useState({paymentStatus:"unpaid",paymentReference:"",scheduledAt:"",assignedTo:"",contactName:"",contactPhone:"",contactEmail:"",contactMethod:"",availabilityNotes:"",accessNotes:"",surveyStatus:"pending"});
- const signageFields=getIntakeForm("signage").fields.filter(field=>!["contactName","contactEmail","priority","propertyAddress"].includes(field.key));
+ const signageFields=getIntakeForm("signage").fields.filter(field=>!["contactName","contactEmail","priority","propertyAddress","attachments","notes"].includes(field.key));
  const parsed=useMemo(()=>parseRequest(item?.description),[item?.description]);
  const selectedParent=parents.find(p=>String(p.id)===projectId),resolvedProjectName=projectMode==="existing"?selectedParent?.name||"Selected property":projectName.trim()||"Property";
  const surveyCredit=item?.surveyQuote?.status==="approved"?Number(item.surveyQuote.fee)||0:0;const approvedPrice=amount(clientEstimate),approvedCost=amount(internalCost),margin=approvedPrice-approvedCost,marginPercent=approvedPrice?Math.round(margin/approvedPrice*100):0;
