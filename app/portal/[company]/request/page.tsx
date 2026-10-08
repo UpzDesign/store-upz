@@ -9,7 +9,8 @@ import { useCartStore,type CartItem } from "@/store/cart-store";
 type Company={name:string;shortName:string;logo?:string|null;primaryColor:string;secondaryColor:string;brandTextColor?:string};
 type Project={id:number;name:string;address?:string|null;type?:string|null};
 type Value=string|boolean|string[];
-const CLIENT_FIELD_KEYS=new Set(["signageType","projectType","serviceType","websiteType","photographyType","designType","campaignType","deliverables","timeline","deadline","preferredDate","description","projectDescription","scope","goal","goals","existingArtwork","artworkReady"]);\nconst TYPES=["Retail","Office","Mixed-use","Industrial / warehouse","Residential","Hospitality","Medical","Land / development","Other"];
+const CLIENT_FIELD_KEYS=new Set(["signageType","projectType","serviceType","websiteType","photographyType","designType","campaignType","deliverables","timeline","deadline","preferredDate","description","projectDescription","scope","goal","goals","existingArtwork","artworkReady"]);
+const TYPES=["Retail","Office","Mixed-use","Industrial / warehouse","Residential","Hospitality","Medical","Land / development","Other"];
 const EMPTY=(value:Value|undefined)=>Array.isArray(value)?!value.length:typeof value==="boolean"?!value:!String(value||"").trim();
 const clean=(value:unknown)=>Array.isArray(value)?value.filter(Boolean).join(", "):String(value||"").trim();
 
