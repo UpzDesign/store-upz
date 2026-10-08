@@ -31,3 +31,34 @@
 .client-request-page .request-refined .request-service-card{background:color-mix(in srgb,var(--client-form-accent) 4%,white)}
 .client-request-page .request-refined .request-service-fields{background:#fff}
 @media(max-width:680px){.client-request-page .request-refined .request-option-field legend strong,.client-request-page .request-refined .request-field-label strong{font-size:16px}.client-request-page .request-refined .request-option-field button{flex:1 1 auto}.client-workspace-page .client-survey-authorization{padding:15px}}
+
+/* Shared client portal design tokens and compact form hierarchy */
+.client-workspace-page{--client-form-accent:var(--company-primary,var(--upzyellow,#edbf2d));--client-form-on-accent:var(--company-on-primary,#111);--client-form-title-size:15px;--client-form-label-size:11px;--client-form-body-size:12px;--client-form-space:16px}
+.client-workspace-page :is(.client-request-panel,.client-form-surface,.workspace-reply-form){font-size:var(--client-form-body-size);line-height:1.55}
+.client-request-page .request-refined :is(.request-option-field,.request-detail-field){display:block!important;grid-column:1/-1!important;padding:16px 0 19px!important;margin:0!important;border:0!important;border-bottom:1px solid #ececec!important;background:transparent!important}
+.client-request-page .request-refined .request-option-field legend{display:block!important;float:none!important;width:100%!important;margin:0 0 12px!important;padding:0!important}
+.client-request-page .request-refined :is(.request-option-field legend strong,.request-field-label strong){font-size:var(--client-form-title-size)!important;line-height:1.35!important;letter-spacing:-.015em;font-weight:750!important}
+.client-request-page .request-refined :is(.request-field-eyebrow,.request-field-label small){font-size:9px!important;font-weight:800!important;letter-spacing:.11em!important;color:var(--client-form-accent)!important;margin:0 0 5px!important}
+.client-request-page .request-refined .request-field-label{display:block;margin:0 0 11px}
+.client-request-page .request-refined .request-option-field>div{display:flex!important;flex-wrap:wrap;gap:10px!important;margin:0!important}
+.client-request-page .request-refined .request-option-field button{min-height:39px!important;padding:9px 14px!important;border-radius:7px!important;font-size:11px!important;font-weight:700!important;background:#fff!important;box-shadow:none!important}
+.client-request-page .request-refined .request-option-field button.selected{padding:8px 13px!important;background:color-mix(in srgb,var(--client-form-accent) 9%,white)!important}
+.client-request-page .request-refined .request-option-field>p{font-size:11px!important;margin:0 0 12px!important}
+.client-request-page .request-refined .request-subsection-heading{padding:15px 0 13px!important;margin:6px 0 5px!important}
+.client-request-page .request-refined .request-subsection-heading>span{font-size:10px!important;letter-spacing:.1em!important;font-weight:800!important;color:var(--client-form-accent)!important}
+.client-request-page .request-refined .request-subsection-heading h3{font-size:17px!important;line-height:1.35!important;font-weight:800!important;letter-spacing:-.02em!important;margin:5px 0!important}
+.client-request-page .request-refined .request-subsection-heading p{font-size:11px!important;line-height:1.55!important;margin:5px 0 0!important}
+.client-request-page .request-refined .request-service-card{border-radius:11px!important;background:color-mix(in srgb,var(--client-form-accent) 5%,white)!important}
+.client-request-page .request-refined .request-service-card.is-selected{border-color:var(--client-form-accent)!important}
+.client-request-page .request-refined .request-service-fields{background:transparent!important}
+.client-workspace-page .client-form-section-heading{display:grid;gap:4px;margin:0 0 13px}
+.client-workspace-page .client-form-section-heading span{font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:var(--client-form-accent)}
+.client-workspace-page .client-form-section-heading h3{font-size:16px;line-height:1.35;font-weight:800;letter-spacing:-.02em;color:var(--client-form-ink);margin:0}
+.client-workspace-page .client-survey-authorization{padding:18px;margin:12px 0;background:#fff;border:1px solid var(--client-form-border);border-radius:11px}
+.client-workspace-page .client-survey-authorization>p{font-size:12px;line-height:1.55;margin:0 0 13px;color:#555}
+.client-workspace-page .client-survey-authorization :is(input,textarea){margin:0 0 10px}
+.client-workspace-page .client-survey-authorization textarea{min-height:72px}
+.client-workspace-page .client-form-button{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:10px 16px;border-radius:8px;border:1px solid var(--client-form-accent);background:var(--client-form-accent);color:var(--client-form-on-accent);font-size:11px;font-weight:800;line-height:1.35;cursor:pointer;transition:background .18s,border-color .18s}
+.client-workspace-page .client-form-button-secondary{background:#fff;color:#333;border-color:#d7d7d7;margin:0 0 15px}
+.client-workspace-page .client-form-button-secondary:hover{background:#f7f7f7;border-color:#aaa}
+.client-workspace-page .client-form-button:disabled{opacity:.5;cursor:not-allowed}
