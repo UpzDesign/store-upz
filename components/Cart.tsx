@@ -75,7 +75,7 @@ export default function Cart() {
         {!cart.items.length && <p>Your cart is empty.</p>}
         {requestItems.length > 0 && <section className="portal-request-cart-group"><span>Project Request</span><div className="portal-request-cart-project"><strong>{requestProject}</strong>{requestAddress&&requestAddress!==requestProject&&<small>{requestAddress}</small>}<em>{requestItems.length} service{requestItems.length===1?"":"s"}</em></div>{requestItems.map(item => <article className="portal-request-cart-item" key={item.id}>
           <div className="portal-request-cart-mark">{item.name.slice(0,2).toUpperCase()}</div>
-          <div><strong>{item.name}</strong>{item.requestSummary && <span>{item.requestSummary}</span>}</div>
+          <div className="portal-request-cart-item-copy"><strong>{item.name}</strong>{item.requestSummary && <span className="portal-request-cart-summary">{item.requestSummary}</span>}</div>
           <button type="button" onClick={() => cart.removeItem(item.id)}>Remove</button>
         </article>)}</section>}
         {merchItems.length > 0 && <section className="portal-merch-cart-group"><span>Merchandise</span>{merchItems.map(item => <article key={item.id}>
@@ -85,7 +85,7 @@ export default function Cart() {
         </article>)}</section>}
       </div>
       {(requestItems.length > 0 || merchItems.length > 0) && <footer>
-        {requestItems.length > 0 && <div className="portal-request-cart-footer"><div><span>Project services</span><strong>{requestItems.length}</strong></div><p>No payment is due. UPZ will review scope, pricing, and scheduling.</p><button className="button" type="button" onClick={submitRequests} disabled={submittingRequests}>{submittingRequests?"Submitting...":"Submit Request"}</button></div>}
+        {requestItems.length > 0 && <div className="portal-request-cart-footer"><div className="portal-request-cart-count"><span>Project services</span><strong>{requestItems.length}</strong></div><div className="portal-request-cart-notice"><strong>No payment due today</strong><p>UPZ will review your scope, pricing and scheduling before confirming the project.</p></div><button className="button" type="button" onClick={submitRequests} disabled={submittingRequests}>{submittingRequests?"Submitting...":"Submit Request"}</button></div>}
         {merchItems.length > 0 && <div className="portal-merch-cart-footer"><div><span>Merchandise subtotal</span><strong>{money(subtotal)}</strong></div><button className="button" type="button" onClick={checkout} disabled={checkingOut || subtotal <= 0}>{checkingOut ? "Redirecting..." : "Checkout"}</button></div>}
         {error && <p className="portal-cart-error">{error}</p>}
         <button type="button" onClick={cart.clearCart}>Clear Cart</button>
