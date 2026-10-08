@@ -62,3 +62,13 @@
 .client-workspace-page .client-form-button-secondary{background:#fff;color:#333;border-color:#d7d7d7;margin:0 0 15px}
 .client-workspace-page .client-form-button-secondary:hover{background:#f7f7f7;border-color:#aaa}
 .client-workspace-page .client-form-button:disabled{opacity:.5;cursor:not-allowed}
+
+/* Service question labels: compact uppercase brand accent, no repeated eyebrow. */
+.client-request-page .request-refined .request-option-field legend strong,
+.client-request-page .request-refined .request-field-label strong{
+  display:block!important;font-size:10px!important;line-height:1.5!important;
+  font-weight:850!important;letter-spacing:.105em!important;
+  text-transform:uppercase!important;color:var(--client-form-accent,var(--company-primary,#edbf2d))!important;
+}
+.client-request-page .request-refined .request-option-field legend{margin-bottom:9px!important}
+.client-request-page .request-refined .request-field-label{margin-bottom:9px!important}
