@@ -7,7 +7,7 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; background: var(--upzblack); overflow-x: hidden; }
-body { margin: 0; background: var(--upzblack); color: #fff; overflow-x: hidden; }
+body { margin: 0; background: var(--upzblack); color: #fff; overflow-x: hidden; font-family: "Montserrat", Arial, sans-serif; }
 a { color: inherit; text-decoration: none; }
 button, input, select { font: inherit; }
 img { max-width: 100%; display: block; }
