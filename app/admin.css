@@ -28,3 +28,33 @@
 .request-review-page .request-workflow-step--upcoming>summary{background:#f8f9fa}
 .request-review-page .request-workflow-step[open]>summary{border-bottom:1px solid rgba(0,0,0,.07)}
 @media(max-width:640px){.request-review-page .request-workflow-step>summary{padding:13px;gap:10px;flex-wrap:wrap}.request-review-page .request-step-title strong{font-size:13px}.request-review-page .request-step-status{margin-left:48px}}
+
+/* Compact admin workflow builder — same design tokens as request stages */
+.request-review-page .request-workflow-builder-disclosure{margin:14px 0;border:1px solid var(--admin-form-border,#dce0e4);border-radius:11px;background:#fff;overflow:hidden}
+.request-review-page .request-workflow-builder-disclosure>summary{display:flex;align-items:center;gap:12px;flex-wrap:wrap;min-height:56px;padding:13px 17px;cursor:pointer;list-style:none;background:#f7f8fa}
+.request-review-page .request-workflow-builder-disclosure>summary::-webkit-details-marker{display:none}
+.request-review-page .request-builder-summary-label{font-size:9px;font-weight:850;letter-spacing:.1em;color:#7c828a}
+.request-review-page .request-workflow-builder-disclosure>summary strong{font-size:13px;line-height:1.4;font-weight:800;letter-spacing:-.015em;color:#242a30}
+.request-review-page .request-builder-count{margin-left:auto;padding:5px 9px;border-radius:20px;background:#e8ebef;color:#525b65;font-size:10px;font-weight:750}
+.request-review-page .request-stage-builder{padding:17px!important;background:#fff}
+.request-review-page .request-stage-builder :is(h2,h3){font-size:15px!important;line-height:1.35!important;letter-spacing:-.02em!important}
+.request-review-page .request-stage-intro{font-size:11px!important;line-height:1.55!important;color:#6b727a!important;margin:7px 0 15px!important}
+.request-review-page .request-stage-list{display:grid!important;gap:9px!important}
+.request-review-page .request-stage-row.approval-stage-card{display:grid!important;grid-template-columns:75px minmax(0,1fr) auto!important;gap:14px!important;align-items:start!important;margin:0!important;padding:13px!important;border:1px solid #e2e5e8!important;border-radius:9px!important;background:#fcfcfd!important;box-shadow:none!important}
+.request-review-page .request-stage-number{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:3px!important;padding:3px 0!important;background:transparent!important;border:0!important}
+.request-review-page .request-stage-number span{font-size:9px!important;font-weight:800!important;letter-spacing:.1em!important;text-transform:uppercase!important;color:#808891!important}
+.request-review-page .request-stage-number strong{font-size:19px!important;font-weight:800!important;line-height:1.1!important;color:#29313a!important}
+.request-review-page .request-stage-number small{font-size:10px!important;line-height:1.35!important;color:#717b85!important}
+.request-review-page .request-stage-fields{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:9px 12px!important;min-width:0!important}
+.request-review-page .request-stage-fields>.wide{grid-column:1/-1!important}
+.request-review-page .request-stage-fields :is(label,.admin-field){min-width:0!important;margin:0!important;gap:4px!important;font-size:10px!important;line-height:1.35!important;font-weight:700!important}
+.request-review-page .request-stage-fields :is(input:not([type="checkbox"]),select,textarea){box-sizing:border-box!important;width:100%!important;max-width:100%!important;min-height:34px!important;padding:7px 10px!important;border:1px solid #dce0e4!important;border-radius:7px!important;background:#fff!important;color:#252b31!important;font-size:11px!important;line-height:1.4!important;font-family:inherit!important;box-shadow:none!important}
+.request-review-page .request-stage-fields textarea{height:58px!important;min-height:58px!important;resize:vertical}
+.request-review-page .request-stage-fields small{font-size:9px!important;line-height:1.4!important;color:#7b828a!important}
+.request-review-page .approval-stage-toggles{display:flex!important;flex-wrap:wrap!important;align-items:center!important;gap:8px 16px!important;grid-column:1/-1!important;margin-top:3px!important}
+.request-review-page .approval-stage-toggles label{display:inline-flex!important;align-items:center!important;gap:6px!important;font-size:10px!important;font-weight:600!important;color:#535d66!important}
+.request-review-page .approval-stage-toggles input{width:14px!important;height:14px!important;accent-color:var(--admin-form-accent,#edbf2d)}
+.request-review-page .request-stage-actions{display:flex!important;flex-direction:column!important;gap:5px!important;align-items:stretch!important}
+.request-review-page .request-stage-actions :is(button,a){min-height:30px!important;padding:5px 9px!important;font-size:10px!important;border-radius:6px!important}
+@media(max-width:850px){.request-review-page .request-stage-row.approval-stage-card{grid-template-columns:54px minmax(0,1fr)!important}.request-review-page .request-stage-actions{grid-column:2;flex-direction:row!important;flex-wrap:wrap}}
+@media(max-width:550px){.request-review-page .request-stage-fields{grid-template-columns:1fr!important}.request-review-page .request-stage-fields>*{grid-column:1/-1!important}.request-review-page .request-stage-row.approval-stage-card{gap:9px!important;padding:10px!important}}
