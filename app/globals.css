@@ -276,3 +276,16 @@ main:not(.upz-home) { padding-top: 0; }
 .client-request-page .request-refined .client-section-heading.service-heading h2{font-size:clamp(24px,2.4vw,30px);line-height:1.2}
 .client-request-page .request-refined .client-section-heading.service-heading p{font-size:12px}
 @media(max-width:760px){.client-request-page .request-refined .composer-grid,.client-request-page .request-refined .request-signage-general{grid-template-columns:minmax(0,1fr)}.client-request-page .request-refined .request-signage-general>label:last-child{grid-column:1/-1}}
+
+/* Request form alignment and compact cart contrast */
+.client-request-page .request-refined .project-context-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.client-request-page .request-refined .project-context-grid .project-name-field{grid-column:1/-1}
+.client-request-page .request-refined .project-context-grid .address-field,.client-request-page .request-refined .project-context-grid .property-type-field{grid-column:span 1}
+.client-request-page .request-refined .project-context-grid .space-field,.client-request-page .request-refined .project-context-grid .contact-name-field,.client-request-page .request-refined .project-context-grid .contact-email-field,.client-request-page .request-refined .project-context-grid .priority-field{grid-column:span 1}
+.client-request-page .request-refined .request-service-fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+.client-request-page .request-refined .request-service-fields>.composer-wide{grid-column:1/-1}
+.portal-request-cart-item span,.portal-request-cart-item strong{color:#fff}
+.portal-request-cart-footer>p{color:#fff;font-size:11px;line-height:1.5}
+.portal-request-cart-footer .button{background:transparent;border:1px solid rgba(255,255,255,.55);color:#fff;transition:background .2s,color .2s,border-color .2s}
+.portal-request-cart-footer .button:hover{background:#edbf2d;border-color:#edbf2d;color:#111}
+@media(max-width:760px){.client-request-page .request-refined .project-context-grid,.client-request-page .request-refined .request-service-fields{grid-template-columns:minmax(0,1fr)}.client-request-page .request-refined .project-context-grid .address-field,.client-request-page .request-refined .project-context-grid .property-type-field{grid-column:1/-1}}
