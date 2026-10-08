@@ -72,3 +72,34 @@
 }
 .client-request-page .request-refined .request-option-field legend{margin-bottom:9px!important}
 .client-request-page .request-refined .request-field-label{margin-bottom:9px!important}
+
+/* Restrained request headings: ink first, accent only on selection and key markers. */
+.client-request-page .request-refined .request-option-field legend strong,
+.client-request-page .request-refined .request-field-label strong{color:#353a3f!important;font-size:11px!important;letter-spacing:.065em!important}
+.client-request-page .request-refined :is(.request-option-field,.request-detail-field){min-width:0!important}
+.client-request-page .request-refined :is(input,textarea,select){max-width:100%;box-sizing:border-box}
+.client-request-page .request-refined .request-service-fields{row-gap:19px!important}
+.client-request-page .request-refined .request-service-fields .request-detail-field:has(textarea){grid-column:1/-1!important}
+.client-request-page .request-refined .request-service-fields .request-detail-field textarea{min-height:88px}
+.client-request-page .request-refined .request-field-label strong{font-size:11px!important}
+
+/* Client survey status and report presentation */
+.client-workspace-page .client-survey-status-card,.client-workspace-page .client-survey-report-card{margin:15px 0;padding:18px;border:1px solid #e0e5e7;border-radius:12px;background:#f9fbfa;color:#293039}
+.client-workspace-page .client-survey-status-card{border-left:3px solid #6caa85}
+.client-workspace-page .client-survey-report-card{background:#fff;border-left:3px solid var(--client-form-accent,#d2aa37)}
+.client-workspace-page .client-survey-kicker{display:block;margin-bottom:10px;font-size:9px!important;letter-spacing:.1em;font-weight:850;color:#64726b!important}
+.client-workspace-page .client-survey-status-heading{display:flex;align-items:center;flex-wrap:wrap;gap:10px}
+.client-workspace-page .client-survey-status-heading>strong{font-size:16px!important;line-height:1.35;color:#26332d!important}
+.client-workspace-page .client-survey-status-badge{padding:5px 10px;border-radius:20px;background:#e2f2e7;color:#2e7049;font-size:10px;font-weight:800}
+.client-workspace-page .client-survey-status-card p,.client-workspace-page .client-survey-report-card p{margin:10px 0!important;color:#52605b!important;font-size:12px!important;line-height:1.6!important}
+.client-workspace-page .client-survey-appointment{display:grid;gap:5px;margin-top:12px;padding:11px 13px;border-radius:8px;background:#fff}
+.client-workspace-page .client-survey-appointment span{font-size:9px;font-weight:800;letter-spacing:.08em;color:#6d7971}
+.client-workspace-page .client-survey-appointment strong{font-size:12px;color:#27352d}
+.client-workspace-page .client-survey-report-card h4{margin:0;font-size:16px!important;line-height:1.4;color:#263039!important}
+.client-workspace-page .client-survey-report-card .client-form-button{margin:7px 9px 7px 0;text-decoration:none}
+.client-workspace-page .client-survey-detail-disclosure{margin:13px 0;border-top:1px solid #e3e7e8;padding-top:13px}
+.client-workspace-page .client-survey-detail-disclosure summary{cursor:pointer;font-size:11px;font-weight:750;color:#38454a}
+.client-workspace-page .client-survey-detail-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;padding:14px 0 4px}
+.client-workspace-page .client-survey-detail-grid>div{display:grid;gap:4px}
+.client-workspace-page .client-survey-detail-grid span{font-size:9px;text-transform:uppercase;letter-spacing:.07em;color:#77818a}
+.client-workspace-page .client-survey-detail-grid strong{font-size:12px;font-weight:650;color:#29343a;overflow-wrap:anywhere}
