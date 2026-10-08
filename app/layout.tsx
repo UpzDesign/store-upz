@@ -5,7 +5,6 @@ import "./portal-requests.css";
 import "./request-composer.css";
 import "./portal-request-cart.css";
 import "./client-request-system.css";
-import "./admin.css";
 import "./admin-forms.css";
 import "./admin-requests.css";
 import "./packages.css";
@@ -70,6 +69,8 @@ import "./financials.css";
 import "./operations-dashboard.css";
 import "./company-brand-admin.css";
 import "./client-form-system.css";
+/* Keep admin workflow overrides after legacy stylesheets. */
+import "./admin.css";
 import Providers from "./providers";
 import Cart from "@/components/Cart";
 import SiteChrome from "@/components/SiteChrome";
