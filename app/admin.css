@@ -218,3 +218,11 @@
 .project-file-uploads article{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border:1px solid #e7eaed;border-radius:7px;font-size:12px}
 .project-file-uploads article span{overflow-wrap:anywhere}
 .project-file-uploads article a{white-space:nowrap;font-size:11px;font-weight:700}
+
+.project-os-page .project-daily-photo-upload{display:flex;flex-wrap:wrap;align-items:end;gap:10px;padding:12px;border:1px dashed #cdd5dc;border-radius:8px;background:#fff}
+.project-os-page .project-daily-photo-upload>label{flex:1;min-width:180px}
+.project-os-page .project-daily-photo-upload>button{padding:9px 12px;background:#2a3036;color:white;border:0;border-radius:7px;font-size:11px;font-weight:750;cursor:pointer}
+.project-os-page .project-daily-photo-upload>button:disabled{opacity:.45}
+.project-os-page .project-daily-photo-upload>small{width:100%;color:#7c858e;font-size:10px}
+.project-os-page .project-daily-uploaded{width:100%;display:flex;gap:6px;flex-wrap:wrap}
+.project-os-page .project-daily-uploaded span{padding:5px 8px;border-radius:5px;background:#eef6f0;color:#21613d;font-size:10px}
