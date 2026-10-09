@@ -85,3 +85,18 @@
 .request-review-page .admin-survey-deliverable a{color:#345f78}
 .request-review-page .request-workflow-step :is(.admin-form-grid,.admin-form-surface)+button{margin-top:14px!important}
 .request-review-page .request-workflow-step :is(input,select,textarea){color:#28313a}
+
+/* Shared admin task comment timeline */
+.admin-task-comments{display:grid;gap:12px;min-width:0}
+.admin-task-comments>h3{margin:0 0 2px;font-size:13px!important;font-weight:800;color:#2b343c}
+.admin-task-comment{display:flex;gap:11px;align-items:flex-start;padding:12px 14px;border:1px solid #e1e6e9;border-radius:9px;background:#fff;color:#28323b}
+.admin-task-comment-avatar{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border-radius:8px;background:#e8edf0;color:#43535f;font-size:12px;font-weight:800}
+.admin-task-comment-content{flex:1;min-width:0}
+.admin-task-comment-meta{display:flex;align-items:baseline;justify-content:space-between;gap:6px 12px;flex-wrap:wrap;margin-bottom:7px}
+.admin-task-comment-meta strong{font-size:11px!important;font-weight:800;color:#29343d!important}
+.admin-task-comment-meta time{font-size:10px;color:#77828b}
+.admin-task-comment-content p{margin:0!important;font-size:12px!important;line-height:1.65!important;color:#3b4650!important;white-space:pre-wrap;overflow-wrap:anywhere}
+.admin-task-comments-empty{margin:0;font-size:11px;color:#71808a}
+.admin-task-comment-form{display:grid;gap:10px;margin-top:6px}
+.admin-task-comment-form textarea{width:100%;min-height:70px;box-sizing:border-box;padding:10px 12px;border:1px solid #dce2e6;border-radius:8px;background:#fff;color:#29333b;font-size:12px}
+.admin-task-comment-form button{justify-self:start;min-height:34px;padding:7px 13px;border-radius:7px;font-size:11px;font-weight:750}
