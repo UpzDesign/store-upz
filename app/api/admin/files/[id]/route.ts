@@ -18,5 +18,9 @@ export async function GET(_request:NextRequest,context:{params:Promise<{id:strin
  url.searchParams.set("projectId",String(record.projectId));
  const result=await fetch(url,{headers:{"X-UPZ-Storage-Key":key},cache:"no-store"});
  if(!result.ok)return NextResponse.json({error:"File unavailable"},{status:502});
- return new NextResponse(result.body,{headers:{"Content-Type":"application/octet-stream","Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff"}});
+ const ext=String(data.name||"").split(".").pop()?.toLowerCase();
+ const images:Record<string,string>={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",gif:"image/gif"};
+ const imageType=ext?images[ext]:undefined;
+ const mime=imageType&&data.mime===imageType?imageType:"application/octet-stream";
+ return new NextResponse(result.body,{headers:{"Content-Type":mime,"Content-Disposition":imageType&&mime===imageType?"inline":"attachment","Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Content-Security-Policy":"default-src 'none'; sandbox"}});
 }
