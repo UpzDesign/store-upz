@@ -22,5 +22,8 @@ export async function GET(_request:NextRequest,context:{params:Promise<{id:strin
  const images:Record<string,string>={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",gif:"image/gif"};
  const imageType=ext?images[ext]:undefined;
  const mime=imageType&&data.mime===imageType?imageType:"application/octet-stream";
- return new NextResponse(result.body,{headers:{"Content-Type":mime,"Content-Disposition":imageType&&mime===imageType?"inline":"attachment","Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Content-Security-Policy":"default-src 'none'; sandbox"}});
+ const originalName=String(data.name||"file").replace(/[\r\n\\/"]/g,"_").slice(0,180);
+ const safeAscii=originalName.replace(/[^\x20-\x7e]/g,"_");
+ const disposition=(mime!=="application/octet-stream"?"inline":"attachment")+"; filename=\""+safeAscii+"\"; filename*=UTF-8\x27\x27"+encodeURIComponent(originalName);
+ return new NextResponse(result.body,{headers:{"Content-Type":mime,"Content-Disposition":disposition,"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Content-Security-Policy":"default-src 'none'; sandbox"}});
 }
