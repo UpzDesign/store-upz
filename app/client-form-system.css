@@ -169,3 +169,13 @@
 .client-workspace-page .client-authorization-facts>div{display:grid;align-content:start;gap:7px;padding:14px;border:1px solid #e7e2d5;border-radius:8px;background:#fff}
 .client-workspace-page .client-authorization-facts span{font-size:9px!important;font-weight:850;letter-spacing:.09em;color:#83755a!important}
 .client-workspace-page .client-authorization-facts strong{font-size:15px!important;line-height:1.4!important;font-weight:800;color:#2b3339!important}
+
+/* Restore legible project headline on the dark property banner. */
+.client-workspace-page .engagement-card>.engagement-summary,
+.client-workspace-page .engagement-card>.engagement-summary:hover{background:var(--company-secondary,#111)!important;color:#fff!important}
+.client-workspace-page .engagement-card>.engagement-summary h2,
+.client-workspace-page .engagement-card>.engagement-summary p,
+.client-workspace-page .engagement-card>.engagement-summary .engagement-summary-stats strong,
+.client-workspace-page .engagement-card>.engagement-summary .engagement-summary-stats small,
+.client-workspace-page .engagement-card>.engagement-summary .portal-current-status{color:#fff!important}
+.client-workspace-page .engagement-card>.engagement-summary>div:first-child>span{color:var(--company-primary,#edbf2d)!important}
