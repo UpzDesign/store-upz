@@ -161,3 +161,11 @@
 .client-workspace-page .client-project-brief-grid>div{display:grid;align-content:start;gap:5px;min-width:0}
 .client-workspace-page .client-project-brief-grid span{font-size:9px!important;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#7a858c!important}
 .client-workspace-page .client-project-brief-grid strong{font-size:12px!important;line-height:1.5;font-weight:650;color:#2b363d!important;overflow-wrap:anywhere}
+
+/* Client-facing production authorization */
+.client-workspace-page .client-authorization-summary{display:grid;gap:12px;margin:12px 0;color:#2b353b}
+.client-workspace-page .client-authorization-summary>p{margin:0!important;font-size:12px!important;line-height:1.65!important;color:#47545c!important}
+.client-workspace-page .client-authorization-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px}
+.client-workspace-page .client-authorization-facts>div{display:grid;align-content:start;gap:7px;padding:14px;border:1px solid #e7e2d5;border-radius:8px;background:#fff}
+.client-workspace-page .client-authorization-facts span{font-size:9px!important;font-weight:850;letter-spacing:.09em;color:#83755a!important}
+.client-workspace-page .client-authorization-facts strong{font-size:15px!important;line-height:1.4!important;font-weight:800;color:#2b3339!important}
