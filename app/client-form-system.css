@@ -120,3 +120,39 @@
 .client-request-page .shared-details-grid{gap:17px!important;margin-top:20px!important}
 .client-request-page .shared-details-grid>label{display:flex!important;flex-direction:column!important;gap:9px!important;min-width:0}
 .client-request-page .shared-details-grid textarea{display:block;width:100%;min-height:76px;margin:0!important}
+
+/* Approved client project: unified information hierarchy */
+.client-workspace-page .engagement-card .client-project-card{color:#28313a}
+.client-workspace-page .client-project-card .client-project-toggle h2,
+.client-workspace-page .client-project-card .client-project-toggle strong{color:#242e35!important}
+.client-workspace-page .client-project-card .client-project-toggle{background:#f7f8fa!important;color:#263139!important}
+.client-workspace-page .client-project-card .client-project-toggle:hover{background:#f1f4f5!important}
+.client-workspace-page .client-project-card .client-project-body{display:grid;gap:19px;padding:20px!important;background:#fff;color:#2d363d}
+.client-workspace-page .client-project-body>section,.client-workspace-page .client-project-body>.workflow-progress-shell{margin:0!important}
+.client-workspace-page .client-project-body .client-project-updates-primary{order:-2}
+.client-workspace-page .client-project-body .client-approved-project-survey{order:-1}
+.client-workspace-page .client-project-body .general-project-updates h3,
+.client-workspace-page .client-project-body .workspace-task-list h3{margin:0 0 13px!important;font-size:15px!important;font-weight:800!important;color:#26323b!important}
+.client-workspace-page .client-project-brief{margin-top:6px;padding:13px 16px;border:1px solid #e3e7e9;border-radius:9px;background:#fafbfc;color:#2d363c}
+.client-workspace-page .client-project-brief>summary{cursor:pointer;font-size:12px;font-weight:800;color:#33434b}
+.client-workspace-page .client-project-brief-intro{margin:12px 0;font-size:11px!important;line-height:1.6;color:#66727b!important}
+.client-workspace-page .client-project-brief .client-request-details{margin-top:13px}
+.client-workspace-page .client-project-brief :is(p,div,span,small,strong,dt,dd){color:#3e4a52}
+.client-workspace-page .client-survey-file-missing{font-size:11px!important;color:#69747b!important}
+
+/* Project update and approval request: high contrast, compact conversation */
+.client-workspace-page .workspace-thread{margin:0 0 12px!important;padding:17px!important;border:1px solid #e0e5e9!important;border-radius:10px!important;background:#fff!important;color:#28343b!important;box-shadow:none!important}
+.client-workspace-page .workspace-thread.approval_request{border-left:3px solid #d2ab3c!important;background:#fffdf7!important}
+.client-workspace-page .workspace-thread-head{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-bottom:9px}
+.client-workspace-page .workspace-thread-head>strong{font-size:11px!important;font-weight:850!important;letter-spacing:.035em;color:#28353b!important}
+.client-workspace-page .workspace-thread.approval_request .workspace-thread-head>strong{padding:5px 9px;border-radius:5px;background:#f7e9bc;color:#725513!important;text-transform:uppercase;font-size:10px!important}
+.client-workspace-page .workspace-thread>small{display:block;margin:0 0 11px;font-size:10px!important;color:#728089!important}
+.client-workspace-page .workspace-thread-body{white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px!important;line-height:1.75!important;color:#3c4850!important;margin:8px 0 14px!important}
+.client-workspace-page .workspace-thread-actions{display:flex!important;align-items:center!important;gap:9px!important;flex-wrap:wrap!important;margin-top:12px!important}
+.client-workspace-page .workspace-thread-actions button{min-height:34px!important;padding:7px 13px!important;border-radius:7px!important;font-size:11px!important;font-weight:750!important}
+.client-workspace-page .workspace-client-reply{margin:10px 0 0!important;padding:12px 14px!important;border-radius:8px!important;background:#f5f7f8!important;color:#35414a!important}
+.client-workspace-page .workspace-client-reply :is(p,strong,small){color:#35414a!important;font-size:11px!important;line-height:1.6!important}
+.client-workspace-page .workspace-reply-form{margin-top:14px!important;padding:14px!important;display:grid!important;gap:10px!important;background:#f8f9fa!important}
+.client-workspace-page .workspace-reply-form :is(textarea,select){box-sizing:border-box;width:100%;font-size:12px!important;color:#2d373f!important}
+.client-workspace-page .workspace-reply-form>div{display:flex;gap:9px;flex-wrap:wrap}
+@media(max-width:650px){.client-workspace-page .client-project-card .client-project-body{padding:13px!important;gap:14px}.client-workspace-page .workspace-thread{padding:13px!important}}
