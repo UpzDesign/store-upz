@@ -232,3 +232,14 @@
 .project-os-page .project-daily-photo-tile img{display:block;width:100%;height:118px;object-fit:cover;background:#e9edf0}
 .project-os-page .project-daily-photo-tile span{display:block;padding:8px;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .project-os-page .project-daily-file-link{display:flex;align-items:center;padding:12px;border:1px solid #e2e7eb;border-radius:8px;font-size:11px;overflow-wrap:anywhere}
+
+.project-photo-grid,.project-daily-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin:14px 0}
+.project-photo-card{min-width:0;overflow:hidden;border:1px solid #dfe5ea;border-radius:9px;background:#fff}
+.project-photo-card>a{display:block;line-height:0;background:#eff2f4}
+.project-photo-card img{display:block;width:100%;height:155px;object-fit:cover}
+.project-photo-details{display:flex;align-items:center;gap:8px;padding:9px}
+.project-photo-details strong{min-width:0;flex:1;overflow-wrap:anywhere;font-size:11px;font-weight:600}
+.project-photo-details button,.project-photo-edit button{border:1px solid #d8dee4;background:#fff;border-radius:5px;padding:6px 8px;font-size:10px;cursor:pointer}
+.project-photo-edit{display:flex;flex-wrap:wrap;gap:6px;padding:9px}
+.project-photo-edit input{width:100%;min-width:0;padding:8px;border:1px solid #d8dee4;border-radius:5px;font-size:12px}
+.project-photo-edit small{width:100%;color:#a33}
