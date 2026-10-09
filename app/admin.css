@@ -102,3 +102,26 @@
 .admin-task-comment-form button{justify-self:start;min-height:34px;padding:7px 13px;border-radius:7px;font-size:11px;font-weight:750}
 
 .admin-task-checklist-hint{margin:0 0 10px!important;padding:10px 12px;border:1px solid #eadcae;border-radius:7px;background:#fffaf0;color:#705b27!important;font-size:11px!important;line-height:1.55!important}
+
+/* Signage request review: consistent intake, quote and planning surfaces */
+.request-setup-page .request-setup-grid>.admin-section{min-width:0}
+.request-setup-page .request-brief-overview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:18px 0}
+.request-setup-page .request-brief-overview>div,.request-setup-page .request-brief-scope{padding:15px;border:1px solid #e7e7e3;border-radius:9px;background:#fafaf8;min-width:0}
+.request-setup-page .request-brief-overview span,.request-setup-page .request-brief-scope>span{display:block;margin-bottom:7px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;font-weight:800;color:#72726e}
+.request-setup-page .request-brief-overview strong{display:block;font-size:13px;line-height:1.5;color:#171717;overflow-wrap:anywhere}
+.request-setup-page .request-brief-scope p{margin:0;white-space:pre-wrap;line-height:1.6;font-size:13px;color:#292929}
+.request-setup-page .request-intake-disclosure,.request-setup-page .request-original-intake{border:1px solid #e3e3df;border-radius:9px;overflow:hidden;background:#fff;margin-top:14px}
+.request-setup-page .request-intake-disclosure>summary,.request-setup-page .request-original-intake>summary{cursor:pointer;padding:15px 17px;background:#f7f7f4;color:#151515}
+.request-setup-page .request-intake-disclosure>summary strong{display:block;font-size:13px}
+.request-setup-page .request-intake-disclosure>summary span{display:block;font-size:11px;color:#686863;margin-top:3px}
+.request-setup-page .request-intake-content{padding:16px}
+.request-setup-page .request-intake-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0}
+.request-setup-page .request-intake-grid>div{border:1px solid #ebebe7;border-radius:8px;padding:13px;min-width:0}
+.request-setup-page .request-intake-grid dt{font-size:10px;text-transform:uppercase;letter-spacing:.06em;color:#6c6c68;font-weight:800;margin-bottom:6px}
+.request-setup-page .request-intake-grid dd{margin:0;color:#181818;font-size:13px;line-height:1.55;white-space:pre-wrap;overflow-wrap:anywhere}
+.request-setup-page .request-property-actions{display:flex;justify-content:flex-start;margin-top:22px;padding-top:18px;border-top:1px solid #ededeb}
+.request-setup-page .request-workflow-step>.admin-section,.request-setup-page .request-workflow-step>.request-workflow-builder-disclosure{margin-top:16px}
+.request-setup-page .request-workflow-builder-disclosure{border:1px solid #e3e3df;border-radius:10px;background:#fff;overflow:hidden}
+.request-setup-page .request-workflow-builder-disclosure>summary{padding:18px 22px;cursor:pointer;background:#f8f8f5;color:#111}
+.request-setup-page .request-stage-row,.request-setup-page .approval-schedule-panel,.request-setup-page .approval-estimate-panel{color:#151515}
+@media(max-width:760px){.request-setup-page .request-brief-overview,.request-setup-page .request-intake-grid{grid-template-columns:1fr}}
