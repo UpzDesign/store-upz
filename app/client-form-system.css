@@ -156,3 +156,8 @@
 .client-workspace-page .workspace-reply-form :is(textarea,select){box-sizing:border-box;width:100%;font-size:12px!important;color:#2d373f!important}
 .client-workspace-page .workspace-reply-form>div{display:flex;gap:9px;flex-wrap:wrap}
 @media(max-width:650px){.client-workspace-page .client-project-card .client-project-body{padding:13px!important;gap:14px}.client-workspace-page .workspace-thread{padding:13px!important}}
+
+.client-workspace-page .client-project-brief-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:15px;margin-top:15px;padding:14px;border-radius:8px;background:#fff}
+.client-workspace-page .client-project-brief-grid>div{display:grid;align-content:start;gap:5px;min-width:0}
+.client-workspace-page .client-project-brief-grid span{font-size:9px!important;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#7a858c!important}
+.client-workspace-page .client-project-brief-grid strong{font-size:12px!important;line-height:1.5;font-weight:650;color:#2b363d!important;overflow-wrap:anywhere}
