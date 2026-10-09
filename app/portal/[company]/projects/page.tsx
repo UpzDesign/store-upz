@@ -16,8 +16,8 @@ const BRIEF_FIELDS=["Property Address","Property Type","Requested Services","Sig
 function ProjectBriefDetails({value}:{value:string}){
  const source=String(value||"").split("__UPZ_CONTEXT__")[0].split("__UPZ_DECISION__")[0].trim();
  const fields=[...BRIEF_FIELDS,"Survey Requested","Signage Path","Survey Credit Policy","Coverage","Condition","Notes"];
- const escaped=fields.map(field=>field.replace(/[.*+?^$\u007b\u007d()|[\]\\]/g,"\\function statusLabel(value:string)")).join("|");
- const matches=[...source.matchAll(new RegExp("(?:^|\\\\s)("+escaped+")\\\\s*:\\\\s*","gi"))];
+ const escaped=fields.join("|");
+ const matches=[...source.matchAll(new RegExp("(?:^|\\s)("+escaped+")\\s*:\\s*","gi"))];
  const entries=matches.map((match,index)=>({label:match[1],value:source.slice((match.index||0)+match[0].length,index+1<matches.length?matches[index+1].index:source.length).trim()})).filter(entry=>BRIEF_FIELDS.some(field=>field.toLowerCase()===entry.label.toLowerCase())&&entry.value&&entry.value.toLowerCase()!=="none");
  if(!entries.length)return <RequestDetails value={value} className="client-request-details"/>;
  return <div className="client-project-brief-grid">{entries.map((entry,index)=><div key={index}><span>{entry.label}</span><strong>{entry.value}</strong></div>)}</div>;
