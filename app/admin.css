@@ -125,3 +125,25 @@
 .request-setup-page .request-workflow-builder-disclosure>summary{padding:18px 22px;cursor:pointer;background:#f8f8f5;color:#111}
 .request-setup-page .request-stage-row,.request-setup-page .approval-schedule-panel,.request-setup-page .approval-estimate-panel{color:#151515}
 @media(max-width:760px){.request-setup-page .request-brief-overview,.request-setup-page .request-intake-grid{grid-template-columns:1fr}}
+
+/* Lightweight per-project expense manager */
+.project-os-page .project-expense-manager{max-width:100%;min-width:0}
+.project-os-page .project-expense-description{font-size:12px;color:#747c84;margin:4px 0 18px}
+.project-os-page .project-expense-entry{display:grid;grid-template-columns:minmax(180px,2fr) minmax(115px,.8fr) minmax(145px,1.2fr) auto;gap:10px;align-items:end;padding:15px;background:#f7f8fa;border:1px solid #e5e8eb;border-radius:10px}
+.project-os-page .project-expense-entry label{display:flex;flex-direction:column;gap:6px;font-size:10px;font-weight:800;letter-spacing:.025em;color:#59636d}
+.project-os-page .project-expense-entry :is(input,select){box-sizing:border-box;width:100%;min-width:0;height:36px;padding:7px 10px;border:1px solid #d7dde3;border-radius:7px;background:#fff;color:#252b31;font:500 12px inherit}
+.project-os-page .project-expense-entry button{height:36px;padding:0 15px;border:0;border-radius:7px;background:#252a30;color:white;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+.project-os-page .project-expense-entry button:disabled{opacity:.5;cursor:not-allowed}
+.project-os-page .project-expense-list{margin-top:15px}
+.project-os-page .project-expense-list article{display:flex;align-items:center;gap:14px;padding:11px 4px;border-bottom:1px solid #eceef0}
+.project-os-page .project-expense-list article>div{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}
+.project-os-page .project-expense-list article strong{font-size:12px;color:#242a30}
+.project-os-page .project-expense-list article small{font-size:10px;color:#808891}
+.project-os-page .project-expense-list article>b{font-size:12px;color:#252a30;font-variant-numeric:tabular-nums}
+.project-os-page .project-expense-list article button{border:0;background:transparent;color:#8a6161;font-size:10px;cursor:pointer;padding:7px}
+.project-os-page .project-expense-total{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding:15px 4px 0;border-top:1px solid #dce0e4;font-size:12px;font-weight:800}
+.project-os-page .project-expense-total strong{font-size:19px;font-variant-numeric:tabular-nums}
+.project-os-page .project-expense-empty,.project-os-page .project-expense-hint{font-size:12px;color:#7b828a}
+.project-os-page .project-expense-error{font-size:12px;color:#b42318}
+@media(max-width:850px){.project-os-page .project-expense-entry{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.project-os-page .project-expense-entry{grid-template-columns:1fr}.project-os-page .project-expense-list article{gap:7px;flex-wrap:wrap}}
