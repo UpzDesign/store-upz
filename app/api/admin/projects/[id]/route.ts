@@ -39,7 +39,7 @@ export async function PATCH(request: NextRequest, c: { params: Promise<{ id: str
       if (key in body) data[key] = body[key] ? String(body[key]).trim() : null;
     }
     for (const key of ["startDate", "dueDate"]) if (key in body) data[key] = body[key] ? new Date(body[key]) : null;
-    for (const key of ["budget", "internalCost"]) if (key in body) data[key] = Number.isFinite(Number(body[key])) ? Number(body[key]) : null;
+    for (const key of ["budget", "internalCost"]) if (key in body) { const value = body[key]; data[key] = value === null || value === "" || value === undefined ? null : Number.isFinite(Number(value)) && Number(value) >= 0 ? Math.round(Number(value) * 100) / 100 : null; }
     if ("clientVisible" in body) data.clientVisible = Boolean(body.clientVisible);
 
     const changedStatus = data.status && data.status !== existing.status;
