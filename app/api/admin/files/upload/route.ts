@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   const file = form.get("file");
   const projectId = Number(form.get("projectId"));
   if (!(file instanceof File) || !Number.isSafeInteger(projectId) || projectId < 1) return NextResponse.json({ error: "Invalid file or project" }, { status: 400 });
-  if (file.size < 1 || file.size > MAX_UPLOAD_BYTES) return NextResponse.json({ error: "File must be under 25 MB" }, { status: 400 });
+  if (file.size < 1 || file.size > MAX_UPLOAD_BYTES) return NextResponse.json({ error: "File must be under 4 MB" }, { status: 400 });
   const extension = file.name.split(".").pop()?.toLowerCase();
   if (!extension || !["jpg","jpeg","png","webp","gif","pdf","zip","txt","tif","tiff","svg","ai","eps","psd"].includes(extension)) return NextResponse.json({ error: "Unsupported file extension" }, { status: 400 });
   const project = await prisma.project.findUnique({ where: { id: projectId }, select: { assignedTo: true } });
