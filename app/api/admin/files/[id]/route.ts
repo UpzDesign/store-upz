@@ -21,9 +21,25 @@ export async function GET(_request:NextRequest,context:{params:Promise<{id:strin
  const ext=String(data.name||"").split(".").pop()?.toLowerCase();
  const images:Record<string,string>={jpg:"image/jpeg",jpeg:"image/jpeg",png:"image/png",webp:"image/webp",gif:"image/gif"};
  const imageType=ext?images[ext]:undefined;
- const mime=imageType&&data.mime===imageType?imageType:"application/octet-stream";
+ const mime=imageType||"application/octet-stream";
  const originalName=String(data.name||"file").replace(/[\r\n\\/"]/g,"_").slice(0,180);
  const safeAscii=originalName.replace(/[^\x20-\x7e]/g,"_");
  const disposition=(mime!=="application/octet-stream"?"inline":"attachment")+"; filename=\""+safeAscii+"\"; filename*=UTF-8\x27\x27"+encodeURIComponent(originalName);
- return new NextResponse(result.body,{headers:{"Content-Type":mime,"Content-Disposition":disposition,"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Content-Security-Policy":"default-src 'none'; sandbox"}});
+ return new NextResponse(result.body,{headers:{"Content-Type":mime,"Content-Disposition":disposition,"Cache-Control":"private, no-store","X-Content-Type-Options":"nosniff","Content-Security-Policy":"default-src 'none'; img-src 'self' data:; sandbox"}});
+}
+
+export async function PATCH(request:NextRequest,context:{params:Promise<{id:string}>}){
+ const session=await requireStaffSession(["admin","manager"]);
+ if(!session)return NextResponse.json({error:"Unauthorized"},{status:403});
+ const id=Number((await context.params).id);
+ if(!Number.isSafeInteger(id)||id<1)return NextResponse.json({error:"Invalid file"},{status:400});
+ const record=await prisma.projectActivity.findUnique({where:{id},include:{project:{select:{assignedTo:true}}}});
+ if(!record||record.type!=="project_file")return NextResponse.json({error:"Not found"},{status:404});
+ if(session.role==="manager"&&record.project.assignedTo!==session.name)return NextResponse.json({error:"Forbidden"},{status:403});
+ const payload=await request.json().catch(()=>null);
+ const title=typeof payload?.title==="string"?payload.title.trim():"";
+ if(!title||title.length>160)return NextResponse.json({error:"Photo name must be 1–160 characters"},{status:400});
+ const meta=JSON.parse(record.metadata||"{}");
+ await prisma.projectActivity.update({where:{id},data:{message:title,metadata:JSON.stringify({...meta,title})}});
+ return NextResponse.json({id,title});
 }
