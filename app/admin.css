@@ -267,3 +267,29 @@
 .upz-expense-forecast{margin:18px 0;padding:14px;border:1px solid #dce2e7;border-radius:7px}
 .upz-expense-forecast>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #edf0f2}
 .upz-expense-forecast small{display:block;margin-top:9px;color:#69747e}
+
+/* Portfolio and work-order navigation: AdminUI-consistent spacing */
+.admin-dashboard-page .admin-ui-section,.operations-dashboard-page .admin-ui-section{min-width:0;max-width:100%}
+.admin-dashboard-page .admin-ui-section-header,.operations-dashboard-page .admin-ui-section-header{min-width:0;display:flex;align-items:flex-start;flex-wrap:wrap;gap:12px}
+.admin-dashboard-page .admin-ui-section-header>div,.operations-dashboard-page .admin-ui-section-header>div{min-width:0;flex:1 1 220px}
+.admin-dashboard-page .admin-ui-section-header h2,.operations-dashboard-page .admin-ui-section-header h2{overflow-wrap:anywhere;word-break:normal;max-width:100%;font-size:clamp(16px,1.7vw,22px);line-height:1.25}
+.admin-dashboard-page .admin-dashboard-feed,.admin-dashboard-page .admin-dashboard-feed>a,.admin-dashboard-page .admin-dashboard-feed>a>div{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.admin-dashboard-page .admin-dashboard-feed strong,.admin-dashboard-page .admin-dashboard-feed span{overflow-wrap:anywhere}
+.upz-dashboard-review-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+.upz-portfolio-quick-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid rgba(1,1,1,.1)}
+.upz-portfolio-quick-actions .admin-ui-btn{max-width:100%;white-space:normal;text-align:left;overflow-wrap:anywhere;font-size:12px}
+.admin-engagement-card-link{min-width:0}
+.upz-portfolio-order-row{display:flex;align-items:center;gap:12px;min-width:0;border-bottom:1px solid rgba(1,1,1,.08);padding:8px 0}
+.upz-portfolio-order-row>button{flex:1;min-width:0}
+.upz-portfolio-order-row>.admin-ui-btn{flex-shrink:0;max-width:45%;white-space:normal}
+.upz-workflow-explainer p{margin:0;line-height:1.7;color:#515b62;font-size:13px}
+.upz-workflow-explainer strong{color:#1b242b}
+.upz-review-controls{background:#fafafa}
+.upz-review-controls .admin-ui-field{width:100%}
+.upz-review-controls .admin-ui-btn{font:inherit;white-space:normal}
+.upz-review-controls .admin-ui-btn--outline{background:#fff;color:inherit}
+.upz-review-controls .admin-ui-btn--ghost{background:transparent;color:inherit}
+.upz-deliverable-filters{flex-wrap:wrap;align-items:end}
+.upz-deliverable-filters .admin-ui-field{min-width:180px}
+.upz-deliverable-filters select{margin:0;width:100%;min-height:40px}
+@media(max-width:700px){.upz-portfolio-order-row{align-items:stretch;flex-direction:column}.upz-portfolio-order-row>.admin-ui-btn{max-width:100%}.upz-portfolio-quick-actions .admin-ui-btn{width:100%;justify-content:center}}
