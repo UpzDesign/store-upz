@@ -255,3 +255,15 @@
 .upz-photo-lightbox button{align-self:flex-end;border:1px solid #888;background:#242a30;color:white;padding:10px 16px;cursor:pointer}
 .upz-deliverable-filters{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:12px 0 20px;font-size:12px}
 .upz-deliverable-filters select{padding:9px;border:1px solid #dce2e7;border-radius:5px;margin-left:8px}
+
+.upz-review-controls{display:grid;gap:10px;margin:15px 0;padding:13px;border:1px solid #dce2e7;border-radius:7px}
+.upz-review-controls label{font-size:12px;font-weight:600;display:grid;gap:7px}
+.upz-review-controls textarea{width:100%;min-height:55px;padding:9px;border:1px solid #dce2e7;border-radius:5px;font:inherit}
+.upz-review-controls>div{display:flex;gap:8px;flex-wrap:wrap}
+.upz-review-controls button{padding:9px 12px;border:1px solid #c8d1d8;background:#fff;border-radius:5px;cursor:pointer}
+.upz-review-controls button:first-child{background:#263d35;color:#fff}
+.upz-review-controls button:disabled{opacity:.5;cursor:not-allowed}
+.upz-review-controls small{color:#64717b}
+.upz-expense-forecast{margin:18px 0;padding:14px;border:1px solid #dce2e7;border-radius:7px}
+.upz-expense-forecast>div{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #edf0f2}
+.upz-expense-forecast small{display:block;margin-top:9px;color:#69747e}
