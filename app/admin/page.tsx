@@ -13,7 +13,8 @@ type Task = { id?:number;title?:string;status:string;assignedTo?:string|null;due
 type WorkOrder = { id:number;title:string;status:string;priority:string;assignedTo?:string|null;dueDate?:string|null;updatedAt?:string;company:{name:string;shortName:string;slug:string;primaryColor?:string|null};engagement?:{id:number;name:string}|null;tasks?:Task[] };
 type TeamMember = { id:number;name:string;role:string;capacity:number;active:number;overdue:number;tasks:number };
 type ActivityItem = {id:string;kind:string;category:string;title:string;message:string;createdAt:string;company:{name:string;shortName:string;slug:string;primaryColor?:string|null};portfolio?:{id:number;name:string}|null;href:string;actionable:boolean;priority?:string};
-type SourceErrors = Partial<Record<"companies"|"inbox"|"operations"|"activity",string>>;
+type SourceErrors = Partial<Record<"companies"|"inbox"|"operations"|"activity"|"deliverables",string>>;
+type ReviewItem={id:number;title:string;projectTitle:string;companyName:string;status:string};
 
 const needsAction=(item:ActivityItem)=>item.actionable||item.category==="Attention"||item.category==="Requests"||item.kind==="client_response"||item.priority==="urgent"||item.priority==="high";
 
@@ -31,6 +32,7 @@ export default function AdminDashboardPage() {
   const [projects,setProjects]=useState<WorkOrder[]>([]);
   const [team,setTeam]=useState<TeamMember[]>([]);
   const [activity,setActivity]=useState<ActivityItem[]>([]);
+  const [deliverables,setDeliverables]=useState<ReviewItem[]>([]);
   const [sourceErrors,setSourceErrors]=useState<SourceErrors>({});
   const [loading,setLoading]=useState(false);
 
@@ -44,9 +46,10 @@ export default function AdminDashboardPage() {
       fetch("/api/admin/inbox",{cache:"no-store"}).then(response=>readJson(response,"Action Center")),
       fetch("/api/admin/operations",{cache:"no-store"}).then(response=>readJson(response,"Operations")),
       fetch("/api/admin/activity-center",{cache:"no-store"}).then(response=>readJson(response,"Activity Center")),
+      fetch("/api/admin/deliverables",{cache:"no-store"}).then(response=>readJson(response,"Deliverables")),
     ]).then(results=>{
       const nextErrors:SourceErrors={};
-      const [companyResult,inboxResult,operationsResult,activityResult]=results;
+      const [companyResult,inboxResult,operationsResult,activityResult,deliverableResult]=results;
       if(companyResult.status==="fulfilled")setCompanies(Array.isArray(companyResult.value)?companyResult.value:[]);else nextErrors.companies=companyResult.reason?.message||"Companies unavailable";
       if(inboxResult.status==="fulfilled")setInbox(Array.isArray(inboxResult.value)?inboxResult.value:[]);else nextErrors.inbox=inboxResult.reason?.message||"Action Center unavailable";
       if(operationsResult.status==="fulfilled"){
@@ -54,10 +57,12 @@ export default function AdminDashboardPage() {
         setTeam(Array.isArray(operationsResult.value?.team)?operationsResult.value.team:[]);
       }else nextErrors.operations=operationsResult.reason?.message||"Operations unavailable";
       if(activityResult.status==="fulfilled")setActivity(Array.isArray(activityResult.value?.items)?activityResult.value.items:[]);else nextErrors.activity=activityResult.reason?.message||"Activity Center unavailable";
+      if(deliverableResult.status==="fulfilled")setDeliverables(Array.isArray(deliverableResult.value)?deliverableResult.value:[]);else nextErrors.deliverables=deliverableResult.reason?.message||"Deliverables unavailable";
       setSourceErrors(nextErrors);
     }).finally(()=>setLoading(false));
   },[authenticated]);
 
+  const pendingReviews=useMemo(()=>deliverables.filter(item=>item.status==="waiting_for_review"),[deliverables]);
   const pendingRequests=useMemo(()=>inbox.filter(item=>item.inboxKind==="request"&&!item.project&&!isClosedRequestStatus(item.status)),[inbox]);
   const activeProjects=useMemo(()=>projects.filter(project=>!isInactiveStatus(project.status)),[projects]);
   const dueToday=useMemo(()=>activeProjects.filter(project=>isDueToday(project.dueDate)),[activeProjects]);
@@ -73,7 +78,8 @@ export default function AdminDashboardPage() {
     {label:"Waiting Client",value:waitingClient.length},
     {label:"Active Work Orders",value:activeProjects.length},
     {label:"New Requests",value:pendingRequests.length},
-  ],[dueToday,overdue,waitingClient,activeProjects,pendingRequests]);
+    {label:"Proofs Awaiting Review",value:pendingReviews.length},
+  ],[dueToday,overdue,waitingClient,activeProjects,pendingRequests,pendingReviews]);
   const sourceErrorList=Object.values(sourceErrors).filter(Boolean);
 
   function handleLogin(event:React.FormEvent<HTMLFormElement>){event.preventDefault();if(password.trim()!==ADMIN_PASSWORD){setError("Invalid admin password.");return}window.localStorage.setItem("upz_admin","true");window.dispatchEvent(new Event("upz-admin-auth"));setAuthenticated(true);setError("")}
@@ -92,6 +98,7 @@ export default function AdminDashboardPage() {
       <AdminSection><AdminSectionHeader eyebrow="Client Hold" title="Waiting on client" actions={<AdminButton variant="outline" href="/admin/operations?status=waiting_client">Open Queue</AdminButton>}/>{workList(waitingClient,"No work orders are waiting on a client response.")}</AdminSection>
     </section>
 
+    <AdminSection><AdminSectionHeader eyebrow="Deliverables" title={"Proofs awaiting review · "+pendingReviews.length} actions={<AdminButton href="/admin/deliverables">Open Deliverables</AdminButton>}/>{pendingReviews.length?<div className="admin-dashboard-feed">{pendingReviews.slice(0,5).map(item=><Link href="/admin/deliverables" key={item.id}><div><span>{item.companyName} · {item.projectTitle}</span><strong>{item.title}</strong><small>Awaiting review</small></div></Link>)}</div>:<p>No deliverables currently awaiting review.</p>}</AdminSection>
     <section className="admin-dashboard-main-grid admin-dashboard-action-grid">
       <AdminSection className="admin-dashboard-activity"><AdminSectionHeader eyebrow="Approval Queue" title={pendingRequests.length?`${pendingRequests.length} request${pendingRequests.length===1?"":"s"} ready for review`:"Approval queue clear"} actions={<AdminButton href="/admin/inbox?tab=requests">Open Requests</AdminButton>}/>{pendingRequests.length?<div className="admin-dashboard-feed">{pendingRequests.slice(0,5).map(item=><Link href={`/admin/request/${item.id}`} key={item.id} style={{"--dashboard-client":item.company.primaryColor} as React.CSSProperties}><i/><div><span>{item.company.shortName} · {item.type}</span><strong>{item.title}</strong><small>{item.priority} priority</small></div><time>{new Date(item.createdAt).toLocaleDateString()}</time></Link>)}</div>:<p>No requests are waiting for approval.</p>}</AdminSection>
       <AdminSection><AdminSectionHeader eyebrow="Priority Activity" title="Needs your attention" actions={<AdminButton variant="outline" href="/admin/activity-center">Activity Center</AdminButton>}/>{actionItems.length?<div className="admin-dashboard-feed">{actionItems.map(item=><Link href={item.href} key={item.id} style={{"--dashboard-client":item.company.primaryColor||"#edbf2d"} as React.CSSProperties}><i/><div><span>{item.category} · {item.company.shortName}</span><strong>{item.title}</strong><small>{item.message}</small></div><time>{new Date(item.createdAt).toLocaleDateString()}</time></Link>)}</div>:<p>No activity currently requires action.</p>}</AdminSection>
