@@ -243,3 +243,15 @@
 .project-photo-edit{display:flex;flex-wrap:wrap;gap:6px;padding:9px}
 .project-photo-edit input{width:100%;min-width:0;padding:8px;border:1px solid #d8dee4;border-radius:5px;font-size:12px}
 .project-photo-edit small{width:100%;color:#a33}
+
+.upz-stage-progress{height:7px;background:#e8edf0;border-radius:9px;overflow:hidden;margin:8px 0 18px}
+.upz-stage-progress>div{height:100%;background:#d53b41;transition:width .2s ease}
+.upz-task-date{display:flex;align-items:center;gap:5px;font-size:10px;color:#626b73}
+.upz-task-date input{max-width:135px;border:1px solid #dce2e7;border-radius:5px;padding:6px;font-size:11px}
+.upz-photo-open{display:block;width:100%;border:0;padding:0;cursor:zoom-in;background:#eff2f4}
+.upz-photo-open img{width:100%;height:155px;object-fit:cover;display:block}
+.upz-photo-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(8,11,15,.93);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px;padding:45px 20px;color:white}
+.upz-photo-lightbox img{max-width:95vw;max-height:76vh;object-fit:contain}
+.upz-photo-lightbox button{align-self:flex-end;border:1px solid #888;background:#242a30;color:white;padding:10px 16px;cursor:pointer}
+.upz-deliverable-filters{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:12px 0 20px;font-size:12px}
+.upz-deliverable-filters select{padding:9px;border:1px solid #dce2e7;border-radius:5px;margin-left:8px}
