@@ -13,8 +13,9 @@ type Task = { id?:number;title?:string;status:string;assignedTo?:string|null;due
 type WorkOrder = { id:number;title:string;status:string;priority:string;assignedTo?:string|null;dueDate?:string|null;updatedAt?:string;company:{name:string;shortName:string;slug:string;primaryColor?:string|null};engagement?:{id:number;name:string}|null;tasks?:Task[] };
 type TeamMember = { id:number;name:string;role:string;capacity:number;active:number;overdue:number;tasks:number };
 type ActivityItem = {id:string;kind:string;category:string;title:string;message:string;createdAt:string;company:{name:string;shortName:string;slug:string;primaryColor?:string|null};portfolio?:{id:number;name:string}|null;href:string;actionable:boolean;priority?:string};
-type SourceErrors = Partial<Record<"companies"|"inbox"|"operations"|"activity"|"deliverables",string>>;
+type SourceErrors = Partial<Record<"companies"|"inbox"|"operations"|"activity"|"deliverables"|"dailyLogs",string>>;
 type ReviewItem={id:number;title:string;projectTitle:string;companyName:string;status:string};
+type DailyItem={id:number;projectId:number;projectTitle:string;message:string;createdAt:string;actor?:string|null;metadata?:string|null};
 
 const needsAction=(item:ActivityItem)=>item.actionable||item.category==="Attention"||item.category==="Requests"||item.kind==="client_response"||item.priority==="urgent"||item.priority==="high";
 
@@ -33,6 +34,7 @@ export default function AdminDashboardPage() {
   const [team,setTeam]=useState<TeamMember[]>([]);
   const [activity,setActivity]=useState<ActivityItem[]>([]);
   const [deliverables,setDeliverables]=useState<ReviewItem[]>([]);
+  const [recentLogs,setRecentLogs]=useState<DailyItem[]>([]);
   const [sourceErrors,setSourceErrors]=useState<SourceErrors>({});
   const [loading,setLoading]=useState(false);
 
@@ -47,9 +49,10 @@ export default function AdminDashboardPage() {
       fetch("/api/admin/operations",{cache:"no-store"}).then(response=>readJson(response,"Operations")),
       fetch("/api/admin/activity-center",{cache:"no-store"}).then(response=>readJson(response,"Activity Center")),
       fetch("/api/admin/deliverables",{cache:"no-store"}).then(response=>readJson(response,"Deliverables")),
+      fetch("/api/admin/daily-log-recent",{cache:"no-store"}).then(response=>readJson(response,"Daily Logs")),
     ]).then(results=>{
       const nextErrors:SourceErrors={};
-      const [companyResult,inboxResult,operationsResult,activityResult,deliverableResult]=results;
+      const [companyResult,inboxResult,operationsResult,activityResult,deliverableResult,dailyLogResult]=results;
       if(companyResult.status==="fulfilled")setCompanies(Array.isArray(companyResult.value)?companyResult.value:[]);else nextErrors.companies=companyResult.reason?.message||"Companies unavailable";
       if(inboxResult.status==="fulfilled")setInbox(Array.isArray(inboxResult.value)?inboxResult.value:[]);else nextErrors.inbox=inboxResult.reason?.message||"Action Center unavailable";
       if(operationsResult.status==="fulfilled"){
@@ -58,6 +61,7 @@ export default function AdminDashboardPage() {
       }else nextErrors.operations=operationsResult.reason?.message||"Operations unavailable";
       if(activityResult.status==="fulfilled")setActivity(Array.isArray(activityResult.value?.items)?activityResult.value.items:[]);else nextErrors.activity=activityResult.reason?.message||"Activity Center unavailable";
       if(deliverableResult.status==="fulfilled")setDeliverables(Array.isArray(deliverableResult.value)?deliverableResult.value:[]);else nextErrors.deliverables=deliverableResult.reason?.message||"Deliverables unavailable";
+      if(dailyLogResult.status==="fulfilled")setRecentLogs(Array.isArray(dailyLogResult.value)?dailyLogResult.value:[]);else nextErrors.dailyLogs=dailyLogResult.reason?.message||"Daily Log unavailable";
       setSourceErrors(nextErrors);
     }).finally(()=>setLoading(false));
   },[authenticated]);
@@ -104,6 +108,7 @@ export default function AdminDashboardPage() {
       <AdminSection><AdminSectionHeader eyebrow="Priority Activity" title="Needs your attention" actions={<AdminButton variant="outline" href="/admin/activity-center">Activity Center</AdminButton>}/>{actionItems.length?<div className="admin-dashboard-feed">{actionItems.map(item=><Link href={item.href} key={item.id} style={{"--dashboard-client":item.company.primaryColor||"#edbf2d"} as React.CSSProperties}><i/><div><span>{item.category} · {item.company.shortName}</span><strong>{item.title}</strong><small>{item.message}</small></div><time>{new Date(item.createdAt).toLocaleDateString()}</time></Link>)}</div>:<p>No activity currently requires action.</p>}</AdminSection>
     </section>
 
+    <AdminSection><AdminSectionHeader eyebrow="Field activity" title="Recent Daily Log updates" actions={<AdminButton href="/admin/operations">Open Work Management</AdminButton>}/>{recentLogs.length?<div className="admin-dashboard-feed">{recentLogs.slice(0,6).map(item=><Link href={`/admin/project/${item.projectId}`} key={item.id}><div><span>{item.projectTitle} · {item.actor||"UPZ Admin"}</span><strong>{item.message.slice(0,160)}</strong></div><time>{new Date(item.createdAt).toLocaleDateString()}</time></Link>)}</div>:<p>No Daily Log updates yet.</p>}</AdminSection>
     <section className="operations-dashboard-secondary-grid">
       <AdminSection><AdminSectionHeader eyebrow="Resources" title="Team capacity" actions={<AdminButton variant="outline" href="/admin/operations?tab=schedule">Resource Schedule</AdminButton>}/><div className="operations-dashboard-team">{teamCapacity.map(member=><article key={member.id} className={member.load>100?"is-over":member.load>=80?"is-busy":""}><div><strong>{member.name}</strong><span>{member.role}</span></div><em>{member.load}%</em><i><b style={{width:`${Math.min(100,member.load)}%`}}/></i><small>{member.tasks} active stages · {member.overdue} overdue</small></article>)}{!teamCapacity.length&&<p>No active team members.</p>}</div></AdminSection>
       <AdminSection><AdminSectionHeader eyebrow="History" title="Recently completed" actions={<AdminButton variant="outline" href="/admin/projects">Project Library</AdminButton>}/>{workList(recentlyCompleted,"No completed work orders yet.")}</AdminSection>
