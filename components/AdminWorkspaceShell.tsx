@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
-const ADMIN_WORKFLOW_NAV = [["Dashboard","/admin"],["Requests","/admin/inbox"],["Work Management","/admin/operations"],["Properties","/admin/properties"],["Projects","/admin/projects"],["Deliverables","/admin/deliverables"],["Activity Center","/admin/activity-center"]] as const;
-const MANAGER_NAV = [["Work Management","/admin/operations"],["Properties","/admin/properties"],["Managed Projects","/admin/projects"],["My Work","/admin/my-tasks"]] as const;
+const ADMIN_WORKFLOW_NAV = [["Dashboard","/admin"],["Requests","/admin/inbox"],["Work Orders","/admin/operations"],["Properties","/admin/properties"],["Portfolio","/admin/projects"],["Deliverables","/admin/deliverables"],["Activity Center","/admin/activity-center"]] as const;
+const MANAGER_NAV = [["Work Management","/admin/operations"],["Properties","/admin/properties"],["Portfolio","/admin/projects"],["My Work","/admin/my-tasks"]] as const;
 const CONTRIBUTOR_NAV = [["My Work","/admin/my-tasks"]] as const;
 const SETTINGS_NAV = [["Companies","/admin/companies"],["Team","/admin/team"],["Services","/admin/services"],["Workflow Templates","/admin/templates"],["Business Rules","/admin/business-rules"]] as const;
 const READ_KEY="upz_admin_read_notifications";
