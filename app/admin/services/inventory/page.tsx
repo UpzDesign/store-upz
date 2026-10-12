@@ -1,0 +1,18 @@
+"use client";
+import {useEffect,useMemo,useState} from "react";
+import Link from "next/link";
+import {AdminPage,AdminHeader,AdminSection,AdminSectionHeader,AdminStats,StatCard,AdminEmptyState} from "@/components/admin/AdminUI";
+type Service={id:number;slug:string;name:string;active:boolean;fieldCount:number;companyAssignments:number;customizedWorkflow:boolean;pricingConfigured:boolean;updatedAt:string};
+export default function ServiceInventoryPage(){
+ const [items,setItems]=useState<Service[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[filter,setFilter]=useState("all");
+ useEffect(()=>{fetch("/api/admin/services/inventory",{cache:"no-store"}).then(async r=>{const data=await r.json();if(!r.ok)throw Error(data.error||"Unable to load inventory");setItems(data)}).catch(e=>setError(e.message)).finally(()=>setLoading(false))},[]);
+ const visible=useMemo(()=>items.filter(item=>filter==="all"||(filter==="inactive"?!item.active:item.active)),[items,filter]);
+ return <AdminPage className="admin-service-inventory-page">
+  <AdminHeader eyebrow="Service Platform" title="Service Inventory" description="Read-only audit of active and inactive services. Nothing on this page changes service configurations." actions={<Link className="admin-ui-btn admin-ui-btn--outline" href="/admin/services">← Service Library</Link>}/>
+  <AdminStats><StatCard label="Total services" value={items.length}/><StatCard label="Active" value={items.filter(i=>i.active).length}/><StatCard label="Inactive" value={items.filter(i=>!i.active).length}/><StatCard label="Custom workflows" value={items.filter(i=>i.customizedWorkflow).length}/></AdminStats>
+  <AdminSection><AdminSectionHeader eyebrow="Recovery audit" title="Saved service records"/>
+   <div style={{display:"flex",gap:10,flexWrap:"wrap",marginBottom:20}}>{[["all","All"],["active","Active"],["inactive","Inactive"]].map(([value,label])=><button type="button" key={value} onClick={()=>setFilter(value)} aria-pressed={filter===value} className="admin-ui-btn admin-ui-btn--outline" style={{background:filter===value?"#edbf2d":undefined,color:filter===value?"#111":undefined}}>{label}</button>)}</div>
+   {loading?<p>Loading saved services...</p>:error?<p role="alert">{error}</p>:visible.length===0?<AdminEmptyState>No services found in this view.</AdminEmptyState>:<div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",textAlign:"left"}}><thead><tr>{["Service","Status","Fields","Companies","Workflow","Pricing","Last updated"].map(label=><th key={label} style={{padding:"12px 10px",borderBottom:"1px solid #ddd"}}>{label}</th>)}</tr></thead><tbody>{visible.map(item=><tr key={item.id}><td style={{padding:"12px 10px",borderBottom:"1px solid #eee"}}><strong>{item.name}</strong><div style={{fontSize:12,opacity:.65}}>{item.slug}</div></td><td>{item.active?"Active":"Inactive"}</td><td>{item.fieldCount}</td><td>{item.companyAssignments}</td><td>{item.customizedWorkflow?"Customized":"Default"}</td><td>{item.pricingConfigured?"Configured":"Not configured"}</td><td>{new Date(item.updatedAt).toLocaleDateString()}</td></tr>)}</tbody></table></div>}
+  </AdminSection>
+ </AdminPage>;
+}
