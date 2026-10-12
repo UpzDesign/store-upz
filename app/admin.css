@@ -355,3 +355,9 @@
 .upz-direct-invoice-form input[type=file]{font-size:11px}
 .upz-direct-invoice-form .admin-ui-btn{min-height:43px;justify-content:center}
 @media(max-width:680px){.upz-direct-invoice-form{grid-template-columns:1fr}}
+
+.upz-client-visibility-toggle{display:flex!important;align-items:flex-start;gap:12px;cursor:pointer;padding:14px;border:1px solid #dce2e7;border-radius:8px;background:#fafafa}
+.upz-client-visibility-toggle input{flex:0 0 18px;width:18px;height:18px;margin:2px 0 0;accent-color:#263d35}
+.upz-client-visibility-toggle span{display:grid;gap:5px}
+.upz-client-visibility-toggle strong{font-size:14px}
+.upz-client-visibility-toggle small{font-size:12px;line-height:1.55;color:#69747e;font-weight:400}
