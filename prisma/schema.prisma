@@ -408,6 +408,7 @@ model StandaloneInvoice {
  id Int @id @default(autoincrement())
  companyId Int
  company Company @relation(fields:[companyId],references:[id])
+ projectId Int?
  title String
  invoiceNumber String?
  amount Float?
