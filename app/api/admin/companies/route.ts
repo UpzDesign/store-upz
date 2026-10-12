@@ -40,6 +40,18 @@ export async function POST(request: Request) {
     const company = await prisma.company.create({
       data: {
         name,
+        billingName: body?.billingName ? String(body.billingName).trim().slice(0,200) : null,
+        billingContact: body?.billingContact ? String(body.billingContact).trim().slice(0,200) : null,
+        billingEmail: body?.billingEmail ? String(body.billingEmail).trim().slice(0,200) : null,
+        billingPhone: body?.billingPhone ? String(body.billingPhone).trim().slice(0,200) : null,
+        billingAddress1: body?.billingAddress1 ? String(body.billingAddress1).trim().slice(0,200) : null,
+        billingAddress2: body?.billingAddress2 ? String(body.billingAddress2).trim().slice(0,200) : null,
+        billingCity: body?.billingCity ? String(body.billingCity).trim().slice(0,200) : null,
+        billingState: body?.billingState ? String(body.billingState).trim().slice(0,200) : null,
+        billingPostalCode: body?.billingPostalCode ? String(body.billingPostalCode).trim().slice(0,200) : null,
+        billingCountry: body?.billingCountry ? String(body.billingCountry).trim().slice(0,200) : null,
+        paymentTerms: body?.paymentTerms ? String(body.paymentTerms).trim().slice(0,200) : null,
+        billingNotes: body?.billingNotes ? String(body.billingNotes).trim().slice(0,1000) : null,
         slug,
         shortName,
         logo: logoType === "image" && body?.logo ? String(body.logo).trim() : null,
