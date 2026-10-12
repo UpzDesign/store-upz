@@ -12,7 +12,7 @@ export function renderInvoicePDF(data:InvoicePDFData):Buffer{
  const line=(x:number,at:number,w:number)=>rect(x,at,w,0.7,.72,.72,.72);
  const newPage=()=>{pages.push([]);y=748;text("UPZ DESIGN  /  INVOICE "+data.number,48,766,10,true);rect(48,754,516,3,1,.84,.32)};
  const ensure=(h:number)=>{if(y-h<85)newPage()};
- const wrap=(value:string,max=88)=>{const result:string[]=[];for(const paragraph of clean(value).split(/\r?\n/)){if(!paragraph.trim()){result.push("");continue}let current="";for(const word of paragraph.trim().split(/\s+/)){if((current+" "+word).trim().length>max){if(current)result.push(current);current=word}else current=(current+" "+word).trim()}if(current)result.push(current)}return result};
+ const wrap=(value:string,max=88)=>{const result:string[]=[];for(const paragraph of String(value).split(/\r?\n/).map(clean).join("\n").split("\n")){if(!paragraph.trim()){result.push("");continue}let current="";for(const word of paragraph.trim().split(/\s+/)){if((current+" "+word).trim().length>max){if(current)result.push(current);current=word}else current=(current+" "+word).trim()}if(current)result.push(current)}return result};
  const block=(value:string,x:number,max:number,size=10,step=15)=>{for(const row of wrap(value,max)){ensure(step);if(row)text(row,x,y,size);y-=step}};
  // Brand header and yellow accent, inspired by the supplied UPZ invoice.
  text("U P Z",48,748,18,true);text("D E S I G N",48,731,10,true);
