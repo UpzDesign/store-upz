@@ -24,10 +24,11 @@ export async function POST(request:NextRequest){
   const dueDate=body.dueDate?new Date(String(body.dueDate)+"T12:00:00"):null;
   if(dueDate&&Number.isNaN(dueDate.getTime()))return NextResponse.json({error:"Invalid due date"},{status:400});
   if(engagementId){const existing=await prisma.engagement.findFirst({where:{id:engagementId,companyId},select:{id:true}});if(!existing)return NextResponse.json({error:"Selected portfolio does not belong to this client"},{status:400});}
+  const clientVisible=body.clientVisible===true;
   const project=await prisma.$transaction(async tx=>{
    const base=slugify(title),slug=`${base}-${Date.now().toString(36)}`;
-   const engagement=engagementId?{id:engagementId}:await tx.engagement.create({data:{companyId,name:String(body.portfolioName||title).trim().slice(0,180)||title,slug,type:"property",address:address||null,description:String(body.description||"").trim()||null,clientVisible:false}});
-   const created=await tx.project.create({data:{companyId,engagementId:engagement.id,title,description:String(body.description||"").trim()||null,status:"new",priority:"normal",assignedTo,dueDate,budget,internalCost,clientVisible:false,tasks:{create:stages.map((stage:string,i:number)=>({title:stage,sortOrder:i,status:i===0?"ready":"todo",assignedTo}))},activities:{create:{type:"project_created",message:"Work Order created directly by staff.",actor:session.name}}}});
+   const engagement=engagementId?{id:engagementId}:await tx.engagement.create({data:{companyId,name:String(body.portfolioName||title).trim().slice(0,180)||title,slug,type:"property",address:address||null,description:String(body.description||"").trim()||null,clientVisible}});
+   const created=await tx.project.create({data:{companyId,engagementId:engagement.id,title,description:String(body.description||"").trim()||null,status:"new",priority:"normal",assignedTo,dueDate,budget,internalCost,clientVisible,tasks:{create:stages.map((stage:string,i:number)=>({title:stage,sortOrder:i,status:i===0?"ready":"todo",assignedTo}))},activities:{create:{type:"project_created",message:"Work Order created directly by staff.",actor:session.name}}}});
    return created;
   });
   return NextResponse.json({id:project.id,url:`/admin/project/${project.id}`},{status:201});
