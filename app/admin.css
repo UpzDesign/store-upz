@@ -361,3 +361,14 @@
 .upz-client-visibility-toggle span{display:grid;gap:5px}
 .upz-client-visibility-toggle strong{font-size:14px}
 .upz-client-visibility-toggle small{font-size:12px;line-height:1.55;color:#69747e;font-weight:400}
+
+.upz-invoice-generator{display:grid;gap:18px}
+.upz-invoice-generator>p{margin:0}
+.upz-invoice-items{display:grid;gap:10px}
+.upz-invoice-item{display:grid;grid-template-columns:minmax(160px,1fr) 85px 120px auto;gap:8px}
+.upz-invoice-item input,.upz-invoice-notes textarea{width:100%;min-width:0;padding:10px;border:1px solid #d6dde3;border-radius:6px;font:inherit}
+.upz-invoice-item button,.upz-invoice-items>button{padding:9px 12px;border:1px solid #d6dde3;border-radius:6px;background:#fff;cursor:pointer}
+.upz-invoice-items>button{justify-self:start}
+.upz-invoice-notes{display:grid;gap:7px;font-size:12px;font-weight:650}
+.upz-invoice-generator>.admin-ui-btn{justify-self:start}
+@media(max-width:640px){.upz-invoice-item{grid-template-columns:1fr 1fr}.upz-invoice-item input:first-child{grid-column:1/-1}}
