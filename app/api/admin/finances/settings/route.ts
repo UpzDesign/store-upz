@@ -10,7 +10,7 @@ export async function PUT(request:NextRequest){const session=await requireStaffS
  if(!data.businessName||!data.address||!data.email)return NextResponse.json({error:"Business name, address and email are required"},{status:400});
  if(data.logoSvg){
   const svg=data.logoSvg.trim();
-  if(svg.length>250000||!/<svg(?:\\s|>)/i.test(svg)||!/<\\/svg>\\s*$/i.test(svg)||/<(?:script|foreignObject|iframe|object|embed)\\b/i.test(svg)||/\\bon[a-z]+\\s*=/i.test(svg)||/<!DOCTYPE|<!ENTITY/i.test(svg)||/(?:href|src)\\s*=\\s*["'](?!#|data:image\\/(?:png|jpeg|webp|gif);base64,)/i.test(svg)||/url\\s*\\(\\s*["']?(?!#|data:image\\/(?:png|jpeg|webp|gif);base64,)/i.test(svg))return NextResponse.json({error:"Invalid SVG: remove scripts, external links, or unsupported embedded resources."},{status:400});
+  if(svg.length>250000 || !svg.includes("<svg") || !svg.includes("</svg>") || /<script|<foreignObject|<iframe|<object|<embed|<!DOCTYPE|<!ENTITY/i.test(svg) || /\bon[a-z]+\s*=/i.test(svg) || /https?:\/\//i.test(svg)) return NextResponse.json({error:"Invalid SVG: remove scripts or external resources."},{status:400});
   try{const info=await sharp(Buffer.from(svg),{limitInputPixels:10000000}).metadata();if(info.format!=="svg"||!info.width||!info.height||info.width>10000||info.height>10000)throw new Error("Invalid SVG dimensions");}catch{return NextResponse.json({error:"Unable to read this SVG. Please export as a standard SVG from Illustrator or Figma."},{status:400});}
  }
 
