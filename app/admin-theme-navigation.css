@@ -32,3 +32,27 @@
 .admin-workspace-content .project-os-page .upz-stage-delete:hover{background:#fbe1e1!important}
 .admin-workspace-content .admin-engagement-page .admin-ui-toolbar{min-height:60px}
 @media(max-width:900px){.admin-workspace-content .ops-board>.ops-column{min-width:220px!important}}
+
+
+/* Consistent portfolio filter position, even for an empty archive. */
+.admin-workspace-content .admin-engagement-page .upz-portfolio-attention{min-height:0}
+.admin-workspace-content .admin-engagement-page .upz-portfolio-attention:not(:has(.admin-ui-section)){display:none}
+.admin-workspace-content .admin-engagement-page .admin-ui-tabs{min-height:56px;align-content:center}
+.admin-workspace-content .admin-engagement-page .admin-ui-toolbar{margin-top:0!important}
+.admin-workspace-content .admin-engagement-page .admin-ui-section{min-width:0}
+/* Workspace stage discussion: same card rhythm and spacing as admin panels. */
+.admin-workspace-content .project-os-messages .stage-message-stack{display:grid;gap:16px;margin:20px 0 24px}
+.admin-workspace-content .project-os-messages .stage-message-group,
+.admin-workspace-content .project-os-task-panel .stage-message-group{
+ display:grid;gap:12px;min-width:0;padding:20px!important;margin:0!important;
+ border:1px solid #e5e7eb;border-radius:14px;background:#fff;
+}
+.admin-workspace-content .stage-message-group>header{
+ display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;
+ margin:0!important;padding:0 0 12px!important;border-bottom:1px solid #edf0f2;
+}
+.admin-workspace-content .stage-message-group>header :is(span,strong){display:block;line-height:1.5;overflow-wrap:anywhere}
+.admin-workspace-content .stage-message-group .stage-message-empty{margin:0!important;padding:8px 0;color:#68717b;line-height:1.65}
+.admin-workspace-content .project-os-messages .project-message-composer{margin-top:20px;display:grid;gap:12px}
+.admin-workspace-content .project-os-messages .project-os-section-head{margin-bottom:18px}
+.admin-workspace-content .project-os-task-panel .task-workspace{min-width:0;margin-top:16px}
