@@ -49,11 +49,11 @@ export async function renderInvoicePDF(data:InvoicePDFData):Promise<Buffer>{
  const objects:string[]=["","<< /Type /Pages /Kids [] /Count 0 >>"];
  const addFont=(face:Awaited<ReturnType<typeof loadInvoiceFont>>,name:string)=>{
   const bytes=face.font;
-  const fileId=objects.push(`<< /Length ${bytes.length} /Length1 ${bytes.length} >>\\nstream\\n${bytes.toString("latin1")}\\nendstream`);
+  const fileId=objects.push(`<< /Length ${bytes.length} /Length1 ${bytes.length} >>\nstream\n${bytes.toString("latin1")}\nendstream`);
   const descriptorId=objects.push(`<< /Type /FontDescriptor /FontName /${name} /Flags 32 /FontBBox [${face.bbox.join(" ")}] /ItalicAngle 0 /Ascent ${face.ascent} /Descent ${face.descent} /CapHeight ${face.ascent} /StemV 90 /FontFile2 ${fileId} 0 R >>`);
   const cidId=objects.push(`<< /Type /Font /Subtype /CIDFontType2 /BaseFont /${name} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${descriptorId} 0 R /DW 1000 /W [0 [${face.advances.join(" ")}]] /CIDToGIDMap /Identity >>`);
   const unicode=face.toUnicode;
-  const unicodeId=objects.push(`<< /Length ${Buffer.byteLength(unicode,"latin1")} >>\\nstream\\n${unicode}\\nendstream`);
+  const unicodeId=objects.push(`<< /Length ${Buffer.byteLength(unicode,"latin1")} >>\nstream\n${unicode}\nendstream`);
   return objects.push(`<< /Type /Font /Subtype /Type0 /BaseFont /${name} /Encoding /Identity-H /DescendantFonts [${cidId} 0 R] /ToUnicode ${unicodeId} 0 R >>`);
  };
  const regularFontId=addFont(montserrat,"Montserrat");
