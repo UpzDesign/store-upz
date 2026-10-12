@@ -32,3 +32,22 @@ export async function PATCH(request:NextRequest,context:{params:Promise<{id:stri
 }
 
 export async function DELETE(_request:NextRequest,context:{params:Promise<{id:string}>}){const session=await requireStaffSession(["admin"]);if(!session)return NextResponse.json({error:"Admin access required"},{status:403});const {id}=await context.params;const task=await prisma.projectTask.findUnique({where:{id:Number(id)}});if(!task)return NextResponse.json({error:"Task not found"},{status:404});await prisma.projectTask.delete({where:{id:task.id}});const remaining=await prisma.projectTask.findMany({where:{projectId:task.projectId},orderBy:{sortOrder:"asc"}});await prisma.$transaction(remaining.map((item,index)=>prisma.projectTask.update({where:{id:item.id},data:{sortOrder:index}})));await prisma.projectActivity.create({data:{projectId:task.projectId,type:"task_removed",message:`Work removed: ${task.title}.`,actor:session.name}});return NextResponse.json({ok:true});}
+
+
+export async function DELETE(_request:NextRequest,context:{params:Promise<{id:string}>}){
+ const session=await requireStaffSession(["admin"]);
+ if(!session)return NextResponse.json({error:"Admin access required"},{status:403});
+ const {id}=await context.params;const taskId=Number(id);
+ if(!Number.isSafeInteger(taskId)||taskId<1)return NextResponse.json({error:"Invalid stage"},{status:400});
+ const task=await prisma.projectTask.findUnique({where:{id:taskId},include:{_count:{select:{attachments:true,comments:true,checklist:true,expenses:true}}}});
+ if(!task)return NextResponse.json({error:"Stage not found"},{status:404});
+ if(task._count.expenses>0)return NextResponse.json({error:"This stage has recorded expenses. Remove or reassign those expenses before deleting the stage."},{status:409});
+ if(task._count.attachments>0)return NextResponse.json({error:"This stage contains files. Move or remove its files before deleting the stage."},{status:409});
+ await prisma.$transaction(async tx=>{
+  await tx.projectTask.delete({where:{id:taskId}});
+  const siblings=await tx.projectTask.findMany({where:{projectId:task.projectId},orderBy:[{sortOrder:"asc"},{id:"asc"}],select:{id:true}});
+  for(let index=0;index<siblings.length;index++)await tx.projectTask.update({where:{id:siblings[index].id},data:{sortOrder:index}});
+  await tx.projectActivity.create({data:{projectId:task.projectId,type:"stage_deleted",actor:session.name,message:`Admin removed work stage: ${task.title}.`}});
+ });
+ return NextResponse.json({deleted:true,id:taskId});
+}
