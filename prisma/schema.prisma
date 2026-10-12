@@ -36,6 +36,7 @@ model Company {
   orders           Order[]
   engagements      Engagement[]
   projects         Project[]
+  standaloneInvoices StandaloneInvoice[]
   companyServices  CompanyService[]
 }
 
@@ -394,6 +395,7 @@ model Order {
 model StandaloneInvoice {
  id Int @id @default(autoincrement())
  companyId Int
+ company Company @relation(fields:[companyId],references:[id])
  title String
  invoiceNumber String?
  amount Float?
