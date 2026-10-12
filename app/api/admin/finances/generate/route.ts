@@ -14,10 +14,11 @@ export async function POST(request:NextRequest){
  const rawItems:unknown[]=Array.isArray(body?.items)?body.items:[];
  const items:InvoiceItem[]=rawItems.slice(0,30).map((value:unknown)=>{const item=(value&&typeof value==="object"?value:{}) as {description?:unknown;quantity?:unknown;rate?:unknown};return {description:String(item.description||"").trim().slice(0,160),quantity:Number(item.quantity),rate:Number(item.rate)}});
  if(!Number.isSafeInteger(companyId)||companyId<1||!title||!number||!items.length||items.some(i=>!i.description||!Number.isFinite(i.quantity)||i.quantity<=0||i.quantity>100000||!Number.isFinite(i.rate)||i.rate<0||i.rate>10000000))return NextResponse.json({error:"Company, invoice number, description and valid line items are required"},{status:400});
+ const duplicate=await prisma.standaloneInvoice.findFirst({where:{invoiceNumber:number},select:{id:true}});if(duplicate)return NextResponse.json({error:"Invoice number already exists. Refresh the page to get the next available number."},{status:409});
  const company=await prisma.company.findUnique({where:{id:companyId}});
  if(!company)return NextResponse.json({error:"Company not found"},{status:404});
  if(projectId!==null){if(!Number.isSafeInteger(projectId)||projectId<1)return NextResponse.json({error:"Invalid Work Order"},{status:400});const project=await prisma.project.findFirst({where:{id:projectId,companyId},select:{id:true}});if(!project)return NextResponse.json({error:"Work Order must belong to the selected company"},{status:400})}
- const issued=body?.date?new Date(String(body.date)+"T12:00:00Z"):new Date(),due=body?.dueDate?new Date(String(body.dueDate)+"T12:00:00Z"):issued;
+ const issued=body?.date?new Date(String(body.date)+"T12:00:00Z"):new Date(),due=body?.dueDate?new Date(String(body.dueDate)+"T12:00:00Z"):new Date(issued.getTime()+14*24*60*60*1000);
  if(Number.isNaN(issued.getTime())||Number.isNaN(due.getTime()))return NextResponse.json({error:"Invalid dates"},{status:400});
  const total=Math.round(items.reduce((s,i)=>s+i.quantity*i.rate,0)*100)/100;
  const billTo=[company.billingName||company.name,company.billingContact||"",company.billingAddress1||"",company.billingAddress2||"",[company.billingCity,company.billingState,company.billingPostalCode].filter(Boolean).join(", "),company.billingCountry||"",company.billingEmail||""].filter(Boolean);
