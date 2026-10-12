@@ -684,3 +684,69 @@
 .admin-page-frame .admin-ui-page .admin-ui-card a:not(.admin-ui-btn):hover{
  text-decoration:none!important;
 }
+
+
+/* Work Management: exactly four visible production stages (New, In Progress,
+   Waiting Client, Archived). The old five-column grid left an empty track. */
+.admin-page-frame .ops-page .ops-board{
+ --ops-column-count:4;
+ grid-template-columns:repeat(4,minmax(0,1fr))!important;
+}
+@media(max-width:1050px){.admin-page-frame .ops-page .ops-board{grid-template-columns:repeat(4,minmax(195px,1fr))!important}}
+/* Resource schedule contrast: light calendar cells must never inherit white text. */
+.admin-page-frame .ops-page .resource-schedule,
+.admin-page-frame .ops-page .resource-schedule :is(.resource-schedule-head,.resource-schedule-grid,.resource-schedule-corner,.resource-schedule-days,.resource-schedule-row,.resource-member,.resource-track,.resource-unassigned){
+ color:#202c36!important;
+}
+.admin-page-frame .ops-page .resource-schedule :is(.resource-schedule-corner,.resource-schedule-days,.resource-member,.resource-unassigned){
+ background:#f6f8fa!important;
+}
+.admin-page-frame .ops-page .resource-schedule :is(.resource-schedule-corner,.resource-schedule-days,.resource-member,.resource-unassigned) :is(strong,span,p,em,small,b){
+ color:#24323e!important;
+}
+.admin-page-frame .ops-page .resource-schedule .resource-schedule-days>div{background:#f6f8fa!important;color:#24323e!important}
+.admin-page-frame .ops-page .resource-schedule .resource-schedule-days>div.is-today{background:#fff0b4!important}
+.admin-page-frame .ops-page .resource-schedule .resource-schedule-days>div.is-weekend{background:#e9edf1!important}
+.admin-page-frame .ops-page .resource-schedule .resource-schedule-days>div :is(strong,span){color:#24323e!important}
+.admin-page-frame .ops-page .resource-schedule .resource-member em{background:#e8edf1!important;color:#26343f!important}
+.admin-page-frame .ops-page .resource-schedule .resource-track>i{background:#fbfcfd}
+.admin-page-frame .ops-page .resource-schedule .resource-track>i.is-weekend{background:#eff2f5}
+.admin-page-frame .ops-page .resource-schedule .resource-project-span{
+ background:color-mix(in srgb,var(--client-color,#edbf2d) 22%,white)!important;
+ border:1px solid color-mix(in srgb,var(--client-color,#edbf2d) 55%,#65717b)!important;
+}
+.admin-page-frame .ops-page .resource-schedule .resource-project-span span{
+ color:#1b2934!important;text-shadow:none!important;
+}
+.admin-page-frame .ops-page .resource-schedule .resource-stage-segment{
+ background:var(--assignee-color,#365d75)!important;
+}
+.admin-page-frame .ops-page .resource-schedule .resource-stage-segment span{
+ color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.4);
+}
+.admin-page-frame .ops-page .resource-schedule .resource-stage-segment.is-blocked{
+ background:repeating-linear-gradient(135deg,#5d6874 0,#5d6874 6px,#78848e 6px,#78848e 12px)!important;
+}
+.admin-page-frame .ops-page .resource-schedule .resource-unassigned button{
+ background:#fff!important;color:#273541!important;border:1px solid #c9d3dc!important;
+}
+.admin-page-frame .ops-page .resource-schedule .resource-unassigned button:hover{background:#edf3f7!important}
+/* Work-order subpages use dashboard's white panels, readable controls and action buttons. */
+.admin-page-frame .project-os-page .project-os-panel,
+.admin-page-frame .project-os-page .project-financial-overview,
+.admin-page-frame .project-os-page .project-os-hero{
+ color:#1d2933;background:#fff;border:1px solid var(--aui-border);border-radius:var(--aui-radius);
+}
+.admin-page-frame .project-os-page .project-os-panel :is(h2,h3,strong){color:#1c2933}
+.admin-page-frame .project-os-page .project-os-panel :is(p,small){color:#5d6974}
+.admin-page-frame .project-os-page :is(input,select,textarea){
+ background:#fff!important;color:#1d2933!important;-webkit-text-fill-color:#1d2933!important;
+ border:1px solid #c7d1d9!important;
+}
+.admin-page-frame .project-os-page .upz-stage-delete{
+ padding:6px 9px;border:1px solid #d6a7a4;border-radius:5px;
+ background:#fff5f4;color:#a33027;font-size:10px;font-weight:750;cursor:pointer;
+}
+.admin-page-frame .project-os-page .upz-stage-delete:hover{background:#fce5e2}
+.admin-page-frame .project-os-page .upz-stage-delete:disabled{opacity:.5;cursor:not-allowed}
+.upz-invoice-settings-actions{gap:10px;align-items:center;flex-wrap:wrap}
