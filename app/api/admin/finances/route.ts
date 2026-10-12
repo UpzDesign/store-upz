@@ -10,7 +10,8 @@ export async function GET(){
   select:{id:true,title:true,status:true,budget:true,dueDate:true,updatedAt:true,company:{select:{name:true,shortName:true}},engagement:{select:{name:true}},activities:{where:{type:{in:["finance_invoice","finance_payment"]}},orderBy:{createdAt:"desc"},select:{id:true,type:true,metadata:true,createdAt:true}}},
   orderBy:{updatedAt:"desc"},take:500
  }),prisma.standaloneInvoice.findMany({include:{company:{select:{name:true,shortName:true}}},orderBy:{createdAt:"desc"},take:500})]);
- const projectRows=projects.map(project=>{
+ const linkedProjectIds=new Set(directInvoices.filter(invoice=>invoice.projectId!==null).map(invoice=>invoice.projectId));
+ const projectRows=projects.filter(project=>!linkedProjectIds.has(project.id)).map(project=>{
   const invoice=project.activities.find(a=>a.type==="finance_invoice");
   const payment=project.activities.find(a=>a.type==="finance_payment");
   let invoiceInfo:{fileId?:number;fileName?:string;invoiceNumber?:string;amount?:number}|null=null;
