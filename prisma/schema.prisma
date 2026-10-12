@@ -12,6 +12,18 @@ model Company {
   name             String
   slug             String    @unique
   shortName        String
+  billingName      String?
+  billingContact   String?
+  billingEmail     String?
+  billingPhone     String?
+  billingAddress1  String?
+  billingAddress2  String?
+  billingCity      String?
+  billingState     String?
+  billingPostalCode String?
+  billingCountry   String?
+  paymentTerms     String?
+  billingNotes     String?
   logo             String?
   logoType         String    @default("image")
   logoText         String?
