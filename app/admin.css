@@ -508,3 +508,100 @@
 .admin-engagement-page .upz-portfolio-card-footer{margin-top:auto;padding-top:18px}
 @media(max-width:960px){.upz-invoice-settings-top{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:640px){.admin-engagement-page .admin-engagement-grid>.admin-ui-card.upz-portfolio-card{padding:17px!important}.upz-invoice-settings-page .admin-ui-section{padding:17px}}
+
+
+/* Unified operations surfaces and compact production board.
+   Intentionally last: overrides legacy board/timeline/resource layouts. */
+.admin-page-frame .ops-page{width:100%;max-width:none!important;min-width:0;box-sizing:border-box}
+.admin-page-frame .ops-page>:is(.ops-board,.ops-timeline-shell,.resource-schedule,.team-workload-v2,.ops-toolbar,.ops-tabs){width:100%;max-width:none;min-width:0;box-sizing:border-box}
+.admin-page-frame .ops-page .ops-board{
+ display:grid;grid-template-columns:repeat(5,minmax(175px,1fr));
+ align-items:stretch;gap:10px;padding:12px;border:1px solid var(--aui-border);
+ border-radius:var(--aui-radius);background:#f3f5f6;overflow-x:auto;
+}
+.admin-page-frame .ops-page .ops-column{
+ min-width:0;width:auto;max-width:none;flex:none;
+ padding:0;border:1px solid #dce2e7;border-radius:8px;
+ background:#fff;overflow:hidden;box-sizing:border-box;
+}
+.admin-page-frame .ops-page .ops-column>header{
+ display:flex;align-items:center;justify-content:space-between;gap:8px;
+ min-height:44px;padding:11px 12px;border-bottom:1px solid #e1e6ea;
+ background:#f7f9fa;color:#1d2933;
+}
+.admin-page-frame .ops-page .ops-column>header strong{font-size:11px;line-height:1.3;color:#1d2933;overflow-wrap:anywhere}
+.admin-page-frame .ops-page .ops-column>header span{flex:none;min-width:24px;padding:4px 6px;border-radius:5px;background:#e7ecf0;color:#27333d;text-align:center;font-size:11px;font-weight:800}
+.admin-page-frame .ops-page .ops-column-body{display:grid;align-content:start;gap:8px;padding:9px;min-width:0;min-height:100px;background:#fff}
+.admin-page-frame .ops-page .ops-card{
+ display:block;width:100%;min-width:0;max-width:100%;min-height:0;
+ padding:11px 12px!important;margin:0;border:1px solid #dce2e7;
+ border-left:4px solid var(--client-color,#e1bd3c)!important;border-radius:7px;
+ background:linear-gradient(110deg,color-mix(in srgb,var(--client-color,#e1bd3c) 9%,white),white 65%)!important;
+ color:#1e2933!important;text-align:left;box-sizing:border-box;
+ box-shadow:0 1px 3px rgba(25,35,45,.05);
+}
+.admin-page-frame .ops-page .ops-card :is(h3,p,small,span,strong){color:#1e2933!important}
+.admin-page-frame .ops-page .ops-card>small{display:block;font-size:9px;line-height:1.4;letter-spacing:.025em;overflow-wrap:anywhere;color:#53616d!important}
+.admin-page-frame .ops-page .ops-card h3{font-size:12px!important;line-height:1.35!important;margin:5px 0!important;letter-spacing:0;overflow-wrap:anywhere;font-weight:750}
+.admin-page-frame .ops-page .ops-card>p{font-size:10px!important;line-height:1.4!important;margin:0 0 8px!important;color:#64717b!important;overflow-wrap:anywhere}
+.admin-page-frame .ops-page .ops-card-meta{display:flex;justify-content:space-between;flex-wrap:wrap;gap:4px 8px;padding-top:7px;border-top:1px solid #e6eaed}
+.admin-page-frame .ops-page .ops-card-meta span{font-size:9px!important;line-height:1.4;color:#5c6872!important;overflow-wrap:anywhere}
+.admin-page-frame .ops-page .ops-task-progress{display:flex;align-items:center;gap:7px;margin-top:9px}
+.admin-page-frame .ops-page .ops-task-progress>span{flex:1;min-width:0;overflow:hidden}
+.admin-page-frame .ops-page .ops-task-progress strong{flex:none;font-size:9px!important}
+.admin-page-frame .ops-page .ops-card:hover{border-color:#b5a15b;box-shadow:0 5px 14px rgba(25,35,45,.12)}
+.admin-page-frame .ops-page .ops-card:focus-visible{outline:2px solid #b18c22;outline-offset:2px}
+.admin-page-frame .ops-page .ops-card.is-overdue{border-top-color:#cf6357;border-right-color:#cf6357;border-bottom-color:#cf6357}
+.admin-page-frame .ops-page .ops-card.status-waiting_client{background:#fff6f4!important;border-left-color:#c83c30!important}
+.admin-page-frame .ops-page .ops-card.status-waiting_client :is(h3,small,strong){color:#74271e!important}
+.admin-page-frame .ops-page :is(.ops-timeline-shell,.resource-schedule){
+ border:1px solid var(--aui-border);border-radius:var(--aui-radius);
+ background:#fff;color:#1c2731;box-shadow:var(--aui-shadow);
+ overflow:hidden;
+}
+.admin-page-frame .ops-page :is(.ops-timeline-scroll,.resource-schedule-scroll){
+ width:100%;max-width:100%;overflow-x:auto;min-width:0;
+ scrollbar-color:#c5cdd4 #f4f6f8;
+}
+.admin-page-frame .ops-page :is(.ops-timeline-corner,.resource-schedule-corner,.ops-timeline-scale,.resource-schedule-days){
+ background:#f5f7f9;color:#23313c;border-color:#dce2e7;
+}
+.admin-page-frame .ops-page :is(.ops-timeline-row,.resource-schedule-row){color:#1c2731}
+.admin-page-frame .ops-page :is(.ops-timeline-project,.resource-member){
+ background:#fff;color:#1c2731;border-color:#dce2e7;
+}
+.admin-page-frame .ops-page :is(.ops-timeline-project,.resource-member) :is(strong,small,span){color:#26343e}
+.admin-page-frame .ops-page :is(.ops-timeline-track,.resource-track){background:#fbfcfd;border-color:#e3e8ed}
+.admin-page-frame .ops-page .resource-schedule-head{
+ display:flex;align-items:flex-start;justify-content:space-between;gap:18px;
+ padding:20px 22px;border-bottom:1px solid #dce2e7;background:#fff;color:#1c2731;
+}
+.admin-page-frame .ops-page .resource-schedule-head h2{color:#182630;font-size:22px;line-height:1.2}
+.admin-page-frame .ops-page .resource-schedule-head p{color:#63717d;font-size:12px;line-height:1.6}
+.admin-page-frame .ops-page .resource-schedule-legend{color:#43515d;font-size:11px}
+.admin-page-frame .ops-page :is(.resource-schedule-days,.resource-schedule-grid){color:#1c2731}
+.admin-page-frame .ops-page :is(.resource-schedule-days,.resource-member,.resource-schedule-corner) :is(strong,span,em){color:#26343e}
+.admin-page-frame .ops-page .ops-timeline-bar{background:#d9e7f1;color:#14232e;border-color:#9aafbd}
+.admin-page-frame .ops-page .ops-timeline-bar span{color:#fff}
+.admin-page-frame .ops-page .resource-project-span span,
+.admin-page-frame .ops-page .resource-stage-segment span{color:#fff}
+.admin-page-frame .ops-page .ops-timeline-project:hover,
+.admin-page-frame .ops-page .resource-member:hover{background:#f1f5f8}
+.admin-page-frame .ops-page .ops-timeline-project:focus-visible,
+.admin-page-frame .ops-page .resource-stage-segment:focus-visible{outline:2px solid #b18c22;outline-offset:-2px}
+@media(max-width:1250px){.admin-page-frame .ops-page .ops-board{grid-template-columns:repeat(5,minmax(185px,1fr))}}
+@media(max-width:720px){.admin-page-frame .ops-page .ops-board{padding:8px;gap:8px}.admin-page-frame .ops-page .resource-schedule-head{padding:15px;flex-direction:column}}
+/* Secondary browse/navigation buttons must remain legible on a light background. */
+.admin-page-frame .admin-ui-page a.admin-ui-btn--outline,
+.admin-page-frame .admin-ui-page a.admin-ui-btn--secondary,
+.admin-page-frame .admin-ui-page button.admin-ui-btn--outline,
+.admin-page-frame .admin-ui-page button.admin-ui-btn--secondary{
+ background:#fff!important;color:#1b3447!important;border:1px solid #a9b7c2!important;
+ -webkit-text-fill-color:#1b3447!important;box-shadow:none!important;
+}
+.admin-page-frame .admin-ui-page a.admin-ui-btn--outline:hover,
+.admin-page-frame .admin-ui-page a.admin-ui-btn--secondary:hover,
+.admin-page-frame .admin-ui-page button.admin-ui-btn--outline:hover,
+.admin-page-frame .admin-ui-page button.admin-ui-btn--secondary:hover{
+ background:#edf3f7!important;color:#153f5a!important;border-color:#55758a!important;
+}
