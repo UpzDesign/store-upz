@@ -171,3 +171,34 @@ html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .admin-workspace-content .admin-service-editor-page .workflow-stage-card .form-builder-toggles{grid-column:1/-1}
 @media(max-width:900px){.admin-workspace-content .admin-service-editor-page .service-editor-shell{grid-template-columns:minmax(0,1fr)!important}.admin-workspace-content .admin-service-editor-page .service-editor-list{position:static!important}}
 @media(max-width:600px){.admin-workspace-content .admin-service-editor-page .form-builder-grid{grid-template-columns:minmax(0,1fr)!important}}
+
+/* Visual intake builder: form-first editing, consistent admin controls. */
+.admin-workspace-content .admin-service-editor-page .service-visual-builder{min-width:0;background:#fff;border:1px solid #e2e3e5;border-radius:14px;padding:22px;margin-top:18px}
+.admin-workspace-content .admin-service-editor-page .service-visual-builder-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid #eee;margin-bottom:20px}
+.admin-workspace-content .admin-service-editor-page .service-visual-builder-head h3{font-size:20px!important;line-height:1.35!important;letter-spacing:-.02em!important;text-transform:none!important;margin:6px 0!important}
+.admin-workspace-content .admin-service-editor-page .service-visual-builder-head p{font-size:12px!important;line-height:1.6!important;margin:0!important;color:#666!important}
+.admin-workspace-content .admin-service-editor-page .service-preview-tag{font-size:10px!important;background:#f6f5ee;border:1px solid #e6e1c8;border-radius:8px;padding:8px 10px;color:#655b32}
+.admin-workspace-content .admin-service-editor-page .service-preview-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start;min-width:0}
+.admin-workspace-content .admin-service-editor-page .service-preview-field{min-width:0;border:1px solid #e5e5e5;background:#fcfcfb;border-radius:10px;padding:15px}
+.admin-workspace-content .admin-service-editor-page .service-preview-field.wide,.admin-workspace-content .admin-service-editor-page .service-preview-field.is-editing{grid-column:1/-1}
+.admin-workspace-content .admin-service-editor-page .service-preview-field.is-editing{border-color:#d6a817;box-shadow:0 0 0 2px rgba(237,191,45,.12)}
+.admin-workspace-content .admin-service-editor-page .service-preview-field-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.admin-workspace-content .admin-service-editor-page .service-preview-field-head label{font-size:12px!important;font-weight:750!important;line-height:1.45!important;overflow-wrap:anywhere}
+.admin-workspace-content .admin-service-editor-page .service-preview-field-head label b{color:#a52c2c}
+.admin-workspace-content .admin-service-editor-page .service-preview-field-head button{flex:0 0 auto;font:700 10px/1.4 Montserrat,sans-serif;color:#7b5b00;background:#fff8e2;border:1px solid #e9d08d;border-radius:7px;padding:6px 9px;cursor:pointer}
+.admin-workspace-content .admin-service-editor-page .service-preview-field>input,.admin-workspace-content .admin-service-editor-page .service-preview-field>select,.admin-workspace-content .admin-service-editor-page .service-preview-field>textarea{width:100%!important;min-height:42px!important;font-size:12px!important;border:1px solid #d9d9d9;border-radius:8px;padding:10px!important;background:#fff;color:#111}
+.admin-workspace-content .admin-service-editor-page .service-preview-field>textarea{min-height:88px!important}
+.admin-workspace-content .admin-service-editor-page .service-preview-help{font-size:11px!important;color:#687078!important;line-height:1.55!important;margin:0 0 10px!important}
+.admin-workspace-content .admin-service-editor-page .service-preview-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.admin-workspace-content .admin-service-editor-page .service-preview-choices label,.admin-workspace-content .admin-service-editor-page .service-preview-check{display:flex;align-items:center;gap:8px;min-width:0;border:1px solid #e2e2e2;border-radius:8px;background:#fff;padding:10px;font-size:11px!important;line-height:1.4!important;overflow-wrap:anywhere}
+.admin-workspace-content .admin-service-editor-page .service-preview-choices input,.admin-workspace-content .admin-service-editor-page .service-preview-check input{width:16px!important;height:16px!important;flex:0 0 16px;accent-color:#edbf2d}
+.admin-workspace-content .admin-service-editor-page .service-preview-settings{margin-top:16px;padding:16px;border:1px solid #e7e5da;border-radius:10px;background:#f7f7f4;min-width:0}
+.admin-workspace-content .admin-service-editor-page .service-preview-settings-title{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px}
+.admin-workspace-content .admin-service-editor-page .service-preview-settings-title strong{font-size:13px!important}
+.admin-workspace-content .admin-service-editor-page .service-preview-settings .admin-ui-field.wide{grid-column:1/-1!important;width:100%!important;min-width:0!important}
+.admin-workspace-content .admin-service-editor-page .service-preview-settings .admin-ui-field>span{font-size:10px!important}
+.admin-workspace-content .admin-service-editor-page .service-preview-settings :is(input,select,textarea){width:100%!important;max-width:100%!important;min-width:0!important;box-sizing:border-box!important}
+.admin-workspace-content .admin-service-editor-page .service-preview-footnote{font-size:11px!important;color:#717171!important;line-height:1.6!important;margin:18px 0 0!important}
+.admin-workspace-content .admin-service-editor-page .intake-builder-card{padding-left:62px!important}
+.admin-workspace-content .admin-service-editor-page .intake-builder-index{z-index:1}
+@media(max-width:680px){.admin-workspace-content .admin-service-editor-page .service-preview-fields,.admin-workspace-content .admin-service-editor-page .service-preview-choices{grid-template-columns:minmax(0,1fr)}.admin-workspace-content .admin-service-editor-page .service-visual-builder{padding:14px}}
