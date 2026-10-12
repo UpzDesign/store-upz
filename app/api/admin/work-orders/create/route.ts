@@ -28,6 +28,7 @@ export async function POST(request:NextRequest){
   const project=await prisma.$transaction(async tx=>{
    const base=slugify(title),slug=`${base}-${Date.now().toString(36)}`;
    const engagement=engagementId?{id:engagementId}:await tx.engagement.create({data:{companyId,name:String(body.portfolioName||title).trim().slice(0,180)||title,slug,type:"property",address:address||null,description:String(body.description||"").trim()||null,clientVisible}});
+   if(engagementId&&clientVisible)await tx.engagement.update({where:{id:engagementId},data:{clientVisible:true}});
    const created=await tx.project.create({data:{companyId,engagementId:engagement.id,title,description:String(body.description||"").trim()||null,status:"new",priority:"normal",assignedTo,dueDate,budget,internalCost,clientVisible,tasks:{create:stages.map((stage:string,i:number)=>({title:stage,sortOrder:i,status:i===0?"ready":"todo",assignedTo}))},activities:{create:{type:"project_created",message:"Work Order created directly by staff.",actor:session.name}}}});
    return created;
   });
