@@ -67,3 +67,20 @@
  height:40px!important;min-height:40px!important;max-height:40px!important;
  display:inline-flex!important;align-items:center;justify-content:center;
 }
+
+/* Portfolio-only: keep filter controls and content geometry stable across status views. */
+.admin-workspace-content .admin-engagement-page{min-width:0}
+.admin-workspace-content .admin-engagement-page>.admin-ui-tabs{
+ position:relative!important;display:flex!important;flex-flow:row nowrap!important;
+ align-items:center!important;justify-content:flex-start!important;
+ height:56px!important;min-height:56px!important;max-height:56px!important;
+ padding:8px!important;margin:0 0 20px!important;overflow-x:auto!important;overflow-y:hidden!important;
+}
+.admin-workspace-content .admin-engagement-page>.admin-ui-tabs>button{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ height:40px!important;min-height:40px!important;max-height:40px!important;
+ margin:0!important;line-height:1!important;box-shadow:none!important;transform:none!important;
+}
+.admin-workspace-content .admin-engagement-page>.admin-ui-toolbar{margin:0 0 20px!important}
+.admin-workspace-content .admin-engagement-page>.admin-ui-section:last-child{min-height:340px}
+.admin-workspace-content .admin-engagement-page .admin-ui-empty{min-height:210px;display:flex;align-items:center;justify-content:center}
