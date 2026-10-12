@@ -347,3 +347,11 @@
 .upz-finance-paid-check input{width:17px;height:17px;accent-color:#267455}
 .upz-finance-paid-label{color:#277454;font-size:12px;font-weight:750}
 @media(max-width:800px){.upz-finance-row{align-items:stretch;flex-direction:column}.upz-finance-actions{justify-content:flex-start;flex:auto}.upz-finance-actions>input{flex:1 1 120px}.upz-finance-upload{flex:1 1 100%;text-align:center}}
+
+.upz-direct-invoice-section>p{font-size:13px;color:#64717b;line-height:1.6;margin:0 0 16px}
+.upz-direct-invoice-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:end}
+.upz-direct-invoice-form label{display:grid;gap:7px;font-size:12px;font-weight:650;min-width:0}
+.upz-direct-invoice-form input,.upz-direct-invoice-form select{width:100%;min-width:0;padding:11px;border:1px solid #d6dde3;border-radius:6px;font:inherit;background:#fff}
+.upz-direct-invoice-form input[type=file]{font-size:11px}
+.upz-direct-invoice-form .admin-ui-btn{min-height:43px;justify-content:center}
+@media(max-width:680px){.upz-direct-invoice-form{grid-template-columns:1fr}}
