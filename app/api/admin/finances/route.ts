@@ -5,19 +5,21 @@ import { requireStaffSession } from "@/lib/staff-auth";
 export async function GET(){
  const session=await requireStaffSession(["admin"]);
  if(!session)return NextResponse.json({error:"Admin access required"},{status:403});
- const projects=await prisma.project.findMany({
+ const [projects,directInvoices]=await Promise.all([prisma.project.findMany({
   where:{OR:[{status:{in:["complete","completed"]}},{activities:{some:{type:{in:["finance_invoice","finance_payment"]}}}}]},
   select:{id:true,title:true,status:true,budget:true,dueDate:true,updatedAt:true,company:{select:{name:true,shortName:true}},engagement:{select:{name:true}},activities:{where:{type:{in:["finance_invoice","finance_payment"]}},orderBy:{createdAt:"desc"},select:{id:true,type:true,metadata:true,createdAt:true}}},
   orderBy:{updatedAt:"desc"},take:500
- });
- return NextResponse.json(projects.map(project=>{
+ }),prisma.standaloneInvoice.findMany({include:{company:{select:{name:true,shortName:true}}},orderBy:{createdAt:"desc"},take:500})]);
+ const projectRows=projects.map(project=>{
   const invoice=project.activities.find(a=>a.type==="finance_invoice");
   const payment=project.activities.find(a=>a.type==="finance_payment");
   let invoiceInfo:{fileId?:number;fileName?:string;invoiceNumber?:string;amount?:number}|null=null;
   if(invoice){try{invoiceInfo=JSON.parse(invoice.metadata||"{}")}catch{}}
   const paid=Boolean(invoice&&payment&&payment.createdAt>=invoice.createdAt);
-  return {id:project.id,title:project.title,status:project.status,budget:project.budget,company:project.company,portfolio:project.engagement?.name||null,invoice:invoiceInfo,invoiceDate:invoice?.createdAt||null,paid,paymentDate:paid?payment?.createdAt:null};
- }),{headers:{"Cache-Control":"no-store"}});
+  return {id:project.id,kind:"workorder",title:project.title,status:project.status,budget:project.budget,company:project.company,portfolio:project.engagement?.name||null,invoice:invoiceInfo,invoiceDate:invoice?.createdAt||null,paid,paymentDate:paid?payment?.createdAt:null};
+ });
+ const directRows=directInvoices.map(invoice=>({id:invoice.id,kind:"direct",title:invoice.title,status:"completed",budget:null,company:invoice.company,portfolio:null,invoice:{fileId:invoice.id,fileName:invoice.fileName,invoiceNumber:invoice.invoiceNumber,amount:invoice.amount},invoiceDate:invoice.createdAt,paid:Boolean(invoice.paidAt),paymentDate:invoice.paidAt}));
+ return NextResponse.json([...projectRows,...directRows],{headers:{"Cache-Control":"no-store"}});
 }
 
 export async function POST(request:NextRequest){
