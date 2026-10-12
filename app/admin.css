@@ -412,3 +412,32 @@
 .admin-page-frame .admin-ui-page .upz-finance-paid-label{color:#216848}
 .admin-page-frame .admin-ui-page .admin-ui-notice{color:#25323b}
 @media(max-width:640px){.admin-page-frame .admin-ui-page .upz-invoice-items{padding:12px}}
+
+
+/* Invoice settings uses the same light admin surfaces and form rhythm as other screens. */
+.upz-invoice-settings-page{color:#17212b}
+.upz-invoice-settings-form{display:grid;gap:22px;max-width:1000px}
+.upz-invoice-settings-page .admin-ui-section{background:#fff;color:#17212b}
+.upz-invoice-settings-page .admin-ui-section :is(h2,label,.admin-ui-field>span){color:#17212b!important}
+.upz-invoice-settings-page .admin-ui-section p,
+.upz-invoice-settings-help{font-size:13px;line-height:1.6;color:#5d6a75!important;margin:0 0 16px}
+.upz-invoice-settings-page .admin-ui-field{display:grid;gap:8px;min-width:0}
+.upz-invoice-settings-page .admin-ui-field :is(input,textarea){color:#18232c!important;background:#fff!important;-webkit-text-fill-color:#18232c!important}
+.upz-invoice-settings-page .admin-ui-form-grid{gap:18px}
+.upz-invoice-settings-footer{margin-top:18px}
+.upz-invoice-logo-status{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:15px;color:#27323b}
+.upz-invoice-settings-actions{display:flex;justify-content:flex-end;padding:4px 0 20px}
+.upz-invoice-settings-page .admin-ui-notice{color:#17212b;background:#f6f8fa}
+/* Dashboard visual priority: action queues first, summary numbers next, history last. */
+.admin-dashboard-page.operations-dashboard-page{display:flex;flex-direction:column;gap:22px}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-header{order:0}
+.admin-dashboard-page.operations-dashboard-page>.admin-error{order:1}
+.admin-dashboard-page.operations-dashboard-page>.operations-dashboard-priority-grid{order:2}
+.admin-dashboard-page.operations-dashboard-page>.admin-dashboard-action-grid{order:3}
+.admin-dashboard-page.operations-dashboard-page>.upz-proof-section{order:4}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-stats{order:5}
+.admin-dashboard-page.operations-dashboard-page>.operations-dashboard-secondary-grid{order:8}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-section{order:7}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-section:last-child{order:10}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-section:has(.admin-dashboard-workorder-row){order:6}
+@media(max-width:640px){.upz-invoice-settings-actions .admin-ui-btn{width:100%}}
