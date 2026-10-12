@@ -16,7 +16,7 @@ export async function POST(request:NextRequest){
  const endpoint=process.env.UPZ_STORAGE_ENDPOINT,key=process.env.UPZ_STORAGE_KEY;
  if(!endpoint||!key)return NextResponse.json({error:"Storage unavailable"},{status:503});
  const target=new URL(endpoint);if(target.protocol!=="https:")return NextResponse.json({error:"Secure storage required"},{status:503});
- const payload=new FormData();payload.append("file",file,file.name);payload.append("projectId","0");
+ const payload=new FormData();payload.append("file",file,file.name);payload.append("projectId",String(companyId));
  try{
   const response=await fetch(target,{method:"POST",headers:{"X-UPZ-Storage-Key":key},body:payload,cache:"no-store",signal:AbortSignal.timeout(60000)});
   const data=await response.json();if(!response.ok||!/^[a-f0-9]{40}$/.test(String(data.id)))throw new Error(data.error||"Storage rejected upload");
