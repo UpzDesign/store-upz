@@ -2,15 +2,15 @@ import {loadInvoiceFont} from "./montserrat-pdf-font";
 import sharp from "sharp";
 // Self-contained US Letter PDF invoice renderer. No browser or external font dependencies.
 const clean=(s:string)=>String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7e]/g," ");
-const esc=(s:string)=>clean(s).replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
 const money=(n:number)=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
 export type InvoicePDFData={number:string;date:string;dueDate:string;billTo:string[];title:string;items:{description:string;quantity:number;rate:number}[];scope?:string;notes?:string;terms?:string;sender:{name:string;address:string[];email?:string;phone?:string;website?:string};logoSvg?:string|null;paymentInstructions?:string;footerNote?:string};
 export async function renderInvoicePDF(data:InvoicePDFData):Promise<Buffer>{
  const montserrat=await loadInvoiceFont();
+ const montserratBold=await loadInvoiceFont("bold");
  const pages:string[][]=[[]];let y=740;
  const page=()=>pages[pages.length-1];
  const cmd=(s:string)=>page().push(s);
- const text=(s:string,x:number,at:number,size=10,bold=false)=>cmd(`BT /F${bold?2:1} ${size} Tf ${bold?"2 Tr 0.32 w":"0 Tr"} 0 0 0 rg ${x} ${at} Td <${montserrat.encode(clean(s))}> Tj ET`);
+ const text=(s:string,x:number,at:number,size=10,bold=false)=>cmd(`BT /F${bold?2:1} ${size} Tf 0 Tr 0 0 0 rg ${x} ${at} Td <${(bold?montserratBold:montserrat).encode(clean(s))}> Tj ET`);
  const rect=(x:number,at:number,w:number,h:number,r:number,g:number,b:number)=>cmd(`${r} ${g} ${b} rg ${x} ${at} ${w} ${h} re f`);
  const line=(x:number,at:number,w:number)=>rect(x,at,w,0.7,.72,.72,.72);
  const newPage=()=>{pages.push([]);y=748;text("UPZ DESIGN  /  INVOICE "+data.number,48,766,10,true);rect(48,754,516,3,1,.84,.32)};
@@ -33,32 +33,35 @@ export async function renderInvoicePDF(data:InvoicePDFData):Promise<Buffer>{
  y-=Math.max(4,billed.length)*15+46;
  ensure(60);rect(48,y-12,516,28,0,0,0);cmd("1 1 1 rg");
  // white text explicitly reset after fill
- cmd(`BT /F2 10 Tf 2 Tr 0.32 w 1 1 1 rg 66 ${y-3} Td <${montserrat.encode("Description")}> Tj ET`);
- cmd(`BT /F2 10 Tf 2 Tr 0.32 w 1 1 1 rg 492 ${y-3} Td <${montserrat.encode("Total")}> Tj ET`);
+ cmd(`BT /F2 10 Tf 0 Tr 1 1 1 rg 66 ${y-3} Td <${montserratBold.encode("Description")}> Tj ET`);
+ cmd(`BT /F2 10 Tf 0 Tr 1 1 1 rg 492 ${y-3} Td <${montserratBold.encode("Total")}> Tj ET`);
  y-=42;
  block(data.title,66,70,11,16);y-=5;
  if(data.scope){for(const row of wrap(data.scope,82)){ensure(16);if(row)text(row,77,y,9);y-=15}y-=9}
  for(const item of data.items){ensure(36);const sum=item.quantity*item.rate;const rows=wrap(item.description,62);for(let i=0;i<rows.length;i++){ensure(16);text(rows[i],66,y,i===0?10:9,i===0);if(i===0)text(money(sum),475,y,10);y-=16}if(item.quantity!==1){text(`Qty ${item.quantity} x ${money(item.rate)}`,77,y,9);y-=16}y-=7}
- ensure(105);y-=12;line(324,y,240);y-=23;text("Total Amount",340,y,11);text(money(total),476,y,11,true);y-=27;rect(324,y-10,240,28,0,0,0);cmd(`BT /F2 11 Tf 2 Tr 0.32 w 1 1 1 rg 340 ${y-1} Td <${montserrat.encode("Amount Due")}> Tj ET`);cmd(`BT /F2 11 Tf 2 Tr 0.32 w 1 1 1 rg 474 ${y-1} Td <${montserrat.encode(money(total))}> Tj ET`);y-=44;
+ ensure(105);y-=12;line(324,y,240);y-=23;text("Total Amount",340,y,11);text(money(total),476,y,11,true);y-=27;rect(324,y-10,240,28,0,0,0);cmd(`BT /F2 11 Tf 0 Tr 1 1 1 rg 340 ${y-1} Td <${montserratBold.encode("Amount Due")}> Tj ET`);cmd(`BT /F2 11 Tf 0 Tr 1 1 1 rg 474 ${y-1} Td <${montserratBold.encode(money(total))}> Tj ET`);y-=44;
  if(data.paymentInstructions){ensure(55);text("Payment Options",48,y,11,true);y-=19;block(data.paymentInstructions,48,83,9,14);y-=12}
  if(data.footerNote){ensure(35);block(data.footerNote,48,84,9,14);y-=10}
  if(data.terms){ensure(45);text("Payment Terms",48,y,11,true);y-=19;block(data.terms,48,82,9,14);y-=12}
  if(data.notes){ensure(45);text("Additional Notes",48,y,11,true);y-=19;block(data.notes,48,82,9,14)}
  // Footer on every page.
- pages.forEach((p,i)=>{p.push("0.7 0.7 0.7 rg 48 54 516 0.7 re f");p.push(`BT /F2 9 Tf 0 0 0 rg 48 38 Td <${montserrat.encode(clean(data.sender.name+"  -  NEW YORK CITY"))}> Tj ET`);p.push(`BT /F1 8 Tf 0 0 0 rg 48 24 Td <${montserrat.encode(clean([data.sender.phone,data.sender.email,data.sender.website].filter(Boolean).join("  |  ")))}> Tj ET`);p.push(`BT /F1 8 Tf 0 0 0 rg 540 24 Td <${montserrat.encode(String(i+1))}> Tj ET`)});
+ pages.forEach((p,i)=>{p.push("0.7 0.7 0.7 rg 48 54 516 0.7 re f");p.push(`BT /F2 9 Tf 0 0 0 rg 48 38 Td <${montserratBold.encode(clean(data.sender.name+"  -  NEW YORK CITY"))}> Tj ET`);p.push(`BT /F1 8 Tf 0 0 0 rg 48 24 Td <${montserrat.encode(clean([data.sender.phone,data.sender.email,data.sender.website].filter(Boolean).join("  |  ")))}> Tj ET`);p.push(`BT /F1 8 Tf 0 0 0 rg 540 24 Td <${montserrat.encode(String(i+1))}> Tj ET`)});
  const objects:string[]=["","<< /Type /Pages /Kids [] /Count 0 >>"];
- const fontBytes=montserrat.font;
- const fontFileId=objects.push(`<< /Length ${fontBytes.length} /Length1 ${fontBytes.length} >>\nstream\n${fontBytes.toString("latin1")}\nendstream`);
- const descriptorId=objects.push(`<< /Type /FontDescriptor /FontName /Montserrat /Flags 32 /FontBBox [${montserrat.bbox.join(" ")}] /ItalicAngle 0 /Ascent ${montserrat.ascent} /Descent ${montserrat.descent} /CapHeight ${montserrat.ascent} /StemV 90 /FontFile2 ${fontFileId} 0 R >>`);
- const widths=montserrat.advances.join(" ");
- const cidId=objects.push(`<< /Type /Font /Subtype /CIDFontType2 /BaseFont /Montserrat /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${descriptorId} 0 R /DW 1000 /W [0 [${widths}]] /CIDToGIDMap /Identity >>`);
- const unicode=montserrat.toUnicode;
- const unicodeId=objects.push(`<< /Length ${Buffer.byteLength(unicode,"latin1")} >>\nstream\n${unicode}\nendstream`);
- const type0Id=objects.push(`<< /Type /Font /Subtype /Type0 /BaseFont /Montserrat /Encoding /Identity-H /DescendantFonts [${cidId} 0 R] /ToUnicode ${unicodeId} 0 R >>`);
+ const addFont=(face:Awaited<ReturnType<typeof loadInvoiceFont>>,name:string)=>{
+  const bytes=face.font;
+  const fileId=objects.push(`<< /Length ${bytes.length} /Length1 ${bytes.length} >>\\nstream\\n${bytes.toString("latin1")}\\nendstream`);
+  const descriptorId=objects.push(`<< /Type /FontDescriptor /FontName /${name} /Flags 32 /FontBBox [${face.bbox.join(" ")}] /ItalicAngle 0 /Ascent ${face.ascent} /Descent ${face.descent} /CapHeight ${face.ascent} /StemV 90 /FontFile2 ${fileId} 0 R >>`);
+  const cidId=objects.push(`<< /Type /Font /Subtype /CIDFontType2 /BaseFont /${name} /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor ${descriptorId} 0 R /DW 1000 /W [0 [${face.advances.join(" ")}]] /CIDToGIDMap /Identity >>`);
+  const unicode=face.toUnicode;
+  const unicodeId=objects.push(`<< /Length ${Buffer.byteLength(unicode,"latin1")} >>\\nstream\\n${unicode}\\nendstream`);
+  return objects.push(`<< /Type /Font /Subtype /Type0 /BaseFont /${name} /Encoding /Identity-H /DescendantFonts [${cidId} 0 R] /ToUnicode ${unicodeId} 0 R >>`);
+ };
+ const regularFontId=addFont(montserrat,"Montserrat");
+ const boldFontId=addFont(montserratBold,"Montserrat-Bold");
  let logoId=0;
  if(data.logoSvg){const raster=await sharp(Buffer.from(data.logoSvg)).resize({width:700,fit:"inside",withoutEnlargement:false}).flatten({background:"#ffffff"}).jpeg({quality:92}).toBuffer({resolveWithObject:true});const bytes=raster.data;logoId=objects.push(`<< /Type /XObject /Subtype /Image /Width ${raster.info.width} /Height ${raster.info.height} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${bytes.length} >>\nstream\n${bytes.toString("latin1")}\nendstream`)}
  const pageIds:number[]=[];
- for(const cmds of pages){const stream=cmds.join("\n");const contentId=objects.push(`<< /Length ${Buffer.byteLength(stream,"latin1")} >>\nstream\n${stream}\nendstream`);const pageId=objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${type0Id} 0 R /F2 ${type0Id} 0 R >> /XObject << ${logoId?`/Logo ${logoId} 0 R`:""} >> >> /Contents ${contentId} 0 R >>`);pageIds.push(pageId)}
+ for(const cmds of pages){const stream=cmds.join("\n");const contentId=objects.push(`<< /Length ${Buffer.byteLength(stream,"latin1")} >>\nstream\n${stream}\nendstream`);const pageId=objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${regularFontId} 0 R /F2 ${boldFontId} 0 R >> /XObject << ${logoId?`/Logo ${logoId} 0 R`:""} >> >> /Contents ${contentId} 0 R >>`);pageIds.push(pageId)}
  objects[1]=`<< /Type /Pages /Kids [${pageIds.map(id=>id+" 0 R").join(" ")}] /Count ${pageIds.length} >>`;
  objects[0]="<< /Type /Catalog /Pages 2 0 R >>";
  let output="%PDF-1.4\n";const offsets=[0];objects.forEach((obj,i)=>{offsets.push(Buffer.byteLength(output,"latin1"));output+=`${i+1} 0 obj\n${obj}\nendobj\n`});
