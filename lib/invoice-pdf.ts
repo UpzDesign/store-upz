@@ -1,47 +1,52 @@
-// Lightweight PDF writer for server-side invoice documents. Uses built-in PDF Helvetica fonts.
-type Line={text:string;x:number;y:number;size:number;bold?:boolean};
-const ascii=(value:string)=>value.normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7e]/g,"?");
-const esc=(value:string)=>ascii(value).replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
-const usd=(n:number)=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-export type InvoicePDFData={number:string;date:string;dueDate:string;billTo:string[];title:string;items:{description:string;quantity:number;rate:number}[];notes?:string;terms?:string;sender:{name:string;address:string[];email?:string;phone?:string}};
+// Self-contained US Letter PDF invoice renderer. No browser or external font dependencies.
+const clean=(s:string)=>String(s).normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^\x20-\x7e]/g," ");
+const esc=(s:string)=>clean(s).replace(/\\/g,"\\\\").replace(/\(/g,"\\(").replace(/\)/g,"\\)");
+const money=(n:number)=>"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+export type InvoicePDFData={number:string;date:string;dueDate:string;billTo:string[];title:string;items:{description:string;quantity:number;rate:number}[];scope?:string;notes?:string;terms?:string;sender:{name:string;address:string[];email?:string;phone?:string}};
 export function renderInvoicePDF(data:InvoicePDFData):Buffer{
- const pages:Line[][]=[[]];let y=750;
- const add=(text:string,x=48,size=11,bold=false)=>{if(y<76){pages.push([]);y=750}pages[pages.length-1].push({text,x,y,size,bold});y-=size+8};
- const wrap=(value:string,width=86)=>{const words=ascii(value).split(/\s+/),out:string[]=[];let line="";for(const word of words){if((line+" "+word).trim().length>width){if(line)out.push(line);line=word}else line=(line+" "+word).trim()}if(line)out.push(line);return out};
- add(data.sender.name,48,20,true);
- for(const row of data.sender.address)if(row) add(row,48,10);
- if(data.sender.email)add(data.sender.email,48,10);
- if(data.sender.phone)add(data.sender.phone,48,10);
- y-=20;add("INVOICE",48,23,true);
- add("Invoice #: "+data.number);add("Issued: "+data.date);add("Due: "+data.dueDate);
- y-=14;add("BILL TO",48,12,true);for(const row of data.billTo)if(row)add(row);
- y-=12;add("PROJECT / SERVICES",48,12,true);for(const row of wrap(data.title))add(row);
- y-=12;add("DESCRIPTION                                                    QTY       RATE        AMOUNT",48,10,true);
- add("________________________________________________________________________________",48,9);
- let subtotal=0;
- for(const item of data.items){const total=Math.round(item.quantity*item.rate*100)/100;subtotal+=total;for(const [index,row] of wrap(item.description,48).entries()){add(index===0?row.padEnd(55).slice(0,55)+String(item.quantity).padStart(5)+usd(item.rate).padStart(14)+usd(total).padStart(14):row,48,10)}y-=5}
- y-=10;add("SUBTOTAL: "+usd(subtotal),330,12,true);add("TOTAL DUE: "+usd(subtotal),330,14,true);
- if(data.terms){y-=12;add("PAYMENT TERMS",48,11,true);for(const row of wrap(data.terms))add(row,48,10)}
- if(data.notes){y-=12;add("NOTES",48,11,true);for(const row of wrap(data.notes))add(row,48,10)}
- const objects:string[]=[];const push=(s:string)=>{objects.push(s);return objects.length};
- const regular=push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>"),bold=push("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>");
- const pageIds:number[]=[];const pageTreeId=3;
- for(const lines of pages){
-  const stream=lines.map(l=>`BT /F${l.bold?2:1} ${l.size} Tf ${l.x} ${l.y} Td (${esc(l.text)}) Tj ET`).join("\n");
-  const streamId=push(`<< /Length ${Buffer.byteLength(stream,"latin1")} >>\nstream\n${stream}\nendstream`);
-  const pageId=push(`<< /Type /Page /Parent ${pageTreeId} 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${regular} 0 R /F2 ${bold} 0 R >> >> /Contents ${streamId} 0 R >>`);
-  pageIds.push(pageId);
- }
- // Object 3 is the first stream if page content is present; reserve it as the page tree by inserting it before pages.
- const tree=`<< /Type /Pages /Kids [${pageIds.map(id=>id+" 0 R").join(" ")}] /Count ${pageIds.length} >>`;
- objects.splice(2,0,tree);
- // IDs for content and pages shifted by 1 after the insertion.
- const fixed=objects.map((obj,i)=>i===2?obj.replace(/(\d+) 0 R/g,(m,n)=>Number(n)>=3?Number(n)+1+" 0 R":m):i>2?obj.replace(/(\d+) 0 R/g,(m,n)=>Number(n)>=3?Number(n)+1+" 0 R":m):obj);
- const catalogId=fixed.length+1;fixed.push(`<< /Type /Catalog /Pages 3 0 R >>`);
- let pdf="%PDF-1.4\n";const offsets=[0];
- fixed.forEach((obj,i)=>{offsets.push(Buffer.byteLength(pdf,"latin1"));pdf+=`${i+1} 0 obj\n${obj}\nendobj\n`});
- const xref=Buffer.byteLength(pdf,"latin1");pdf+=`xref\n0 ${fixed.length+1}\n0000000000 65535 f \n`;
- for(const offset of offsets.slice(1))pdf+=String(offset).padStart(10,"0")+" 00000 n \n";
- pdf+=`trailer\n<< /Size ${fixed.length+1} /Root ${catalogId} 0 R >>\nstartxref\n${xref}\n%%EOF`;
- return Buffer.from(pdf,"latin1");
+ const pages:string[][]=[[]];let y=740;
+ const page=()=>pages[pages.length-1];
+ const cmd=(s:string)=>page().push(s);
+ const text=(s:string,x:number,at:number,size=10,bold=false)=>cmd(`BT /F${bold?2:1} ${size} Tf 0 0 0 rg ${x} ${at} Td (${esc(s)}) Tj ET`);
+ const rect=(x:number,at:number,w:number,h:number,r:number,g:number,b:number)=>cmd(`${r} ${g} ${b} rg ${x} ${at} ${w} ${h} re f`);
+ const line=(x:number,at:number,w:number)=>rect(x,at,w,0.7,.72,.72,.72);
+ const newPage=()=>{pages.push([]);y=748;text("UPZ DESIGN  /  INVOICE "+data.number,48,766,10,true);rect(48,754,516,3,1,.84,.32)};
+ const ensure=(h:number)=>{if(y-h<85)newPage()};
+ const wrap=(value:string,max=88)=>{const result:string[]=[];for(const paragraph of clean(value).split(/\r?\n/)){if(!paragraph.trim()){result.push("");continue}let current="";for(const word of paragraph.trim().split(/\s+/)){if((current+" "+word).trim().length>max){if(current)result.push(current);current=word}else current=(current+" "+word).trim()}if(current)result.push(current)}return result};
+ const block=(value:string,x:number,max:number,size=10,step=15)=>{for(const row of wrap(value,max)){ensure(step);if(row)text(row,x,y,size);y-=step}};
+ // Brand header and yellow accent, inspired by the supplied UPZ invoice.
+ text("U P Z",48,748,18,true);text("D E S I G N",48,731,10,true);
+ text("INVOICE",458,738,19,true);rect(48,706,516,5,1,.84,.32);
+ y=675;
+ text("Billed To",48,y,12,true);text("Date of Issue",248,y,12,true);text("Invoice Number",430,y,12,true);
+ y-=23;
+ const billed=data.billTo.length?data.billTo:["Billing details not provided"];
+ for(let i=0;i<Math.max(4,billed.length);i++){if(billed[i])text(billed[i],48,y-i*15,10)}
+ text(data.date,248,y,10);text(data.number,430,y,10);
+ text("Due Date",248,y-49,12,true);text("Amount Due (USD)",430,y-49,12,true);
+ text(data.dueDate,248,y-70,10);
+ const total=data.items.reduce((s,i)=>s+i.quantity*i.rate,0);
+ text(money(total),430,y-74,15,true);
+ y-=Math.max(4,billed.length)*15+46;
+ ensure(60);rect(48,y-12,516,28,0,0,0);cmd("1 1 1 rg");
+ // white text explicitly reset after fill
+ cmd(`BT /F2 10 Tf 1 1 1 rg 66 ${y-3} Td (Description) Tj ET`);
+ cmd(`BT /F2 10 Tf 1 1 1 rg 492 ${y-3} Td (Total) Tj ET`);
+ y-=42;
+ block(data.title,66,70,11,16);y-=5;
+ if(data.scope){for(const row of wrap(data.scope,82)){ensure(16);if(row)text(row,77,y,9);y-=15}y-=9}
+ for(const item of data.items){ensure(36);const sum=item.quantity*item.rate;const rows=wrap(item.description,62);for(let i=0;i<rows.length;i++){ensure(16);text(rows[i],66,y,i===0?10:9,i===0);if(i===0)text(money(sum),475,y,10);y-=16}if(item.quantity!==1){text(`Qty ${item.quantity} x ${money(item.rate)}`,77,y,9);y-=16}y-=7}
+ ensure(105);y-=12;line(324,y,240);y-=23;text("Total Amount",340,y,11);text(money(total),476,y,11,true);y-=27;rect(324,y-10,240,28,0,0,0);cmd(`BT /F2 11 Tf 1 1 1 rg 340 ${y-1} Td (Amount Due) Tj ET`);cmd(`BT /F2 11 Tf 1 1 1 rg 474 ${y-1} Td (${esc(money(total))}) Tj ET`);y-=44;
+ if(data.terms){ensure(45);text("Payment Terms",48,y,11,true);y-=19;block(data.terms,48,82,9,14);y-=12}
+ if(data.notes){ensure(45);text("Additional Notes",48,y,11,true);y-=19;block(data.notes,48,82,9,14)}
+ // Footer on every page.
+ pages.forEach((p,i)=>{p.push("0.7 0.7 0.7 rg 48 54 516 0.7 re f");p.push(`BT /F2 9 Tf 0 0 0 rg 48 38 Td (${esc(data.sender.name+"  -  NEW YORK CITY")}) Tj ET`);p.push(`BT /F1 8 Tf 0 0 0 rg 48 24 Td (${esc([data.sender.phone,data.sender.email].filter(Boolean).join("  |  "))}) Tj ET`);p.push(`BT /F1 8 Tf 0 0 0 rg 540 24 Td (${i+1}) Tj ET`)});
+ const objects:string[]=["","<< /Type /Pages /Kids [] /Count 0 >>","<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>","<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>"];
+ const pageIds:number[]=[];
+ for(const cmds of pages){const stream=cmds.join("\n");const contentId=objects.push(`<< /Length ${Buffer.byteLength(stream,"latin1")} >>\nstream\n${stream}\nendstream`);const pageId=objects.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentId} 0 R >>`);pageIds.push(pageId)}
+ objects[1]=`<< /Type /Pages /Kids [${pageIds.map(id=>id+" 0 R").join(" ")}] /Count ${pageIds.length} >>`;
+ objects[0]="<< /Type /Catalog /Pages 2 0 R >>";
+ let output="%PDF-1.4\n";const offsets=[0];objects.forEach((obj,i)=>{offsets.push(Buffer.byteLength(output,"latin1"));output+=`${i+1} 0 obj\n${obj}\nendobj\n`});
+ const xref=Buffer.byteLength(output,"latin1");output+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;for(const off of offsets.slice(1))output+=String(off).padStart(10,"0")+" 00000 n \n";output+=`trailer\n<< /Size ${objects.length+1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+ return Buffer.from(output,"latin1");
 }
