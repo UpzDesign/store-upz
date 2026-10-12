@@ -372,3 +372,43 @@
 .upz-invoice-notes{display:grid;gap:7px;font-size:12px;font-weight:650}
 .upz-invoice-generator>.admin-ui-btn{justify-self:start}
 @media(max-width:640px){.upz-invoice-item{grid-template-columns:1fr 1fr}.upz-invoice-item input:first-child{grid-column:1/-1}}
+
+
+/* Admin design-system consistency: explicit surface and typography colors.
+   Scoped to AdminUI so public storefront / client portals are unaffected. */
+.admin-page-frame .admin-ui-page{color:#171d23}
+.admin-page-frame .admin-ui-page :is(.admin-ui-section,.admin-ui-card,.admin-ui-stat,.admin-ui-empty,.admin-ui-notice){color:#171d23}
+.admin-page-frame .admin-ui-page :is(.admin-ui-section,.admin-ui-card,.admin-ui-stat) :is(h2,h3,h4,strong,label){color:#171d23}
+.admin-page-frame .admin-ui-page .admin-ui-section>p,
+.admin-page-frame .admin-ui-page .admin-ui-section-header~p,
+.admin-page-frame .admin-ui-page .admin-ui-card>p{color:#596773;line-height:1.6}
+.admin-page-frame .admin-ui-page .admin-ui-field,
+.admin-page-frame .admin-ui-page .upz-direct-invoice-form label,
+.admin-page-frame .admin-ui-page .upz-invoice-notes{color:#26323b;font-size:12px;font-weight:650}
+.admin-page-frame .admin-ui-page :is(input:not([type=checkbox]):not([type=radio]),select,textarea){
+ color:#18232c!important;background:#fff!important;border:1px solid #cbd5dd!important;
+ -webkit-text-fill-color:#18232c;opacity:1;line-height:1.45;
+}
+.admin-page-frame .admin-ui-page :is(input,textarea)::placeholder{color:#76818b!important;-webkit-text-fill-color:#76818b}
+.admin-page-frame .admin-ui-page :is(input,select,textarea):focus-visible{outline:2px solid #b68d13!important;outline-offset:1px}
+.admin-page-frame .admin-ui-page input[type=file]{color:#27323c!important;background:#f8fafb!important;padding:10px!important;cursor:pointer}
+.admin-page-frame .admin-ui-page input[type=file]::file-selector-button{background:#1b252e;color:#fff;border:0;border-radius:5px;padding:9px 12px;margin-right:12px;cursor:pointer}
+.admin-page-frame .admin-ui-page :is(input[type=checkbox],input[type=radio]){accent-color:#1b252e}
+.admin-page-frame .admin-ui-page .admin-ui-btn--primary{color:#111!important}
+.admin-page-frame .admin-ui-page .admin-ui-btn--outline,
+.admin-page-frame .admin-ui-page .admin-ui-btn--secondary{color:#18232c!important}
+.admin-page-frame .admin-ui-page .admin-ui-btn--ghost{color:#18232c!important}
+.admin-page-frame .admin-ui-page .upz-finance-identity :is(span,small),
+.admin-page-frame .admin-ui-page .upz-finance-invoice span{color:#667581}
+.admin-page-frame .admin-ui-page .upz-finance-invoice a,
+.admin-page-frame .admin-ui-page .upz-finance-actions>a{color:#185b86;text-decoration:underline;text-underline-offset:3px}
+.admin-page-frame .admin-ui-page .upz-invoice-item>button,
+.admin-page-frame .admin-ui-page .upz-invoice-items>button{color:#25323b;background:#f6f8fa;border:1px solid #cbd5dd;font-weight:650}
+.admin-page-frame .admin-ui-page .upz-invoice-item>button:hover,
+.admin-page-frame .admin-ui-page .upz-invoice-items>button:hover{background:#e9eef2}
+.admin-page-frame .admin-ui-page .upz-invoice-items{padding:20px;border:1px solid #e0e5e9;border-radius:9px;background:#f8fafb}
+.admin-page-frame .admin-ui-page .upz-invoice-items>strong:last-child{font-size:17px;justify-self:end}
+.admin-page-frame .admin-ui-page .upz-finance-row{background:#fff}
+.admin-page-frame .admin-ui-page .upz-finance-paid-label{color:#216848}
+.admin-page-frame .admin-ui-page .admin-ui-notice{color:#25323b}
+@media(max-width:640px){.admin-page-frame .admin-ui-page .upz-invoice-items{padding:12px}}
