@@ -56,3 +56,14 @@
 .admin-workspace-content .project-os-messages .project-message-composer{margin-top:20px;display:grid;gap:12px}
 .admin-workspace-content .project-os-messages .project-os-section-head{margin-bottom:18px}
 .admin-workspace-content .project-os-task-panel .task-workspace{min-width:0;margin-top:16px}
+
+/* Portfolio tabs must never resize when the active view changes. */
+.admin-workspace-content .admin-engagement-page .admin-ui-tabs{
+ height:56px!important;min-height:56px!important;max-height:56px!important;
+ flex-wrap:nowrap!important;align-items:center!important;align-content:center!important;
+ overflow-y:hidden!important;box-sizing:border-box!important;
+}
+.admin-workspace-content .admin-engagement-page .admin-ui-tabs>button{
+ height:40px!important;min-height:40px!important;max-height:40px!important;
+ display:inline-flex!important;align-items:center;justify-content:center;
+}
