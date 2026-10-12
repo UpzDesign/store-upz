@@ -391,3 +391,16 @@ model Order {
   updatedAt DateTime @updatedAt
   company Company @relation(fields: [companyId], references: [id])
 }
+model StandaloneInvoice {
+ id Int @id @default(autoincrement())
+ companyId Int
+ title String
+ invoiceNumber String?
+ amount Float?
+ storageId String
+ fileName String
+ paidAt DateTime?
+ createdAt DateTime @default(now())
+ updatedAt DateTime @updatedAt
+ @@index([companyId,paidAt])
+}
