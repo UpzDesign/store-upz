@@ -31,9 +31,6 @@ export async function PATCH(request:NextRequest,context:{params:Promise<{id:stri
  return NextResponse.json({task,nextStage,projectCompleted,handedOff,propertyAssets,message:responseMessage});
 }
 
-export async function DELETE(_request:NextRequest,context:{params:Promise<{id:string}>}){const session=await requireStaffSession(["admin"]);if(!session)return NextResponse.json({error:"Admin access required"},{status:403});const {id}=await context.params;const task=await prisma.projectTask.findUnique({where:{id:Number(id)}});if(!task)return NextResponse.json({error:"Task not found"},{status:404});await prisma.projectTask.delete({where:{id:task.id}});const remaining=await prisma.projectTask.findMany({where:{projectId:task.projectId},orderBy:{sortOrder:"asc"}});await prisma.$transaction(remaining.map((item,index)=>prisma.projectTask.update({where:{id:item.id},data:{sortOrder:index}})));await prisma.projectActivity.create({data:{projectId:task.projectId,type:"task_removed",message:`Work removed: ${task.title}.`,actor:session.name}});return NextResponse.json({ok:true});}
-
-
 export async function DELETE(_request:NextRequest,context:{params:Promise<{id:string}>}){
  const session=await requireStaffSession(["admin"]);
  if(!session)return NextResponse.json({error:"Admin access required"},{status:403});
