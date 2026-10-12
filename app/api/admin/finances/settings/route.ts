@@ -13,8 +13,7 @@ export async function PUT(request:NextRequest){const session=await requireStaffS
   // XML namespace declarations (xmlns="http://www.w3.org/2000/svg") are normal and safe.
   // Only reject remote URLs in actual resource references, not namespace declarations.
   const remotePrefixes=["http:", "https:", "file:", "javascript:", "//"];
-  const resourceAttributes=Array.from(svg.matchAll(new RegExp('(?:href|src)\\\\s*=\\\\s*["\\\']([^"\\\']+)["\\\']','gi')));
-  const externalReference=resourceAttributes.some(match=>remotePrefixes.some(prefix=>match[1].trim().toLowerCase().startsWith(prefix)));
+  const externalReference=remotePrefixes.some(prefix=>svg.toLowerCase().includes('href="'+prefix)||svg.toLowerCase().includes("href='"+prefix)||svg.toLowerCase().includes('src="'+prefix)||svg.toLowerCase().includes("src='"+prefix));
   const activeContent=["<script","<foreignobject","<iframe","<object","<embed","<!doctype","<!entity"].some(tag=>svg.toLowerCase().includes(tag));
   if(svg.length>250000 || !svg.includes("<svg") || !svg.includes("</svg>") || externalReference || activeContent) return NextResponse.json({error:"SVG contains scripts or externally linked resources."},{status:400});
   try{const info=await sharp(Buffer.from(svg),{limitInputPixels:10000000}).metadata();if(info.format!=="svg"||!info.width||!info.height||info.width>10000||info.height>10000)throw new Error("Invalid SVG dimensions");}catch{return NextResponse.json({error:"Unable to read this SVG. Please export as a standard SVG from Illustrator or Figma."},{status:400});}
