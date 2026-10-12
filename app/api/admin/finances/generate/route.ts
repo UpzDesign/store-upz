@@ -21,9 +21,9 @@ export async function POST(request:NextRequest){
  if(Number.isNaN(issued.getTime())||Number.isNaN(due.getTime()))return NextResponse.json({error:"Invalid dates"},{status:400});
  const total=Math.round(items.reduce((s,i)=>s+i.quantity*i.rate,0)*100)/100;
  const billTo=[company.billingName||company.name,company.billingContact||"",company.billingAddress1||"",company.billingAddress2||"",[company.billingCity,company.billingState,company.billingPostalCode].filter(Boolean).join(", "),company.billingCountry||"",company.billingEmail||""].filter(Boolean);
- const notes=String(body?.notes||"").trim().slice(0,1000);
+ const notes=String(body?.notes||"").trim().slice(0,1000);\n const scope=String(body?.scope||"").trim().slice(0,2500);
  const sender={name:process.env.UPZ_INVOICE_BUSINESS_NAME||"UPZ DESIGN LLC",address:[process.env.UPZ_INVOICE_BUSINESS_ADDRESS||"New York City, NY"],email:process.env.UPZ_INVOICE_BUSINESS_EMAIL||"info@upzdesign.com",phone:process.env.UPZ_INVOICE_BUSINESS_PHONE||"347.596.9032"};
- const pdf=renderInvoicePDF({number,date:dateString(issued),dueDate:dateString(due),billTo,title,items,notes,terms:company.paymentTerms||undefined,sender});
+ const pdf=renderInvoicePDF({number,date:dateString(issued),dueDate:dateString(due),billTo,title,items,scope,notes,terms:company.paymentTerms||undefined,sender});
  const endpoint=process.env.UPZ_STORAGE_ENDPOINT,key=process.env.UPZ_STORAGE_KEY;
  if(!endpoint||!key)return NextResponse.json({error:"Storage unavailable"},{status:503});
  const target=new URL(endpoint);if(target.protocol!=="https:")return NextResponse.json({error:"Secure storage required"},{status:503});
