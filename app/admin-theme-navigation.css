@@ -88,3 +88,53 @@
 /* Prevent the Archived empty state from removing the vertical scrollbar and shifting tab positions. */
 html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .admin-workspace-content .admin-engagement-page>.admin-ui-section:last-child{min-height:max(340px,calc(100dvh - 510px))}
+
+/* Portfolio page: unified admin header and consistent summary cards. */
+.admin-workspace-content .admin-engagement-page>.admin-ui-header{
+ display:flex!important;align-items:flex-start!important;justify-content:space-between!important;
+ flex-wrap:wrap!important;gap:20px 28px!important;min-width:0!important;
+}
+.admin-workspace-content .admin-engagement-page>.admin-ui-header>.admin-ui-header-copy{
+ flex:1 1 360px!important;min-width:0!important;text-align:left!important;
+}
+.admin-workspace-content .admin-engagement-page>.admin-ui-header>.admin-ui-header-actions{
+ display:flex!important;align-items:center!important;justify-content:flex-end!important;
+ flex:0 1 auto!important;gap:10px!important;flex-wrap:wrap!important;
+ margin:0!important;padding:0!important;
+}
+.admin-workspace-content .admin-engagement-page>.admin-ui-header .admin-ui-btn{
+ display:inline-flex!important;align-items:center!important;justify-content:center!important;
+ min-height:40px!important;white-space:nowrap!important;margin:0!important;
+}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-stats{
+ display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;
+ align-items:stretch!important;gap:14px!important;margin:0 0 22px!important;
+}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-stats>.admin-ui-stat{
+ display:flex!important;flex-direction:column!important;justify-content:space-between!important;
+ align-items:flex-start!important;min-width:0!important;min-height:110px!important;
+ height:100%!important;box-sizing:border-box!important;padding:18px!important;
+ margin:0!important;text-align:left!important;
+}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-stats>.admin-ui-stat>span{
+ font-size:11px!important;line-height:1.5!important;min-height:32px!important;
+}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-stats>.admin-ui-stat>strong{
+ font-size:28px!important;line-height:1.2!important;margin-top:8px!important;
+}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-tabs{margin-bottom:18px!important}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-toolbar{
+ display:flex!important;align-items:center!important;justify-content:space-between!important;
+ gap:12px!important;flex-wrap:wrap!important;
+}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-toolbar input{
+ flex:1 1 280px!important;min-width:0!important;max-width:640px!important;
+}
+.admin-workspace-content .admin-engagement-page>.upz-portfolio-toolbar span{white-space:nowrap}
+@media(max-width:1100px){
+ .admin-workspace-content .admin-engagement-page>.upz-portfolio-stats{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:650px){
+ .admin-workspace-content .admin-engagement-page>.upz-portfolio-stats{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .admin-workspace-content .admin-engagement-page>.admin-ui-header>.admin-ui-header-actions{justify-content:flex-start!important}
+}
