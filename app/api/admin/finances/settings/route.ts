@@ -10,7 +10,12 @@ export async function PUT(request:NextRequest){const session=await requireStaffS
  if(!data.businessName||!data.address||!data.email)return NextResponse.json({error:"Business name, address and email are required"},{status:400});
  if(data.logoSvg){
   const svg=data.logoSvg.trim();
-  if(svg.length>250000 || !svg.includes("<svg") || !svg.includes("</svg>") || /<script|<foreignObject|<iframe|<object|<embed|<!DOCTYPE|<!ENTITY/i.test(svg) || /\bon[a-z]+\s*=/i.test(svg) || /https?:\/\//i.test(svg)) return NextResponse.json({error:"Invalid SVG: remove scripts or external resources."},{status:400});
+  // XML namespace declarations (xmlns="http://www.w3.org/2000/svg") are normal and safe.
+  // Only reject remote URLs in actual resource references, not namespace declarations.
+  const externalReference=/(?:href|src)\\s*=\\s*["']\\s*(?:https?:|\\/\\/|file:|javascript:)/i.test(svg);
+  const externalCss=/url\\(\\s*["']?\\s*(?:https?:|\\/\\/|file:|javascript:)/i.test(svg);
+  const activeContent=/<\\s*(?:script|foreignObject|iframe|object|embed)\\b|<!DOCTYPE|<!ENTITY|\\son[a-z]+\\s*=/i.test(svg);
+  if(svg.length>250000 || !/<svg(?:\\s|>)/i.test(svg) || !/<\\/svg\\s*>/i.test(svg) || externalReference || externalCss || activeContent) return NextResponse.json({error:"SVG contains scripts or externally linked resources. Please use an SVG with embedded artwork."},{status:400});
   try{const info=await sharp(Buffer.from(svg),{limitInputPixels:10000000}).metadata();if(info.format!=="svg"||!info.width||!info.height||info.width>10000||info.height>10000)throw new Error("Invalid SVG dimensions");}catch{return NextResponse.json({error:"Unable to read this SVG. Please export as a standard SVG from Illustrator or Figma."},{status:400});}
  }
 
