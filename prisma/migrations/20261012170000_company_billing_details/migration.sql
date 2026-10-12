@@ -1,0 +1,12 @@
+ALTER TABLE "Company" ADD COLUMN "billingName" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingContact" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingEmail" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingPhone" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingAddress1" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingAddress2" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingCity" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingState" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingPostalCode" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingCountry" TEXT;
+ALTER TABLE "Company" ADD COLUMN "paymentTerms" TEXT;
+ALTER TABLE "Company" ADD COLUMN "billingNotes" TEXT;
