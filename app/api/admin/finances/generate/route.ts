@@ -10,8 +10,9 @@ export async function POST(request:NextRequest){
  const companyId=Number(body?.companyId),projectId=body?.projectId?Number(body.projectId):null;
  const title=String(body?.title||"").trim().slice(0,180);
  const number=String(body?.invoiceNumber||"").trim().slice(0,80);
- const rawItems=Array.isArray(body?.items)?body.items:[];
- const items=rawItems.slice(0,30).map((item:{description?:unknown;quantity?:unknown;rate?:unknown})=>({description:String(item.description||"").trim().slice(0,160),quantity:Number(item.quantity),rate:Number(item.rate)}));
+ type InvoiceItem={description:string;quantity:number;rate:number};
+ const rawItems:unknown[]=Array.isArray(body?.items)?body.items:[];
+ const items:InvoiceItem[]=rawItems.slice(0,30).map((item:{description?:unknown;quantity?:unknown;rate?:unknown})=>({description:String(item.description||"").trim().slice(0,160),quantity:Number(item.quantity),rate:Number(item.rate)}));
  if(!Number.isSafeInteger(companyId)||companyId<1||!title||!number||!items.length||items.some(i=>!i.description||!Number.isFinite(i.quantity)||i.quantity<=0||i.quantity>100000||!Number.isFinite(i.rate)||i.rate<0||i.rate>10000000))return NextResponse.json({error:"Company, invoice number, description and valid line items are required"},{status:400});
  const company=await prisma.company.findUnique({where:{id:companyId}});
  if(!company)return NextResponse.json({error:"Company not found"},{status:404});
