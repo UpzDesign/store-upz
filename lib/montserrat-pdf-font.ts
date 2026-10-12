@@ -2,8 +2,9 @@ import {readFile} from "node:fs/promises";
 import path from "node:path";
 
 /** Embedded Montserrat glyph data for the self-contained invoice PDF. */
-export async function loadInvoiceFont(){
- const base64=await readFile(path.join(process.cwd(),"lib/fonts/montserrat.ttf.base64"),"utf8");
+export async function loadInvoiceFont(weight:"regular"|"bold"="regular"){
+ const fileName=weight==="bold"?"montserrat-bold.ttf.base64":"montserrat.ttf.base64";
+ const base64=await readFile(path.join(process.cwd(),"lib/fonts",fileName),"utf8");
  const font=Buffer.from(base64.replace(/\s/g,""),"base64");
  const u16=(p:number)=>font.readUInt16BE(p),i16=(p:number)=>font.readInt16BE(p),u32=(p:number)=>font.readUInt32BE(p);
  const tables=new Map<string,number>();
