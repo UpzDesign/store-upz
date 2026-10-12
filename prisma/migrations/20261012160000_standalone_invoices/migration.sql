@@ -1,0 +1,2 @@
+CREATE TABLE "StandaloneInvoice" ("id" SERIAL PRIMARY KEY, "companyId" INTEGER NOT NULL REFERENCES "Company"("id") ON DELETE RESTRICT, "title" TEXT NOT NULL, "invoiceNumber" TEXT, "amount" DOUBLE PRECISION, "storageId" TEXT NOT NULL, "fileName" TEXT NOT NULL, "paidAt" TIMESTAMP(3), "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP, "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP);
+CREATE INDEX "StandaloneInvoice_companyId_paidAt_idx" ON "StandaloneInvoice"("companyId","paidAt");
