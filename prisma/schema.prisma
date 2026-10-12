@@ -419,3 +419,16 @@ model StandaloneInvoice {
  updatedAt DateTime @updatedAt
  @@index([companyId,paidAt])
 }
+
+model InvoiceSettings {
+  id Int @id @default(1)
+  businessName String @default("UPZ Design LLC")
+  address String @default("3623 30th Street, Astoria, NY 11106")
+  email String @default("info@upzdesign.com")
+  phone String @default("347.596.9032")
+  website String @default("www.upzdesign.com")
+  paymentInstructions String @default("")
+  footerNote String @default("Make all checks payable to: UPZ Design, LLC")
+  logoSvg String? @db.Text
+  updatedAt DateTime @updatedAt
+}
