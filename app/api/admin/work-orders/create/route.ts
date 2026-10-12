@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireStaffSession } from "@/lib/staff-auth";
 
-const DEFAULT_STAGES=["Preparation","Production","Installation","Final review"];
+const DEFAULT_STAGES=["Planning","In progress","Review","Completed"];
 const slugify=(value:string)=>value.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,55)||"project";
 export async function POST(request:NextRequest){
  try{
@@ -11,6 +11,7 @@ export async function POST(request:NextRequest){
   const body=await request.json().catch(()=>({}));
   const engagementId=body.engagementId?Number(body.engagementId):null;
   const companyId=Number(body.companyId),title=String(body.title||"").trim(),address=String(body.address||"").trim();
+  const serviceType=String(body.serviceType||"General / Other").trim().slice(0,100);
   if(!Number.isSafeInteger(companyId)||companyId<=0||!title||title.length>180)return NextResponse.json({error:"Select a client and enter a project title."},{status:400});
   const company=await prisma.company.findUnique({where:{id:companyId},select:{id:true}});
   if(!company)return NextResponse.json({error:"Client not found"},{status:404});
@@ -27,9 +28,9 @@ export async function POST(request:NextRequest){
   const clientVisible=body.clientVisible===true;
   const project=await prisma.$transaction(async tx=>{
    const base=slugify(title),slug=`${base}-${Date.now().toString(36)}`;
-   const engagement=engagementId?{id:engagementId}:await tx.engagement.create({data:{companyId,name:String(body.portfolioName||title).trim().slice(0,180)||title,slug,type:"property",address:address||null,description:String(body.description||"").trim()||null,clientVisible}});
+   const engagement=engagementId?{id:engagementId}:await tx.engagement.create({data:{companyId,name:String(body.portfolioName||title).trim().slice(0,180)||title,slug,type:serviceType,address:address||null,description:String(body.description||"").trim()||null,clientVisible}});
    if(engagementId&&clientVisible)await tx.engagement.update({where:{id:engagementId},data:{clientVisible:true}});
-   const created=await tx.project.create({data:{companyId,engagementId:engagement.id,title,description:String(body.description||"").trim()||null,status:"new",priority:"normal",assignedTo,dueDate,budget,internalCost,clientVisible,tasks:{create:stages.map((stage:string,i:number)=>({title:stage,sortOrder:i,status:i===0?"ready":"todo",assignedTo}))},activities:{create:{type:"project_created",message:"Work Order created directly by staff.",actor:session.name}}}});
+   const created=await tx.project.create({data:{companyId,engagementId:engagement.id,title,description:String(body.description||"").trim()||null,status:"new",priority:"normal",assignedTo,dueDate,budget,internalCost,clientVisible,tasks:{create:stages.map((stage:string,i:number)=>({title:stage,sortOrder:i,status:i===0?"ready":"todo",assignedTo}))},activities:{create:{type:"project_created",message:`${serviceType} Work Order created directly by staff.`,actor:session.name}}}});
    return created;
   });
   return NextResponse.json({id:project.id,url:`/admin/project/${project.id}`},{status:201});
