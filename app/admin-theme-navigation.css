@@ -84,3 +84,7 @@
 .admin-workspace-content .admin-engagement-page>.admin-ui-toolbar{margin:0 0 20px!important}
 .admin-workspace-content .admin-engagement-page>.admin-ui-section:last-child{min-height:340px}
 .admin-workspace-content .admin-engagement-page .admin-ui-empty{min-height:210px;display:flex;align-items:center;justify-content:center}
+
+/* Prevent the Archived empty state from removing the vertical scrollbar and shifting tab positions. */
+html:has(.admin-engagement-page){scrollbar-gutter:stable}
+.admin-workspace-content .admin-engagement-page>.admin-ui-section:last-child{min-height:max(340px,calc(100dvh - 510px))}
