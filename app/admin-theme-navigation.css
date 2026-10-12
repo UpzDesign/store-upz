@@ -1,0 +1,34 @@
+/* UPZ Admin navigation design tokens: Workspace horizontal navigation is canonical. */
+.admin-workspace-content :is(.admin-ui-tabs,.ops-tabs,.project-os-tabs,.admin-detail-tabs,.admin-engagement-tabs,.admin-workspace-tabs){
+ display:flex!important;align-items:center;gap:8px!important;flex-wrap:nowrap!important;
+ width:100%;max-width:100%;min-width:0;box-sizing:border-box;
+ padding:8px!important;border:0!important;border-radius:15px!important;
+ background:#111!important;overflow-x:auto;scrollbar-width:thin;
+}
+.admin-workspace-content :is(.admin-ui-tabs,.ops-tabs,.project-os-tabs,.admin-detail-tabs,.admin-engagement-tabs,.admin-workspace-tabs) :is(button,a){
+ flex:0 0 auto;white-space:nowrap;min-height:40px;padding:10px 15px!important;
+ border:0!important;border-radius:9px!important;background:transparent!important;
+ color:rgba(255,255,255,.72)!important;font:800 11px/1.3 Montserrat,sans-serif!important;
+ text-transform:uppercase;letter-spacing:.04em;cursor:pointer;
+}
+.admin-workspace-content :is(.admin-ui-tabs,.ops-tabs,.project-os-tabs,.admin-detail-tabs,.admin-engagement-tabs,.admin-workspace-tabs) :is(button.active,a.active,button[aria-selected="true"],a[aria-current="page"]){
+ background:#edbf2d!important;color:#111!important;
+}
+.admin-workspace-content :is(.admin-ui-tabs,.ops-tabs,.project-os-tabs,.admin-detail-tabs,.admin-engagement-tabs,.admin-workspace-tabs) :is(button,a):focus-visible{outline:2px solid #edbf2d;outline-offset:-2px}
+.admin-workspace-content .ops-board{width:100%!important;max-width:none!important;min-width:0!important;box-sizing:border-box;overflow-x:auto}
+.admin-workspace-content .ops-board>.ops-column{min-width:0!important}
+.admin-workspace-content .ops-card{width:100%;min-width:0;max-width:100%;box-sizing:border-box;overflow:hidden;text-align:left}
+.admin-workspace-content .ops-card :is(small,h3,p,strong,span){min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal;white-space:normal;line-height:1.4}
+.admin-workspace-content .ops-card-meta{display:flex;flex-wrap:wrap;align-items:flex-start;gap:6px 10px}
+.admin-workspace-content .ops-card-meta span{flex:1 1 90px;min-width:0}
+.admin-workspace-content .ops-task-progress{min-width:0}
+.admin-workspace-content .project-os-page .upz-stage-delete{
+ display:inline-flex!important;align-items:center;justify-content:center;flex:0 0 30px;
+ width:30px!important;height:30px!important;min-width:30px!important;min-height:30px!important;
+ padding:0!important;margin:0!important;border:1px solid #e9b2b2!important;
+ border-radius:7px!important;background:#fff3f3!important;color:#bd2525!important;
+ font:700 22px/1 Montserrat,sans-serif!important;cursor:pointer;
+}
+.admin-workspace-content .project-os-page .upz-stage-delete:hover{background:#fbe1e1!important}
+.admin-workspace-content .admin-engagement-page .admin-ui-toolbar{min-height:60px}
+@media(max-width:900px){.admin-workspace-content .ops-board>.ops-column{min-width:220px!important}}
