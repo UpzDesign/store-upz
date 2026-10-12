@@ -441,3 +441,70 @@
 .admin-dashboard-page.operations-dashboard-page>.admin-ui-section:last-child{order:10}
 .admin-dashboard-page.operations-dashboard-page>.admin-ui-section:has(.admin-dashboard-workorder-row){order:6}
 @media(max-width:640px){.upz-invoice-settings-actions .admin-ui-btn{width:100%}}
+
+
+/* Admin design-system: consistent link affordances, aligned cards, and compact settings. */
+.admin-page-frame .admin-ui-page .admin-ui-section .admin-ui-section-header a.admin-ui-btn--outline,
+.admin-page-frame .admin-ui-page .admin-ui-section .admin-ui-section-header a.admin-ui-btn--secondary{
+ display:inline-flex;align-items:center;justify-content:center;
+ border:1px solid #9eacb8!important;background:#fff!important;color:#1d4059!important;
+ font-weight:750;text-decoration:none!important;white-space:nowrap;transition:background .15s,border-color .15s,box-shadow .15s;
+}
+.admin-page-frame .admin-ui-page .admin-ui-section .admin-ui-section-header a.admin-ui-btn--outline:hover,
+.admin-page-frame .admin-ui-page .admin-ui-section .admin-ui-section-header a.admin-ui-btn--secondary:hover{
+ background:#edf3f7!important;border-color:#2a526e!important;box-shadow:0 2px 8px rgba(19,50,75,.1);
+}
+.admin-page-frame .admin-ui-page .admin-ui-section .admin-ui-section-header a.admin-ui-btn:focus-visible,
+.admin-page-frame .admin-ui-page a:focus-visible{outline:2px solid #ad8a22;outline-offset:3px}
+.admin-page-frame .admin-ui-page .admin-ui-card a:not(.admin-ui-btn),
+.admin-page-frame .admin-ui-page .admin-ui-section a:not(.admin-ui-btn):not(.upz-portfolio-workorder-link):not(.admin-inbox-row){
+ text-decoration:underline;text-underline-offset:3px;text-decoration-thickness:1px;
+}
+.admin-page-frame .admin-ui-page .admin-ui-card a:not(.admin-ui-btn):hover,
+.admin-page-frame .admin-ui-page .admin-ui-section a:not(.admin-ui-btn):hover{color:#175b80}
+.admin-page-frame .admin-ui-page .admin-ui-stat strong{font-variant-numeric:tabular-nums}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-stats{order:1}
+.admin-dashboard-page.operations-dashboard-page>.admin-error{order:2}
+.admin-dashboard-page.operations-dashboard-page>.operations-dashboard-priority-grid{order:3}
+.admin-dashboard-page.operations-dashboard-page>.upz-proof-section{order:4}
+.admin-dashboard-page.operations-dashboard-page>.admin-dashboard-action-grid{order:5;align-items:stretch}
+.admin-dashboard-page.operations-dashboard-page>.admin-dashboard-action-grid>.admin-ui-section{
+ display:flex;flex-direction:column;height:100%;min-width:0;
+}
+.admin-dashboard-page.operations-dashboard-page>.admin-dashboard-action-grid>.admin-ui-section>.admin-dashboard-feed{
+ flex:1;min-width:0;
+}
+.admin-dashboard-page.operations-dashboard-page>.admin-dashboard-action-grid>.admin-ui-section>.admin-ui-section-header{min-height:75px;align-items:flex-start}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-section:has(.admin-dashboard-workorder-row){order:6}
+.admin-dashboard-page.operations-dashboard-page>.operations-dashboard-secondary-grid{order:8}
+.admin-dashboard-page.operations-dashboard-page>.admin-ui-section:last-child{order:10}
+.upz-invoice-settings-page .upz-invoice-settings-form{max-width:none;width:100%;gap:16px}
+.upz-invoice-settings-top{display:grid;grid-template-columns:minmax(0,2fr) minmax(270px,1fr);gap:18px;align-items:stretch}
+.upz-invoice-settings-top>.admin-ui-section{height:100%;min-width:0}
+.upz-invoice-settings-page .admin-ui-section{padding:20px 22px}
+.upz-invoice-settings-page .admin-ui-section-header{margin-bottom:14px}
+.upz-invoice-settings-page .admin-ui-form-grid{gap:12px 16px}
+.upz-invoice-settings-page .admin-ui-field{gap:5px}
+.upz-invoice-settings-page .admin-ui-field :is(input,select){min-height:39px}
+.upz-invoice-settings-page .upz-invoice-settings-logo{display:flex;flex-direction:column;gap:8px}
+.upz-invoice-settings-page .upz-invoice-settings-logo .admin-ui-section-header{margin-bottom:0}
+.upz-invoice-settings-page .upz-invoice-settings-logo .upz-invoice-settings-help{font-size:12px;margin-bottom:5px}
+.upz-invoice-settings-page .upz-invoice-settings-logo input[type=file]{font-size:11px;max-width:100%}
+.upz-invoice-settings-page .upz-invoice-logo-status{margin-top:auto;font-size:12px}
+.upz-invoice-settings-page .upz-invoice-settings-actions{padding:0 0 12px}
+.admin-engagement-page .admin-engagement-grid{align-items:stretch;gap:18px}
+.admin-engagement-page .admin-engagement-grid>.admin-ui-card.upz-portfolio-card{
+ padding:22px!important;display:flex;flex-direction:column;gap:0;
+ min-width:0;min-height:230px;overflow:hidden;box-sizing:border-box;
+ border:1px solid #dce2e7;border-radius:10px;background:#fff;
+}
+.admin-engagement-page .upz-portfolio-card-header{gap:18px;min-width:0}
+.admin-engagement-page .upz-portfolio-card-header>div{min-width:0;flex:1}
+.admin-engagement-page .upz-portfolio-card-header h2{margin:8px 0 6px;overflow-wrap:anywhere}
+.admin-engagement-page .upz-portfolio-card-header em{max-width:38%;overflow-wrap:anywhere;text-align:right}
+.admin-engagement-page .upz-portfolio-card-summary{margin:16px 0;padding:12px 0;gap:8px 12px}
+.admin-engagement-page .upz-portfolio-workorders{min-width:0}
+.admin-engagement-page .upz-portfolio-workorder-link{width:100%;min-width:0}
+.admin-engagement-page .upz-portfolio-card-footer{margin-top:auto;padding-top:18px}
+@media(max-width:960px){.upz-invoice-settings-top{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:640px){.admin-engagement-page .admin-engagement-grid>.admin-ui-card.upz-portfolio-card{padding:17px!important}.upz-invoice-settings-page .admin-ui-section{padding:17px}}
