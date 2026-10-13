@@ -202,3 +202,14 @@ html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .admin-workspace-content .admin-service-editor-page .intake-builder-card{padding-left:62px!important}
 .admin-workspace-content .admin-service-editor-page .intake-builder-index{z-index:1}
 @media(max-width:680px){.admin-workspace-content .admin-service-editor-page .service-preview-fields,.admin-workspace-content .admin-service-editor-page .service-preview-choices{grid-template-columns:minmax(0,1fr)}.admin-workspace-content .admin-service-editor-page .service-visual-builder{padding:14px}}
+
+/* Signage visual builder uses the same conceptual sections as the client composer. */
+.admin-workspace-content .admin-service-editor-page .service-signage-layout{grid-column:1/-1;display:grid;gap:12px;min-width:0}
+.admin-workspace-content .admin-service-editor-page .service-signage-intro{padding:17px 19px;background:#f7f7f4;border:1px solid #e6e6e0;border-radius:10px}
+.admin-workspace-content .admin-service-editor-page .service-signage-intro h4,.admin-workspace-content .admin-service-editor-page .service-signage-section-heading h4{font-size:16px!important;line-height:1.4!important;margin:5px 0!important;text-transform:none!important;letter-spacing:0!important}
+.admin-workspace-content .admin-service-editor-page .service-signage-intro p,.admin-workspace-content .admin-service-editor-page .service-signage-section-heading p{font-size:11px!important;line-height:1.6!important;margin:0!important;color:#666!important}
+.admin-workspace-content .admin-service-editor-page .service-signage-selector{display:flex;flex-wrap:wrap;gap:7px;padding:9px;background:#111;border-radius:10px}
+.admin-workspace-content .admin-service-editor-page .service-signage-selector button{border:0;border-radius:7px;padding:9px 12px;background:transparent;color:#eee;font:750 10px/1.4 Montserrat,sans-serif;cursor:pointer}
+.admin-workspace-content .admin-service-editor-page .service-signage-selector button[aria-pressed="true"]{background:#edbf2d;color:#111}
+.admin-workspace-content .admin-service-editor-page .service-signage-section-heading{padding:12px 0 8px;border-bottom:1px solid #e6e6e6}
+.admin-workspace-content .admin-service-editor-page .service-signage-section-heading>span{font-size:10px!important;font-weight:800!important;color:#8d6c0b}
