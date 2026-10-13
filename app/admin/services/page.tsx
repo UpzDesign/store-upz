@@ -21,7 +21,7 @@ export default function AdminServicesPage(){
  const updateField=(index:number,patch:Record<string,unknown>)=>updateService({fields:selected.fields.map((field,i)=>i===index?{...field,...patch}:field)});
  const removeField=(index:number)=>{updateService({fields:selected.fields.filter((_,i)=>i!==index)});setEditingField(null)};
  const moveField=(index:number,direction:-1|1)=>{const target=index+direction;if(target<0||target>=selected.fields.length)return;const next=[...selected.fields];[next[index],next[target]]=[next[target],next[index]];updateService({fields:next});};
- const sections:IntakeFormSection[]=intakeSections(selected);
+ const sections:IntakeFormSection[]=selected?intakeSections(selected):[];
  const updateSections=(next:IntakeFormSection[])=>updateService({sections:next});
  const saveLibrary=async()=>{setSaving(true);setMessage("");try{const response=await fetch("/api/admin/services",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(services)});const data=await response.json();if(!response.ok)throw new Error(data?.error||"Unable to save services");setServices(data);setMessage("Service library saved. New requests will use the updated form and conditional rules.");window.setTimeout(()=>setMessage(""),3000);}catch(error:any){setMessage(error?.message||"Unable to save services");}finally{setSaving(false);}};
 
