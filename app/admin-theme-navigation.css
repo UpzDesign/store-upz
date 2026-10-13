@@ -227,3 +227,29 @@ html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .admin-workspace-content .admin-service-editor-page .service-section-field-list>div{display:flex;align-items:center;gap:5px;min-width:0;background:#f7f7f6;border:1px solid #eee;border-radius:7px;padding:7px}
 .admin-workspace-content .admin-service-editor-page .service-section-field-list span{flex:1;min-width:0;font-size:11px!important;overflow-wrap:anywhere}
 .admin-workspace-content .admin-service-editor-page .service-section-field-list button{width:30px;height:30px;flex:0 0 30px;background:#fff;border:1px solid #ddd;border-radius:6px;cursor:pointer}
+
+/* Admin UI refresh: compact section rows, expandable detail editing */
+.admin-workspace-content .admin-service-editor-page .service-section-manager{background:#fff!important;border:1px solid #e6e8eb!important;border-radius:12px!important;padding:20px!important;box-shadow:0 2px 8px rgba(15,23,42,.025)}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-head{padding-bottom:16px;border-bottom:1px solid #eef0f2;align-items:flex-start}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-head h3{font-size:17px!important;font-weight:750!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-head p{max-width:570px;color:#64748b!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-list{gap:8px!important;margin-top:16px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card{padding:0!important;border:1px solid #e5e7eb!important;border-radius:9px!important;overflow:hidden;background:#fff!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card.is-open{border-color:#d4b04c!important;box-shadow:0 0 0 1px rgba(212,176,76,.14)}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;gap:8px!important;margin:0!important;padding:9px 12px!important;background:#fff!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card.is-open .service-section-manager-card-top{background:#fffdf6!important;border-bottom:1px solid #e9e3d0}
+.admin-workspace-content .admin-service-editor-page .service-section-toggle{display:flex;align-items:center;gap:12px;min-width:0;text-align:left;border:0;background:transparent;cursor:pointer;padding:5px 0;width:100%;color:#111827}
+.admin-workspace-content .admin-service-editor-page .service-section-order{display:flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;border:1px solid #e5e7eb;border-radius:7px;background:#f8fafc;color:#64748b;font-size:11px;font-weight:800}
+.admin-workspace-content .admin-service-editor-page .service-section-summary{display:grid;gap:3px;min-width:0;flex:1}
+.admin-workspace-content .admin-service-editor-page .service-section-summary strong{font-size:12px!important;line-height:1.35!important;font-weight:750!important}
+.admin-workspace-content .admin-service-editor-page .service-section-summary small{font-size:10px!important;color:#64748b!important;line-height:1.4!important}
+.admin-workspace-content .admin-service-editor-page .service-section-chevron{font-size:19px;color:#64748b;width:24px;text-align:center}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top .service-editor-actions{gap:4px!important;flex-wrap:nowrap!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top .admin-ui-btn{min-width:30px!important;min-height:30px!important;padding:5px 8px!important;font-size:10px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card>.form-builder-grid{padding:18px!important;grid-template-columns:minmax(0,1fr)!important;gap:12px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card .admin-ui-field.wide{grid-column:1/-1!important;width:100%!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card :is(input,select,textarea){width:100%!important;min-width:0!important;font-size:12px!important;min-height:40px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card textarea{min-height:68px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-field-list>div{padding:6px 9px!important;background:#f8fafc!important}
+.admin-workspace-content .admin-service-editor-page .service-section-field-list button{font-size:12px!important}
+@media(max-width:720px){.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top{grid-template-columns:minmax(0,1fr)!important}.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top .service-editor-actions{justify-content:flex-end!important}.admin-workspace-content .admin-service-editor-page .service-section-manager{padding:12px!important}}
