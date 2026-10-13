@@ -389,3 +389,18 @@ main:not(.upz-home) { padding-top: 0; }
 .client-request-page .request-refined .request-subsection-heading h3{color:var(--intake-ink)}
 .client-request-page .request-refined .composer-mode button.active{background:var(--intake-accent);color:var(--intake-accent-text);border-color:var(--intake-accent)}
 @media(max-width:700px){.client-request-page .request-refined .client-request-panel{padding:13px}.client-request-page .request-refined .composer-grid{grid-template-columns:1fr;gap:11px}.client-request-page .request-refined .client-service-selector>button{min-height:65px;padding:11px}.client-request-page .request-refined .client-request-section{margin-block:16px}}
+
+
+/* Unified Site Survey-inspired service selection cards and buttons */
+.client-request-page .request-refined .client-service-selector>button{position:relative;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:14px;align-items:center;min-height:88px;padding:17px 19px;background:color-mix(in srgb,var(--intake-accent) 6%,white);border:1.5px solid color-mix(in srgb,var(--intake-accent) 45%,#9aa9b9);border-radius:13px;box-shadow:0 5px 18px rgba(15,23,42,.06);transition:border-color .15s,background .15s,box-shadow .15s}
+.client-request-page .request-refined .client-service-selector>button>i{width:40px;height:40px;border:1.5px solid var(--intake-accent);border-radius:10px;background:var(--intake-accent);color:var(--intake-accent-text);font-size:21px;font-weight:800}
+.client-request-page .request-refined .client-service-selector>button>div{display:grid;gap:4px}
+.client-request-page .request-refined .client-service-selector>button strong{font-size:15px;font-weight:800}
+.client-request-page .request-refined .client-service-selector>button span{font-size:12px;line-height:1.5}
+.client-request-page .request-refined .client-service-selector>button em{padding:9px 14px;border:1px solid var(--intake-accent);border-radius:9px;background:var(--intake-accent);color:var(--intake-accent-text);font-size:12px;font-weight:800;white-space:nowrap}
+.client-request-page .request-refined .client-service-selector>button.selected{background:color-mix(in srgb,var(--intake-accent) 12%,white);border-color:var(--intake-accent);box-shadow:inset 0 0 0 1px var(--intake-accent),0 5px 18px rgba(15,23,42,.07)}
+.client-request-page .request-refined .client-service-selector>button.selected>i{background:#fff;color:var(--intake-ink)}
+.client-request-page .request-refined .client-service-selector>button.selected em{background:#fff;color:var(--intake-ink)}
+.client-request-page .request-refined .request-service-card>.request-highlighted-action{background:var(--intake-accent);border:1px solid var(--intake-accent);color:var(--intake-accent-text);border-radius:10px;padding:11px 20px;font-weight:800;cursor:pointer}
+.client-request-page .request-refined .request-service-card>.request-highlighted-action[aria-pressed="true"]{background:#fff;color:var(--intake-ink)}
+@media(max-width:600px){.client-request-page .request-refined .client-service-selector>button{grid-template-columns:34px minmax(0,1fr);padding:13px;gap:10px}.client-request-page .request-refined .client-service-selector>button>i{width:34px;height:34px}.client-request-page .request-refined .client-service-selector>button em{grid-column:2;justify-self:start;padding:6px 11px}}
