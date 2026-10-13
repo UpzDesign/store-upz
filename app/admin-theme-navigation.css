@@ -262,3 +262,9 @@ html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .admin-workspace-content .admin-service-editor-page .service-section-question-copy small{font-size:10px!important;line-height:1.4!important;color:#64748b}
 .admin-workspace-content .admin-service-editor-page .service-section-field-cards .service-section-edit-question{width:auto!important;height:30px!important;flex:0 0 auto!important;padding:0 10px!important;font-size:10px!important;font-weight:700!important;color:#7b5b00!important;background:#fff8e2!important;border-color:#e9d08d!important}
 @media(max-width:650px){.admin-workspace-content .admin-service-editor-page .service-section-field-cards>div{flex-wrap:wrap}.admin-workspace-content .admin-service-editor-page .service-section-question-copy{flex-basis:100%}}
+
+.service-survey-card-editor{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.service-survey-card-editor label{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:600;color:#344054}
+.service-survey-card-editor label:has(textarea[rows="3"]),.service-survey-card-editor label:has(textarea[rows="6"]){grid-column:1/-1}
+.service-survey-card-editor textarea{width:100%;min-height:40px;padding:10px 12px;border:1px solid #d8dce3;border-radius:8px;font:inherit;resize:vertical;background:#fff;color:#1f2937}
+@media(max-width:650px){.service-survey-card-editor{grid-template-columns:1fr}}
