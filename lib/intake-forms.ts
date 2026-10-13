@@ -22,7 +22,8 @@ export type IntakeField = {
   condition?: IntakeCondition;
 };
 
-export type IntakeDefinition = { slug:string; name:string; description:string; imageUrl?:string; fields:IntakeField[] };
+export type IntakeFormSection = { id:string; title:string; description?:string; requires?:string; keys:string[] };
+export type IntakeDefinition = { slug:string; name:string; description:string; imageUrl?:string; fields:IntakeField[]; sections?:IntakeFormSection[] };
 
 const sharedFields:IntakeField[]=[
  {key:"contactName",label:"Contact Name",type:"text",required:true},
