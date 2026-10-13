@@ -30,7 +30,7 @@ export default function RequestComposer(){
  const key=(service:string,field:string)=>`${service}.${field}`;
  const fieldId=(service:string,field:string)=>`request-field-${service}-${field}`;
  const scoped=(service:IntakeDefinition)=>Object.fromEntries(service.fields.map(field=>[field.key,answers[key(service.slug,field.key)]]));
- function visible(service:IntakeDefinition,field:IntakeField){return (service.slug==="signage"?!["contactName","contactEmail","priority","propertyAddress"].includes(field.key):CLIENT_FIELD_KEYS.has(field.key))&&conditionMatches(field.condition,scoped(service))}
+ function visible(service:IntakeDefinition,field:IntakeField){return !["contactName","contactEmail","priority","propertyAddress"].includes(field.key)&&conditionMatches(field.condition,scoped(service))}
  function update(service:string,field:string,value:Value){setAnswers(current=>({...current,[key(service,field)]:value}))}
  function options(_service:IntakeDefinition,field:IntakeField){return field.options||[]}
  function toggleService(service:IntakeDefinition){setSelected(current=>current.includes(service.slug)?current.filter(item=>item!==service.slug):[...current,service.slug])}
