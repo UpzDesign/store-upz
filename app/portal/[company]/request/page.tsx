@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect,useMemo,useState } from "react";
 import { useParams,useRouter,useSearchParams } from "next/navigation";
 import { SIGNAGE_SECTIONS, SIGNAGE_STRUCTURED_KEYS } from "@/lib/signage-form-layout";
-import { conditionMatches,type IntakeDefinition,type IntakeField } from "@/lib/intake-forms";
+import { conditionMatches,type IntakeDefinition,type IntakeField,type IntakeFormSection } from "@/lib/intake-forms";
 import { useCartStore,type CartItem } from "@/store/cart-store";
 
 type Company={name:string;shortName:string;logo?:string|null;primaryColor:string;secondaryColor:string;brandTextColor?:string};
@@ -24,7 +24,7 @@ export default function RequestComposer(){
  useEffect(()=>{if(!slug)return;if(localStorage.getItem("upz_company_slug")!==slug){router.push("/login");return}cart.hydrate();Promise.all([fetch(`/api/portal/companies/${slug}`).then(r=>r.json()),fetch(`/api/portal/companies/${slug}/services`,{cache:"no-store"}).then(r=>r.ok?r.json():[]),fetch(`/api/portal/companies/${slug}/projects`,{cache:"no-store"}).then(r=>r.ok?r.json():[])]).then(([companyData,serviceData,projectData])=>{const list=Array.isArray(serviceData)?serviceData:[];setCompany(companyData);setServices(list);setProjects(Array.isArray(projectData)?projectData:[]);setContactName(localStorage.getItem(`upz_contact_name_${slug}`)||companyData.name||"");setContactEmail(localStorage.getItem(`upz_contact_email_${slug}`)||"");const requested=search.get("engagementId")||search.get("portfolioId");if(requested){setMode("existing");setProjectId(requested)}}).finally(()=>setLoading(false))},[slug,router,search]);
  const active=projects.find(project=>String(project.id)===projectId);useEffect(()=>{if(mode==="existing"&&active){setProjectName(active.name);setAddress(active.address||"");setPropertyType(active.type||"")}},[mode,active]);
  const chosen=services.filter(service=>selected.includes(service.slug));
- const signageSections=(service:IntakeDefinition)=>service.sections?.length?service.sections:SIGNAGE_SECTIONS.map(section=>({id:section.id,title:section.title,description:section.description,requires:"requires" in section?section.requires:undefined,keys:[...section.keys]}));
+ const signageSections=(service:IntakeDefinition):IntakeFormSection[]=>service.sections?.length?service.sections:SIGNAGE_SECTIONS.map(section=>({id:section.id,title:section.title,description:section.description,requires:"requires" in section?section.requires:undefined,keys:[...section.keys]}));
  const surveyConfig=(service:IntakeDefinition)=>signageSections(service).find(section=>section.id==="survey")?.surveyCard;
  const surveyQuestionKeys=(service:IntakeDefinition)=>{const section=signageSections(service).find(section=>section.id==="survey");return section?.keys?.length?section.keys:["surveyPurpose","surveyNotes"];};
  const key=(service:string,field:string)=>`${service}.${field}`;
