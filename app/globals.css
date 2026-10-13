@@ -418,3 +418,12 @@ main:not(.upz-home) { padding-top: 0; }
 .client-request-page .request-refined .request-service-card>.composer-grid .composer-choice>div{gap:8px}
 .client-request-page .request-refined .request-service-card>.composer-grid :is(input:not([type=checkbox]),select,textarea){margin:0!important;width:100%;box-sizing:border-box}
 @media(max-width:700px){.client-request-page .request-refined .request-service-card>.composer-grid{grid-template-columns:minmax(0,1fr)!important;gap:15px!important}.client-request-page .request-refined .request-service-card.request-highlighted-section{padding:14px!important}}
+
+
+/* Restore clean white top-level service choices; keep highlighted inner service sections */
+.client-request-page .request-refined .client-service-selector>button{background:#fff;border:1.5px solid var(--intake-border);box-shadow:0 2px 8px rgba(15,23,42,.05)}
+.client-request-page .request-refined .client-service-selector>button>i{background:#fff;border:2px solid #697b8f;color:#334155}
+.client-request-page .request-refined .client-service-selector>button em{background:#fff;color:var(--intake-ink);border-color:var(--intake-border)}
+.client-request-page .request-refined .client-service-selector>button.selected{background:#fff;border-color:var(--intake-accent);box-shadow:inset 0 0 0 1px var(--intake-accent),0 3px 12px rgba(15,23,42,.06)}
+.client-request-page .request-refined .client-service-selector>button.selected>i{background:var(--intake-accent);border-color:var(--intake-accent);color:var(--intake-accent-text)}
+.client-request-page .request-refined .client-service-selector>button.selected em{background:var(--intake-accent);border-color:var(--intake-accent);color:var(--intake-accent-text)}
