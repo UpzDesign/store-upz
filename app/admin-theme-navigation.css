@@ -213,3 +213,17 @@ html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .admin-workspace-content .admin-service-editor-page .service-signage-selector button[aria-pressed="true"]{background:#edbf2d;color:#111}
 .admin-workspace-content .admin-service-editor-page .service-signage-section-heading{padding:12px 0 8px;border-bottom:1px solid #e6e6e6}
 .admin-workspace-content .admin-service-editor-page .service-signage-section-heading>span{font-size:10px!important;font-weight:800!important;color:#8d6c0b}
+
+/* Editable section manager */
+.admin-workspace-content .admin-service-editor-page .service-section-manager{margin:20px 0;padding:20px;background:#f7f7f5;border:1px solid #e2e2de;border-radius:13px;min-width:0}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-head,.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-head h3{font-size:18px!important;line-height:1.35!important;margin:5px 0!important;text-transform:none!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-head p{font-size:11px!important;line-height:1.6!important;margin:0!important}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-list{display:grid;gap:12px;margin-top:18px}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card{min-width:0;background:#fff;border:1px solid #e2e2e2;border-radius:10px;padding:17px}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top{margin-bottom:14px}
+.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top strong{font-size:12px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-field-list{display:grid;gap:5px;margin:7px 0}
+.admin-workspace-content .admin-service-editor-page .service-section-field-list>div{display:flex;align-items:center;gap:5px;min-width:0;background:#f7f7f6;border:1px solid #eee;border-radius:7px;padding:7px}
+.admin-workspace-content .admin-service-editor-page .service-section-field-list span{flex:1;min-width:0;font-size:11px!important;overflow-wrap:anywhere}
+.admin-workspace-content .admin-service-editor-page .service-section-field-list button{width:30px;height:30px;flex:0 0 30px;background:#fff;border:1px solid #ddd;border-radius:6px;cursor:pointer}
