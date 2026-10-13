@@ -253,3 +253,12 @@ html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .admin-workspace-content .admin-service-editor-page .service-section-field-list>div{padding:6px 9px!important;background:#f8fafc!important}
 .admin-workspace-content .admin-service-editor-page .service-section-field-list button{font-size:12px!important}
 @media(max-width:720px){.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top{grid-template-columns:minmax(0,1fr)!important}.admin-workspace-content .admin-service-editor-page .service-section-manager-card-top .service-editor-actions{justify-content:flex-end!important}.admin-workspace-content .admin-service-editor-page .service-section-manager{padding:12px!important}}
+
+/* Form questions nested within editable sections */
+.admin-workspace-content .admin-service-editor-page .service-section-field-cards{gap:8px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-field-cards>div{background:#fff!important;border:1px solid #e5e7eb!important;padding:10px 12px!important;gap:7px!important}
+.admin-workspace-content .admin-service-editor-page .service-section-question-copy{display:flex!important;flex-direction:column;gap:3px;flex:1;min-width:0}
+.admin-workspace-content .admin-service-editor-page .service-section-question-copy strong{font-size:12px!important;line-height:1.4!important;color:#111827}
+.admin-workspace-content .admin-service-editor-page .service-section-question-copy small{font-size:10px!important;line-height:1.4!important;color:#64748b}
+.admin-workspace-content .admin-service-editor-page .service-section-field-cards .service-section-edit-question{width:auto!important;height:30px!important;flex:0 0 auto!important;padding:0 10px!important;font-size:10px!important;font-weight:700!important;color:#7b5b00!important;background:#fff8e2!important;border-color:#e9d08d!important}
+@media(max-width:650px){.admin-workspace-content .admin-service-editor-page .service-section-field-cards>div{flex-wrap:wrap}.admin-workspace-content .admin-service-editor-page .service-section-question-copy{flex-basis:100%}}
