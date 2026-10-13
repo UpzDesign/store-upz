@@ -22,7 +22,7 @@ export type IntakeField = {
   condition?: IntakeCondition;
 };
 
-export type IntakeFormSection = { id:string; title:string; description?:string; requires?:string; keys:string[]; variant?:"standard"|"highlighted"; actionLabel?:string; actionValue?:string; surveyCard?:{eyebrow?:string;heading?:string;description?:string;feeNote?:string;includedHeading?:string;includedItems?:string[];footer?:string} };
+export type IntakeFormSection = { id:string; title:string; description?:string; requires?:string; keys:string[]; variant?:"standard"|"service"|"highlighted"; actionLabel?:string; actionValue?:string; selectionField?:string; surveyCard?:{eyebrow?:string;heading?:string;description?:string;feeNote?:string;includedHeading?:string;includedItems?:string[];footer?:string} };
 export type IntakeDefinition = { slug:string; name:string; description:string; imageUrl?:string; fields:IntakeField[]; sections?:IntakeFormSection[] };
 
 const sharedFields:IntakeField[]=[
