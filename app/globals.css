@@ -343,3 +343,11 @@ main:not(.upz-home) { padding-top: 0; }
 .client-request-page .request-refined .client-request-panel>.request-signage-general.composer-grid>fieldset:nth-child(-n+2){grid-column:1/-1!important}
 .client-request-page .request-refined .request-survey-action{grid-template-columns:44px minmax(0,1fr)}
 .client-request-page .request-refined .request-survey-action-state{grid-column:2;justify-self:start}}
+
+/* Reusable highlighted intake sections */
+.request-highlighted-section{position:relative;display:grid;gap:16px;padding:24px!important;border:1px solid #e6c9a4!important;border-radius:16px;background:linear-gradient(135deg,#fffaf2,#fff4e7)!important;box-shadow:0 10px 30px rgba(91,57,17,.06)}
+.request-highlighted-section .request-subsection-heading{margin:0}
+.request-highlighted-section .request-subsection-heading h3{font-size:clamp(20px,2vw,26px)}
+.request-highlighted-action{justify-self:start;border:1px solid #b17b3d;border-radius:10px;padding:11px 20px;background:#24221f;color:white;font-weight:700;cursor:pointer}
+.request-highlighted-action[aria-pressed="true"]{background:#fff;color:#27221c}
+.request-highlighted-section .composer-grid{width:100%}
