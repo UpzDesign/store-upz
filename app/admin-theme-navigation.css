@@ -268,3 +268,5 @@ html:has(.admin-engagement-page){scrollbar-gutter:stable}
 .service-survey-card-editor label:has(textarea[rows="3"]),.service-survey-card-editor label:has(textarea[rows="6"]){grid-column:1/-1}
 .service-survey-card-editor textarea{width:100%;min-height:40px;padding:10px 12px;border:1px solid #d8dce3;border-radius:8px;font:inherit;resize:vertical;background:#fff;color:#1f2937}
 @media(max-width:650px){.service-survey-card-editor{grid-template-columns:1fr}}
+
+.service-preview-highlighted{border:1px solid #e8c69c!important;border-radius:12px;padding:16px!important;background:linear-gradient(135deg,#fffaf2,#fff2e0)!important}
