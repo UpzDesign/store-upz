@@ -75,6 +75,7 @@ model Service {
   sortOrder         Int              @default(0)
   estimatedDuration String?
   pricingRules      Json?
+  formLayout        Json?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
   fields            ServiceField[]
