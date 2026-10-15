@@ -1,4 +1,4 @@
-export type IntakeFieldType = "text" | "email" | "number" | "date" | "textarea" | "select" | "checkbox" | "multi_select" | "address";
+export type IntakeFieldType = "text" | "email" | "number" | "date" | "textarea" | "select" | "checkbox" | "multi_select" | "address" | "file_upload";
 export type IntakeVisibility = "both" | "new" | "existing";
 export type IntakeConditionOperator = "equals" | "not_equals" | "includes" | "not_empty";
 
@@ -18,6 +18,8 @@ export type IntakeField = {
   wide?: boolean;
   options?: string[];
   visibility?: IntakeVisibility;
+  maxFiles?: number;
+  acceptedFiles?: string;
   checklistStage?: string;
   condition?: IntakeCondition;
 };
