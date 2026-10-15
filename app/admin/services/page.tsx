@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { SIGNAGE_STRUCTURED_KEYS } from "@/lib/signage-form-layout";
-import { intakeSections, sectionKind, sectionOption, sectionIsSelected, sectionIsVisible, selectedOptions } from "@/lib/intake-section-renderer";
+import { intakeSections, sectionKind, sectionIsSelected, sectionIsVisible } from "@/lib/intake-section-renderer";
 import { INTAKE_FORMS, type IntakeConditionOperator, type IntakeDefinition, type IntakeFormSection, type IntakeFieldType, type IntakeVisibility } from "@/lib/intake-forms";
 import { AdminButton, AdminCard, AdminField, AdminFormGrid, AdminHeader, AdminPage, AdminSection, AdminSectionHeader, AdminTabs, AdminToolbar } from "@/components/admin/AdminUI";
 
