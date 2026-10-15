@@ -6,7 +6,7 @@ import { intakeSections, sectionKind, sectionIsSelected, sectionIsVisible, secti
 import { INTAKE_FORMS, type IntakeConditionOperator, type IntakeDefinition, type IntakeFormSection, type IntakeFieldType, type IntakeVisibility } from "@/lib/intake-forms";
 import { AdminButton, AdminCard, AdminField, AdminFormGrid, AdminHeader, AdminPage, AdminSection, AdminSectionHeader, AdminTabs, AdminToolbar } from "@/components/admin/AdminUI";
 
-const TYPES:IntakeFieldType[]=["text","email","number","date","textarea","select","checkbox","multi_select","address"];
+const TYPES:IntakeFieldType[]=["text","email","number","date","textarea","select","checkbox","multi_select","address","file_upload"];
 const VISIBILITY:Array<{value:IntakeVisibility;label:string}>=[{value:"both",label:"New & existing projects"},{value:"new",label:"New projects only"},{value:"existing",label:"Existing projects only"}];
 const OPERATORS:Array<{value:IntakeConditionOperator;label:string}>=[{value:"equals",label:"Equals"},{value:"not_equals",label:"Does not equal"},{value:"includes",label:"Includes selection"},{value:"not_empty",label:"Has an answer"}];
 const defaults=()=>Object.values(INTAKE_FORMS).map(service=>({...service,fields:service.fields.map(field=>({...field,options:[...(field.options||[])],condition:field.condition?{...field.condition}:undefined}))}));
@@ -49,7 +49,8 @@ export default function AdminServicesPage(){
       return <div key={field.key+"-"+index} className={`service-preview-field ${field.wide?"wide":""} ${editingField===index?"is-editing":""}`}>
        <div className="service-preview-field-head"><label>{field.label}{field.required&&<b> *</b>}</label><button type="button" onClick={()=>setEditingField(editingField===index?null:index)}>{editingField===index?"Close settings":"Edit field"}</button></div>
        {field.helpText&&<p className="service-preview-help">{field.helpText}</p>}
-       {field.type==="textarea"?<textarea value={String(value??"")} placeholder={field.placeholder||""} onChange={event=>setAnswer(event.target.value)}/>:
+       {field.type==="file_upload"?<div className="request-detail-field"><input type="file" multiple disabled aria-label={`${field.label} upload preview`}/><small>Files upload in the client form. Maximum {field.maxFiles||5} files, 4 MB each.</small></div>:
+       field.type==="textarea"?<textarea value={String(value??"")} placeholder={field.placeholder||""} onChange={event=>setAnswer(event.target.value)}/>:
        choice&&field.type==="multi_select"?<div className="service-preview-choices">{(field.options||[]).map(option=><label key={option}><input type="checkbox" checked={Array.isArray(value)&&value.includes(option)} onChange={event=>setAnswer(event.target.checked?[...(Array.isArray(value)?value:[]),option]:(Array.isArray(value)?value:[]).filter(item=>item!==option))}/>{option}</label>)}</div>:
        field.type==="select"?<select value={String(value??"")} onChange={event=>setAnswer(event.target.value)}><option value="">Choose an option...</option>{(field.options||[]).map(option=><option key={option}>{option}</option>)}</select>:
        field.type==="checkbox"?<label className="service-preview-check"><input type="checkbox" checked={Boolean(value)} onChange={event=>setAnswer(event.target.checked)}/> Yes</label>:
@@ -58,8 +59,9 @@ export default function AdminServicesPage(){
        <AdminFormGrid className="form-builder-grid">
        <AdminField label="Label"><input value={field.label} onChange={event=>updateField(index,{label:event.target.value})}/></AdminField>
        <AdminField label="Field Key" className="wide"><input value={field.key} onChange={event=>updateField(index,{key:event.target.value})}/></AdminField>
-       <AdminField label="Input Type" className="wide"><select value={field.type} onChange={event=>updateField(index,{type:event.target.value})}>{TYPES.map(type=><option key={type} value={type}>{type==="multi_select"?"Multiple choice checklist":type==="address"?"Address":type}</option>)}</select></AdminField>
+       <AdminField label="Input Type" className="wide"><select value={field.type} onChange={event=>updateField(index,{type:event.target.value})}>{TYPES.map(type=><option key={type} value={type}>{type==="multi_select"?"Multiple choice checklist":type==="address"?"Address":type==="file_upload"?"File upload":type}</option>)}</select></AdminField>
        <AdminField label="Show For" className="wide"><select value={field.visibility||"both"} onChange={event=>updateField(index,{visibility:event.target.value})}>{VISIBILITY.map(option=><option key={option.value} value={option.value}>{option.label}</option>)}</select></AdminField>
+       {field.type==="file_upload"&&<><AdminField label="Maximum files"><input type="number" min={1} max={10} value={field.maxFiles||5} onChange={event=>updateField(index,{maxFiles:Math.min(10,Math.max(1,Number(event.target.value)||1))})}/></AdminField><AdminField label="Accepted file types"><input value={field.acceptedFiles||".jpg,.jpeg,.png,.webp,.pdf,.ai,.eps,.svg,.zip"} onChange={event=>updateField(index,{acceptedFiles:event.target.value})}/></AdminField></>}
        <AdminField label="Placeholder" className="wide"><input value={field.placeholder||""} onChange={event=>updateField(index,{placeholder:event.target.value})}/></AdminField>
        <AdminField label="Helper Text" className="wide"><input value={field.helpText||""} onChange={event=>updateField(index,{helpText:event.target.value})}/></AdminField>
        {choice&&<AdminField label="Choices — one per line" className="wide"><textarea value={(field.options||[]).join("\n")} onChange={event=>updateField(index,{options:event.target.value.split("\n").map(v=>v.trim()).filter(Boolean)})}/></AdminField>}
