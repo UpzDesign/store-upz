@@ -427,3 +427,25 @@ main:not(.upz-home) { padding-top: 0; }
 .client-request-page .request-refined .client-service-selector>button.selected{background:#fff;border-color:var(--intake-accent);box-shadow:inset 0 0 0 1px var(--intake-accent),0 3px 12px rgba(15,23,42,.06)}
 .client-request-page .request-refined .client-service-selector>button.selected>i{background:var(--intake-accent);border-color:var(--intake-accent);color:var(--intake-accent-text)}
 .client-request-page .request-refined .client-service-selector>button.selected em{background:var(--intake-accent);border-color:var(--intake-accent);color:var(--intake-accent-text)}
+
+
+/* Accessible tenant-branded selection states for all intake section actions */
+.client-request-page .request-refined .request-selectable-action,
+.client-request-page .request-refined .request-service-card>.request-selectable-action,
+.client-request-page .request-refined .request-highlighted-section>.request-selectable-action{background:#fff!important;color:#17202b!important;border:1.5px solid #94a3b8!important;box-shadow:0 2px 7px rgba(15,23,42,.05);font-weight:800}
+.client-request-page .request-refined .request-selectable-action[aria-pressed="true"],
+.client-request-page .request-refined .request-service-card>.request-selectable-action[aria-pressed="true"],
+.client-request-page .request-refined .request-highlighted-section>.request-selectable-action[aria-pressed="true"]{background:var(--intake-accent)!important;color:var(--intake-accent-text)!important;border-color:var(--intake-accent)!important}
+.client-request-page .request-refined .request-selectable-action:hover{border-color:var(--intake-accent)!important}
+.client-request-page .request-refined .request-custom-signage-section,
+.client-request-page .request-refined .request-custom-signage-section :is(h3,h4,strong,label,legend){color:#17202b}
+.client-request-page .request-refined .request-custom-signage-section p,
+.client-request-page .request-refined .request-survey-note,
+.client-request-page .request-refined .request-survey-includes p,
+.client-request-page .request-refined .request-survey-includes li{color:#334155!important;opacity:1!important}
+.client-request-page .request-refined .request-survey-includes{background:#fff!important;border:1px solid #cbd5e1;color:#17202b!important}
+.client-request-page .request-refined .service-heading p,
+.client-request-page .request-refined .client-section-heading p{color:#475569!important;opacity:1}
+.client-request-page .request-refined .request-custom-signage-section>.composer-grid{gap:18px 20px!important}
+.client-request-page .request-refined .request-custom-signage-section>.composer-grid>label{min-width:0;display:flex;flex-direction:column;gap:7px}
+@media(max-width:700px){.client-request-page .request-refined .request-custom-signage-section>.composer-grid{gap:15px!important}}
