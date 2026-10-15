@@ -2,7 +2,7 @@ import type { IntakeDefinition, IntakeFormSection, IntakeField } from "./intake-
 import { SIGNAGE_SECTIONS } from "./signage-form-layout";
 
 export function intakeSections(service: IntakeDefinition): IntakeFormSection[] {
-  if (service.sections) return service.sections;
+  if (Array.isArray(service.sections)) return service.sections;
   if (service.slug !== "signage") return [];
   return SIGNAGE_SECTIONS.map(section => ({
     id: section.id,
