@@ -44,7 +44,7 @@ export function isProjectContextDuplicate(field: IntakeField): boolean {
   return ["projecttitle","projectname"].includes(key)||["project title","project name","project / property name"].includes(label);
 }
 export function clientIntakeFields(service: IntakeDefinition, fields: IntakeField[]): IntakeField[] {
-  return fields.filter(field=>!SHARED_REQUEST_FIELD_KEYS.has(field.key)&&!isProjectContextDuplicate(field));
+  return fields.filter(field=>(field.type==="file_upload"||!SHARED_REQUEST_FIELD_KEYS.has(field.key))&&!isProjectContextDuplicate(field));
 }
 export function clientUnassignedFields(service: IntakeDefinition): IntakeField[] {
   const sections=intakeSections(service);
