@@ -18,11 +18,11 @@ export default function AdminServicesPage(){
  const updateService=(patch:Partial<IntakeDefinition>)=>setServices(items=>items.map(item=>item.slug===selected.slug?{...item,...patch}:item));
  const addService=()=>{const slug=`new-service-${Date.now()}`;setServices(items=>[...items,{slug,name:"New Service",description:"Add a service description.",imageUrl:"/service-placeholders/general.svg",fields:[]}]);setActive(slug);};
  const addField=()=>{updateService({fields:[...selected.fields,{key:`field_${Date.now()}`,label:"New Field",type:"select",options:["Option 1","Option 2"],visibility:"both"}]});setEditingField(selected.fields.length)};
- const updateField=(index:number,patch:Record<string,unknown>)=>updateService({fields:selected.fields.map((field,i)=>i===index?{...field,...patch}:field)});
+ const updateField=(index:number,patch:Record<string,unknown>)=>setServices(items=>items.map(item=>item.slug===active?{...item,fields:item.fields.map((field,i)=>i===index?{...field,...patch}:field)}:item));
  const removeField=(index:number)=>{updateService({fields:selected.fields.filter((_,i)=>i!==index)});setEditingField(null)};
  const moveField=(index:number,direction:-1|1)=>{const target=index+direction;if(target<0||target>=selected.fields.length)return;const next=[...selected.fields];[next[index],next[target]]=[next[target],next[index]];updateService({fields:next});};
  const sections:IntakeFormSection[]=selected?intakeSections(selected):[];
- const updateSections=(next:IntakeFormSection[])=>updateService({sections:next});
+ const updateSections=(next:IntakeFormSection[])=>setServices(items=>items.map(item=>item.slug===active?{...item,sections:next}:item));
  const saveLibrary=async()=>{setSaving(true);setMessage("");try{const response=await fetch("/api/admin/services",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(services)});const data=await response.json();if(!response.ok)throw new Error(data?.error||"Unable to save services");setServices(data);setMessage("Service library saved. New requests will use the updated form and conditional rules.");window.setTimeout(()=>setMessage(""),3000);}catch(error:any){setMessage(error?.message||"Unable to save services");}finally{setSaving(false);}};
 
  return <AdminPage className="admin-service-editor-page"><AdminHeader eyebrow="Service Platform" title="Service & Intake Library" description="Build selection-driven request forms with conditional questions, structured addresses, and workflow-ready checklists." actions={<><AdminButton variant="outline" href="/admin/services/inventory">Audit All Services</AdminButton><AdminButton href="/admin/inbox">Open Requests</AdminButton></>}/>
@@ -42,7 +42,7 @@ export default function AdminServicesPage(){
       const raw=String(source??"").toLowerCase(),match=String(condition?.value??"").toLowerCase();
       const shown=!condition||(condition.operator==="not_empty"?Boolean(raw):condition.operator==="equals"?raw===match:condition.operator==="not_equals"?raw!==match:condition.operator==="includes"?raw.includes(match):true);
       if(sections.length){const section=sections.find(section=>section.keys.includes(field.key));const group=section?.id||"additional";if(signageSection!=="all"&&group!==signageSection)return null;if(section&&(!sectionIsVisible(section,previewAnswers)||!sectionIsSelected(section,previewAnswers)))return null;}
-      if(!shown)return null;
+      if(!shown&&editingField!==index)return null;
       const value=previewAnswers[field.key];
       const setAnswer=(answer:unknown)=>setPreviewAnswers(current=>({...current,[field.key]:answer}));
       const choice=field.type==="select"||field.type==="multi_select";
