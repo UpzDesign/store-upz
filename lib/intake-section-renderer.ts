@@ -1,18 +1,8 @@
 import type { IntakeDefinition, IntakeFormSection, IntakeField } from "./intake-forms";
-import { SIGNAGE_SECTIONS } from "./signage-form-layout";
 
+/** Saved admin form layout is the sole source of client service sections. */
 export function intakeSections(service: IntakeDefinition): IntakeFormSection[] {
-  if (Array.isArray(service.sections)) return service.sections;
-  if (service.slug !== "signage") return [];
-  return SIGNAGE_SECTIONS.map(section => ({
-    id: section.id,
-    title: section.title,
-    description: section.description,
-    requires: "requires" in section ? section.requires : undefined,
-    keys: [...section.keys],
-    variant: section.id === "survey" ? "highlighted" : section.id === "printing" || section.id === "installation" ? "service" : "standard",
-    actionValue: "requires" in section ? section.requires : undefined,
-  }));
+  return Array.isArray(service.sections) ? service.sections : [];
 }
 export function sectionKind(section: IntakeFormSection): "standard" | "service" | "highlighted" {
   return section.variant || (section.id === "survey" ? "highlighted" : section.id === "printing" || section.id === "installation" ? "service" : "standard");
@@ -52,6 +42,6 @@ export function clientUnassignedFields(service: IntakeDefinition): IntakeField[]
   return clientIntakeFields(service,service.fields.filter(field=>!assigned.has(field.key)&&field.key!=="requestedServices"));
 }
 export function clientSectionFields(service: IntakeDefinition, section: IntakeFormSection): IntakeField[] {
-  const keys=section.keys.length?section.keys:section.id==="survey"?["surveyPurpose","surveyNotes"]:[];
+  const keys=section.keys;
   return clientIntakeFields(service,keys.flatMap(key=>service.fields.filter(field=>field.key===key)));
 }
