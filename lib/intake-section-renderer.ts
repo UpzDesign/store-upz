@@ -27,7 +27,7 @@ export function unassignedFields(service: IntakeDefinition, sections: IntakeForm
 }
 
 /** Shared section/field projection for the admin preview and client request composer. */
-export const SHARED_REQUEST_FIELD_KEYS = new Set(["contactName","contactEmail","priority","propertyAddress","attachments","fileLinks","notes"]);
+export const SHARED_REQUEST_FIELD_KEYS = new Set(["contactName","contactEmail","priority","propertyAddress"]);
 export function isProjectContextDuplicate(field: IntakeField): boolean {
   const key=field.key.replace(/[^a-z0-9]/gi,"").toLowerCase();
   const label=field.label.trim().toLowerCase().replace(/\s+/g," ");
